@@ -1,0 +1,13 @@
+{
+  "name": "sponsorflow",
+  "version": "1.0.0",
+  "description": "SponsorFlow is a platform designed to connect brands and influencers for sponsorship and collaboration opportunities. Companies can find influencers tailored to their product type, while influencers can discover brands that match their niche.",
+  "main": "index.js",
+ "scripts": {
+  "backend": "npm run dev --prefix backend", 
+  "frontend": "cd frontend && npm start"     
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
