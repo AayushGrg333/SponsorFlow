@@ -1,7 +1,14 @@
 
-import {model,Schema} from "mongoose"
+import mongoose,{model,Schema} from "mongoose"
 
-
+export interface User extends Document{
+     username : string;
+     email : string;
+     password: string;
+     verifyCode : string;
+     verifyCodeExpiry: Date;
+     isVerified : boolean;
+}
 
 
 const userSchema = new Schema({
@@ -21,51 +28,43 @@ const userSchema = new Schema({
           type:String,
           require: [true,"password is required"],
      },
-     social_media_profile_links:{
-          facebook:{
-               type:String,
-          },
-          youtube:{
-               type: String,
-          },
-          tiktok:{
-               type: String,
-          },
-          x:{
-               type: String,
-          },
-          twitch :{
-               type:String
-          },
-          linkedin :{
-               type:String
+     verifyCode: {
+          type : String,
+     },
+     verifyCodeExpiry: {
+          type : Date,
+     },
+     isVerified :{
+          type: Boolean,
+     },
+     socialMediaProfileLinks:[
+          {
+               platform :{
+                    type: String,
+                    requried: true,
+               },
+               link : {
+                    type : String,
+                    required: true,
+               }
           }
-
-     },
-     followers_count:{
-          facebook:{
-               type:Number,
-          },
-          youtube:{
-               type: Number,
-          },
-          tiktok:{
-               type: Number,
-          },
-          x:{
-               type: Number,
-          },
-          twitch :{
-               type:Number
-          },
-          linkedin :{
-               type:Number
+     ],
+     followersCount:[
+          {
+               platform :{
+                    type: String,
+                    requried: true,
+               },
+               count : {
+                    type : Number,
+                    required: true,
+               }
           }   
-     },
-     experience_years : {
+     ],
+     experienceYears : {
           type : Number,
      },
-     previous_sponsorships:[
+     previousSponsorships:[
           {
                company_name : {
                     type: String,
@@ -73,18 +72,18 @@ const userSchema = new Schema({
                }
           }
      ],
-     content_type:[
+     contentType:[
           {
                type : String,
           }
      ],
-     profile_image:{
+     profileImage:{
           type : String,
           default : "/default_image"
      }
 },{timestamps: true});
 
-const UserModel = model("User",userSchema);
+const UserModel = mongoose.models.User || model("User",userSchema);
 
 export default UserModel;
 
