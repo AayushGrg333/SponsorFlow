@@ -1,89 +1,105 @@
+import mongoose, { model, Schema, Document } from "mongoose";
+import { ContentType, FollowersCount, PreviousSponsorships, SocialMediaProfileLinks } from "../interfaces/user.interfaces";
 
-import mongoose,{model,Schema} from "mongoose"
 
-export interface User extends Document{
-     username : string;
-     email : string;
+export interface User extends Document {
+     username: string;
+     email: string;
      password: string;
-     verifyCode : string;
+     verifyCode: string;
      verifyCodeExpiry: Date;
-     isVerified : boolean;
-}
+     isVerified: boolean;
+     socialMediaProfileLinks: SocialMediaProfileLinks[];
+     followersCount: FollowersCount[];
+     experienceYears: number;
+     previousSponsorships: PreviousSponsorships[];
+     contentType: ContentType[];
+     profileImage: string;
+ }
 
+const ContentSchema = new Schema({
+    content: {
+        type: String,
+        required: true,
+    },
+});
 
-const userSchema = new Schema({
-     username : {
-          type: String,
-          require: [true,"username is required"],
-          unique : [true,"username already exists"],
-          trim : true,
-     },
-     email:{
-          type: String,
-          require: [true, "Email is requred"],
-          unique:[true,"Email already exists"],
-          match: [/^\S+@\S+\.\S+$/,"Email is invalid"]
-     },
-     password:{
-          type:String,
-          require: [true,"password is required"],
-     },
-     verifyCode: {
-          type : String,
-     },
-     verifyCodeExpiry: {
-          type : Date,
-     },
-     isVerified :{
-          type: Boolean,
-     },
-     socialMediaProfileLinks:[
-          {
-               platform :{
-                    type: String,
-                    requried: true,
-               },
-               link : {
-                    type : String,
-                    required: true,
-               }
-          }
-     ],
-     followersCount:[
-          {
-               platform :{
-                    type: String,
-                    requried: true,
-               },
-               count : {
-                    type : Number,
-                    required: true,
-               }
-          }   
-     ],
-     experienceYears : {
-          type : Number,
-     },
-     previousSponsorships:[
-          {
-               company_name : {
+// Main userSchema
+const userSchema = new Schema(
+    {
+        username: {
+            type: String,
+            required: [true, "username is required"],
+            unique: [true, "username already exists"],
+            trim: true,
+        },
+        email: {
+            type: String,
+            required: [true, "Email is required"],
+            unique: [true, "Email already exists"],
+            match: [/^\S+@\S+\.\S+$/, "Email is invalid"],
+        },
+        password: {
+            type: String,
+            required: [true, "password is required"],
+        },
+        verifyCode: {
+            type: String,
+        },
+        verifyCodeExpiry: {
+            type: Date,
+        },
+        isVerified: {
+            type: Boolean,
+        },
+        socialMediaProfileLinks: [
+            {
+                platform: {
                     type: String,
                     required: true,
-               }
-          }
-     ],
-     contentType:[
-          {
-               type : String,
-          }
-     ],
-     profileImage:{
-          type : String,
-          default : "/default_image"
-     }
-},{timestamps: true});
+                },
+                link: {
+                    type: String,
+                    required: true,
+                },
+            },
+        ],
+        followersCount: [
+            {
+                platform: {
+                    type: String,
+                    required: true,
+                },
+                count: {
+                    type: Number,
+                    required: true,
+                },
+            },
+        ],
+        experienceYears: {
+            type: Number,
+            default : 0,
+        },
+        previousSponsorships: [
+            {
+                company_name: {
+                    type: String,
+                    required: true,
+                },
+            },
+        ],
+        contentType: [ContentSchema], 
+        profileImage: {
+            type: String,
+            default: "/default_image",
+        },
+    },
+    { timestamps: true }
+);
+userSchema.index({email : 1});
+userSchema.index({username : 1});
 
-const UserModel = mongoose.models.User || model("User",userSchema);
+
+const UserModel = mongoose.models.User || model<User>("User", userSchema);
 
 export default UserModel;
-
