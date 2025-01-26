@@ -1,10 +1,17 @@
 import mongoose, { model, Schema, Document } from "mongoose";
 
-export interface Business extends Document{
+export interface Company extends Document{
 
 }
 
-const businessSchema = new Schema({
+const ContentSchema = new Schema({
+    content: {
+        type: String,
+        required: true,
+    },
+});
+
+const companySchema = new Schema({
         username: {
             type: String,
             required: [true, "username is required"],
@@ -33,6 +40,29 @@ const businessSchema = new Schema({
         address:{
           type : String,
           required: [true, "location is requied"],//todo: online should have online option
-
+        },
+        contact_number : {
+            type: String,
+            required : true,
+        },
+        contentType: [ContentSchema], 
+        profileImage: {
+            type: String,
+            default: "/default_image",
+        },
+        products : [
+            {type: String}
+        ],
+        establishedYear: {
+            type: Number,
+        },
+        Description : {
+            type: String,
+            required: true,
         }
-})
+},{timestamps : true})
+
+const CompanyModel = mongoose.models.Company || model("Company",companySchema);
+
+export default CompanyModel;
+
