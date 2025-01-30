@@ -84,7 +84,6 @@ const userSchema = new Schema(
             {
                 company_name: {
                     type: String,
-                    required: true,
                 },
             },
         ],
