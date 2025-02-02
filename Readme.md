@@ -14,7 +14,7 @@ SponsorFlow is a platform designed to connect brands and influencers for sponsor
 - **Frontend**: Next.js (React-based framework with server-side rendering)
 - **Backend**: Node.js with Express.js
 - **Database**: MongoDB (for storing company and influencer profiles)
-- **Payment Integration**: Stripe (or your preferred payment processor)
+- **Payment Integration**: Stripe 
 - **Messaging**: Socket.io (for real-time communication)
 - **AI Integration**: Gemini API (for AI-powered matchmaking)
 
