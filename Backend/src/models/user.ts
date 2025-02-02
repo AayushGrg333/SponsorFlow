@@ -52,6 +52,12 @@ const userSchema = new Schema(
         isVerified: {
             type: Boolean,
         },
+        
+            realName : {
+                type : String,
+                match: [/^[a-zA-Z]+(?: [a-zA-Z]+)*$/, "name can only contain letters and spaces"],
+            }
+        ,
         socialMediaProfileLinks: [
             {
                 platform: {

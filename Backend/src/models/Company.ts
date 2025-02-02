@@ -17,6 +17,15 @@ const companySchema = new Schema({
             required: [true, "username is required"],
             unique: [true, "username already exists"],
             trim: true,
+            match: [/^[a-zA-Z]+(?: [a-zA-Z]+)*$/, "Username can only contain letters and spaces"],
+            minlength: [3, "Username must be at least 3 characters"],
+            maxlength: [30, "Username cannot be longer than 30 characters"]
+        },
+        slug: {
+            type: String,
+            unique: true,
+            lowercase: true,
+            required : [true,"Slug is required"]
         },
         email: {
             type: String,
@@ -36,14 +45,17 @@ const companySchema = new Schema({
         },
         isVerified: {
             type: Boolean,
+            default : false
         },
         address:{
           type : String,
-          required: [true, "location is requied"],//todo: online should have online option
+          required: [true, "location is requied"],
+          enum : ["Online", "Physical"]
         },
-        contact_number : {
+        contactNumber : {
             type: String,
             required : true,
+            match: [/^\d{10}$/, "Contact number should be a 10-digit number"]
         },
         contentType: [ContentSchema], 
         profileImage: {
@@ -56,11 +68,19 @@ const companySchema = new Schema({
         establishedYear: {
             type: Number,
         },
-        Description : {
+        description : {
             type: String,
             required: true,
         }
 },{timestamps : true})
+
+//pre-save hook to generate slug
+companySchema.pre("save",function(next){
+    if(this.isModified('username')){
+        this.slug = this.username.toLowerCase().replace(/\s+/g,'-');
+    }
+    next()
+})
 
 const CompanyModel = mongoose.models.Company || model("Company",companySchema);
 

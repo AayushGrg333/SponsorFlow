@@ -1,4 +1,4 @@
-import { Request, Response, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import UserModel from "../models/User";
 import { signupSchema } from "../../../Shared/validations/signupSchema";
 import randomize from "randomatic";
