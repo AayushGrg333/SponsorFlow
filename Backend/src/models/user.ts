@@ -1,21 +1,25 @@
 import mongoose, { model, Schema, Document } from "mongoose";
-import { ContentType, FollowersCount, PreviousSponsorships, SocialMediaProfileLinks } from "../interfaces/user.interfaces";
-
+import {
+    ContentType,
+    FollowersCount,
+    PreviousSponsorships,
+    SocialMediaProfileLinks,
+} from "../interfaces/user.interfaces";
 
 export interface User extends Document {
-     username: string;
-     email: string;
-     password: string;
-     verifyCode: string;
-     verifyCodeExpiry: Date;
-     isVerified: boolean;
-     socialMediaProfileLinks: SocialMediaProfileLinks[];
-     followersCount: FollowersCount[];
-     experienceYears: number;
-     previousSponsorships: PreviousSponsorships[];
-     contentType: ContentType[];
-     profileImage: string;
- }
+    username: string;
+    email: string;
+    password: string;
+    verifyCode: string;
+    verifyCodeExpiry: Date;
+    isVerified: boolean;
+    socialMediaProfileLinks: SocialMediaProfileLinks[];
+    followersCount: FollowersCount[];
+    experienceYears: number;
+    previousSponsorships: PreviousSponsorships[];
+    contentType: ContentType[];
+    profileImage: string;
+}
 
 const ContentSchema = new Schema({
     content: {
@@ -27,6 +31,10 @@ const ContentSchema = new Schema({
 // Main userSchema
 const userSchema = new Schema(
     {
+        isProfileComplete:{
+            default : false,
+            type : Boolean,
+        },
         username: {
             type: String,
             required: [true, "username is required"],
@@ -52,12 +60,16 @@ const userSchema = new Schema(
         isVerified: {
             type: Boolean,
         },
-        
-            realName : {
-                type : String,
-                match: [/^[a-zA-Z]+(?: [a-zA-Z]+)*$/, "name can only contain letters and spaces"],
-            }
-        ,
+        bio:{
+            type: String
+        },
+        realName: {
+            type: String,
+            match: [
+                /^[a-zA-Z]+(?: [a-zA-Z]+)*$/,
+                "name can only contain letters and spaces",
+            ],
+        },
         socialMediaProfileLinks: [
             {
                 platform: {
@@ -84,7 +96,7 @@ const userSchema = new Schema(
         ],
         experienceYears: {
             type: Number,
-            default : 0,
+            default: 0,
         },
         previousSponsorships: [
             {
@@ -93,7 +105,7 @@ const userSchema = new Schema(
                 },
             },
         ],
-        contentType: [ContentSchema], 
+        contentType: [ContentSchema],
         profileImage: {
             type: String,
             default: "/default_image",
@@ -101,8 +113,9 @@ const userSchema = new Schema(
     },
     { timestamps: true }
 );
-userSchema.index({email : 1});
-userSchema.index({username : 1});
+userSchema.index({ email: 1 });
+userSchema.index({ username: 1 });
+
 
 
 const UserModel = mongoose.models.User || model<User>("User", userSchema);

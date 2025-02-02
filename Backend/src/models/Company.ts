@@ -1,8 +1,6 @@
 import mongoose, { model, Schema, Document } from "mongoose";
 
-export interface Company extends Document{
-
-}
+export interface Company extends Document {}
 
 const ContentSchema = new Schema({
     content: {
@@ -11,21 +9,29 @@ const ContentSchema = new Schema({
     },
 });
 
-const companySchema = new Schema({
+const companySchema = new Schema(
+    {
+        isProfileComplete: {
+            type: Boolean,
+            default: false,
+        },
         username: {
             type: String,
             required: [true, "username is required"],
             unique: [true, "username already exists"],
             trim: true,
-            match: [/^[a-zA-Z]+(?: [a-zA-Z]+)*$/, "Username can only contain letters and spaces"],
+            match: [
+                /^[a-zA-Z]+(?: [a-zA-Z]+)*$/,
+                "Username can only contain letters and spaces",
+            ],
             minlength: [3, "Username must be at least 3 characters"],
-            maxlength: [30, "Username cannot be longer than 30 characters"]
+            maxlength: [30, "Username cannot be longer than 30 characters"],
         },
         slug: {
             type: String,
             unique: true,
             lowercase: true,
-            required : [true,"Slug is required"]
+            required: [true, "Slug is required"],
         },
         email: {
             type: String,
@@ -45,44 +51,49 @@ const companySchema = new Schema({
         },
         isVerified: {
             type: Boolean,
-            default : false
+            default: false,
         },
-        address:{
-          type : String,
-          required: [true, "location is requied"],
-          enum : ["Online", "Physical"]
-        },
-        contactNumber : {
+        address: {
             type: String,
-            required : true,
-            match: [/^\d{10}$/, "Contact number should be a 10-digit number"]
+            required: function (this: any) {
+                return this.isProfileComplete;
+            },
+            enum: ["Online", "Physical"],
         },
-        contentType: [ContentSchema], 
+        contactNumber: {
+            type: String,
+            required: function (this: any) {
+                return this.isProfileComplete;
+            },
+            match: [/^\d{10}$/, "Contact number should be a 10-digit number"],
+        },
+        contentType: [ContentSchema],
         profileImage: {
             type: String,
             default: "/default_image",
         },
-        products : [
-            {type: String}
-        ],
+        products: [{ type: String }],
         establishedYear: {
             type: Number,
         },
-        description : {
+        description: {
             type: String,
-            required: true,
-        }
-},{timestamps : true})
+            required: function (this: any) {
+                return this.isProfileComplete;
+            },
+        },
+    },
+    { timestamps: true }
+);
 
 //pre-save hook to generate slug
-companySchema.pre("save",function(next){
-    if(this.isModified('username')){
-        this.slug = this.username.toLowerCase().replace(/\s+/g,'-');
+companySchema.pre("save", function (next) {
+    if (this.isModified("username")) {
+        this.slug = this.username.toLowerCase().replace(/\s+/g, "-");
     }
-    next()
-})
+    next();
+});
 
-const CompanyModel = mongoose.models.Company || model("Company",companySchema);
+const CompanyModel = mongoose.models.Company || model("Company", companySchema);
 
 export default CompanyModel;
-
