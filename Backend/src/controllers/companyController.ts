@@ -1,13 +1,13 @@
 import { RequestHandler } from "express";
-import { signupSchema } from "../../../Shared/validations/signupSchema";
+import { companySignupSchema } from "../../../Shared/validations/signupSchema";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
-import CompanyModel from "@/models/Company";
+import CompanyModel from "../models/Company";
 
 const companySignupController : RequestHandler = async (req, res) =>{
      try {
           // Validate input data using Zod
-          const parsedData = signupSchema.safeParse(req.body);
+          const parsedData = companySignupSchema.safeParse(req.body);
           if (!parsedData.success) {
               res.status(400).json({
                   success: false,
@@ -17,10 +17,10 @@ const companySignupController : RequestHandler = async (req, res) =>{
               return;
           }
   
-          const { username, email, password } = parsedData.data;
+          const { companyName, email, password } = parsedData.data;
           // Check if username already exists and is verified
           const existingUserByUsername = await CompanyModel.findOne({
-              username,
+            companyName,
               isVerified: true,
           });
   
@@ -47,7 +47,7 @@ const companySignupController : RequestHandler = async (req, res) =>{
                   return;
               } else {
                   //condition 1:  If email exists but is NOT verified, update the previous entry
-                  existingUserByEmail.username = username;
+                  existingUserByEmail.username = companyName;
                   existingUserByEmail.email = email;
                   existingUserByEmail.password = hashedPassword;
                   existingUserByEmail.verifyCode = verificationCode;
@@ -65,7 +65,7 @@ const companySignupController : RequestHandler = async (req, res) =>{
           } else {
               //condition 2 :  Create a new user if email does not exist
                  await CompanyModel.create({
-                  username,
+                    companyName,
                   email,
                   password: hashedPassword,
                   verifyCode: verificationCode,

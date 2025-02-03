@@ -1,8 +1,8 @@
 import express from "express";
-import influencerSignupController from "@/controllers/influencerController";
+import companySignupController from "../controllers/companyController";
 
 const router = express.Router(); 
-router.post('/auth/sign-up',influencerSignupController);
+router.post('/auth/sign-up',companySignupController);
 
 export default router;
 
