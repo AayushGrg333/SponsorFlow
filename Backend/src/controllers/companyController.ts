@@ -88,3 +88,5 @@ const companySignupController : RequestHandler = async (req, res) =>{
           return;
       }
   };
+
+export  default companySignupController;
