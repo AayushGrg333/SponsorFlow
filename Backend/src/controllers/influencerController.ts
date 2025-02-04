@@ -1,8 +1,10 @@
+
 import { RequestHandler } from "express";
 import UserModel from "../models/User";
 import { signupSchema } from "../../../Shared/validations/signupSchema";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
+import sendVerificationEmail from "../utils/sendVerificationEmail";
 
 const influencerSignupController: RequestHandler = async (req, res) => {
     try {
@@ -55,6 +57,8 @@ const influencerSignupController: RequestHandler = async (req, res) => {
 
                 await existingUserByEmail.save();
 
+            await sendVerificationEmail(username,email, verificationCode);
+
                 res.status(200).json({
                     success: true,
                     message: "Signup successful. Verification code sent",
@@ -72,11 +76,13 @@ const influencerSignupController: RequestHandler = async (req, res) => {
                 verifyCodeExpiry: expiryDate,
             });
 
+            await sendVerificationEmail(username,email, verificationCode);
             res.status(200).json({
                 success: true,
                 message: "Signup successful. Verification code sent",
-                verificationCode,
             });
+
+
             return;
         }
     } catch (error) {

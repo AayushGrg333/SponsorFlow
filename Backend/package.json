@@ -11,11 +11,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@react-email/components": "^0.0.32",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mongoose": "^8.9.5",
     "randomatic": "^3.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "resend": "^4.1.2",
     "uuid": "^11.0.5"
   },
   "devDependencies": {
@@ -23,6 +27,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
     "@types/randomatic": "^3.1.5",
+    "@types/react-dom": "^19.0.3",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
