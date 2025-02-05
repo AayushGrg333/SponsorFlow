@@ -27,6 +27,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
     "@types/randomatic": "^3.1.5",
+    "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
