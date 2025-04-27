@@ -83,7 +83,7 @@ const sendVerificationEmail = async (
                     </table>
                 </body>
                 </html>
-            `,
+            `
         });
 
         return {
