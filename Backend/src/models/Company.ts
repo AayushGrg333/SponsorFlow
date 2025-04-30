@@ -24,17 +24,13 @@ const companySchema = new Schema(
                 /^[a-zA-Z]+(?: [a-zA-Z]+)*$/,
                 "company name can only contain letters and spaces",
             ],
-            minlength: [3, "Username must be at least 3 characters"],
-            maxlength: [30, "Username cannot be longer than 30 characters"],
+            minlength: [3, "Company name must be at least 3 characters"],
+            maxlength: [30, "Company name cannot be longer than 30 characters"],
         },
         slug: {
             type: String,
             unique: true,
             lowercase: true,
-            required: [true, "Slug is required"],
-            default: function (this: any) {
-                return this.companyName ? this.companyName.toLowerCase().replace(/\s+/g, "-") : "";
-            },
         },
         email: {
             type: String,
@@ -44,7 +40,7 @@ const companySchema = new Schema(
         },
         password: {
             type: String,
-            required: [true, "password is required"],
+            required: [true, "Password is required"],
         },
         verifyCode: {
             type: String,
@@ -89,14 +85,14 @@ const companySchema = new Schema(
     { timestamps: true }
 );
 
-//pre-save hook to generate slug
+// Pre-save hook to generate slug and set the username field
 companySchema.pre("save", function (next) {
-    if (!this.slug || this.isModified("companyName")) {  
+    if (!this.slug || this.isModified("companyName") && this.companyName) {
         this.slug = this.companyName.toLowerCase().replace(/\s+/g, "-");
+
     }
     next();
 });
-
 
 const CompanyModel = mongoose.models.Company || model("Company", companySchema);
 

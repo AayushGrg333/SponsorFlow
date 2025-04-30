@@ -3,6 +3,7 @@ import { companySignupSchema } from "../../../Shared/validations/signupSchema";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
 import CompanyModel from "../models/Company";
+import sendVerificationEmail from "../utils/sendVerificationEmail";
 
 const companySignupController : RequestHandler = async (req, res) =>{
      try {
@@ -19,6 +20,7 @@ const companySignupController : RequestHandler = async (req, res) =>{
   
           const { companyName, email, password } = parsedData.data;
           // Check if username already exists and is verified
+
           const existingUserByUsername = await CompanyModel.findOne({
             companyName,
               isVerified: true,
@@ -47,14 +49,20 @@ const companySignupController : RequestHandler = async (req, res) =>{
                   return;
               } else {
                   //condition 1:  If email exists but is NOT verified, update the previous entry
-                  existingUserByEmail.username = companyName;
+                  existingUserByEmail.companyName = companyName;
                   existingUserByEmail.email = email;
                   existingUserByEmail.password = hashedPassword;
                   existingUserByEmail.verifyCode = verificationCode;
                   existingUserByEmail.verifyCodeExpiry = expiryDate;
   
+                if(!existingUserByEmail.slug){
+                    existingUserByEmail.slug = companyName.toLowerCase().replace(/\s+/g,"-")
+                }
+
+
                   await existingUserByEmail.save();
   
+                  await sendVerificationEmail(companyName,email, verificationCode);
                   res.status(200).json({
                       success: true,
                       message: "Signup successful. Verification code sent",
@@ -64,13 +72,18 @@ const companySignupController : RequestHandler = async (req, res) =>{
               }
           } else {
               //condition 2 :  Create a new user if email does not exist
+                const slug = companyName.toLowerCase().replace(/\s+/g,"-");
+
+
                  await CompanyModel.create({
                     companyName,
                   email,
                   password: hashedPassword,
                   verifyCode: verificationCode,
                   verifyCodeExpiry: expiryDate,
-              });
+                  slug,
+                });
+              await sendVerificationEmail(companyName,email, verificationCode);
   
               res.status(200).json({
                   success: true,

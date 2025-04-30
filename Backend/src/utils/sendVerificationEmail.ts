@@ -10,6 +10,9 @@ const sendVerificationEmail = async (
     verifycode: string
 ) => {
     try {
+        console.log(username)
+        console.log(verifycode)
+        console.log(email)
         await resend.emails.send({
             from: "onboarding@resend.dev",
             to: [email],
