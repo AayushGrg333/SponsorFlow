@@ -62,7 +62,7 @@ const companySignupController : RequestHandler = async (req, res) =>{
 
                   await existingUserByEmail.save();
   
-                  await sendVerificationEmail(companyName,email, verificationCode);
+                  await sendVerificationEmail(companyName,email, verificationCode,"company");
                   res.status(200).json({
                       success: true,
                       message: "Signup successful. Verification code sent",
@@ -83,12 +83,12 @@ const companySignupController : RequestHandler = async (req, res) =>{
                   verifyCodeExpiry: expiryDate,
                   slug,
                 });
-              await sendVerificationEmail(companyName,email, verificationCode);
+              await sendVerificationEmail(companyName,email, verificationCode,"company");
   
               res.status(200).json({
                   success: true,
                   message: "Signup successful. Verification code sent",
-                  verificationCode,
+                  slug : slug
               });
               return;
           }

@@ -7,12 +7,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const sendVerificationEmail = async (
     username: string,
     email: string,
-    verifycode: string
+    verifycode: string,
+    usertype: string
 ) => {
     try {
-        console.log(username)
-        console.log(verifycode)
-        console.log(email)
+
         await resend.emails.send({
             from: "onboarding@resend.dev",
             to: [email],
@@ -64,7 +63,7 @@ const sendVerificationEmail = async (
                                             <table cellspacing="0" cellpadding="0" style="margin: auto;">
                                                 <tr>
                                                     <td align="center" style="background-color: #345C72; padding: 10px 20px; border-radius: 5px;">
-                                                        <a href="http://localhost:3000/verify/${username}" target="_blank" style="color: #ffffff; text-decoration: none; font-weight: bold;">Verify Here</a>
+                                                        <a href="http://localhost:8001/api/auth/signup/verify/${usertype}/${username}" target="_blank" style="color: #ffffff; text-decoration: none; font-weight: bold;">Verify Here</a>
                                                     </td>
                                                 </tr>
                                             </table>
