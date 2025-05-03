@@ -59,10 +59,10 @@ const companySignupController : RequestHandler = async (req, res) =>{
                     existingUserByEmail.slug = companyName.toLowerCase().replace(/\s+/g,"-")
                 }
 
-
+                const slug = companyName.toLowerCase().replace(/\s+/g,"-");
                   await existingUserByEmail.save();
   
-                  await sendVerificationEmail(companyName,email, verificationCode,"company");
+                  await sendVerificationEmail(slug,email, verificationCode,"company");
                   res.status(200).json({
                       success: true,
                       message: "Signup successful. Verification code sent",
@@ -83,12 +83,11 @@ const companySignupController : RequestHandler = async (req, res) =>{
                   verifyCodeExpiry: expiryDate,
                   slug,
                 });
-              await sendVerificationEmail(companyName,email, verificationCode,"company");
+              await sendVerificationEmail(slug,email, verificationCode,"company");
   
               res.status(200).json({
                   success: true,
                   message: "Signup successful. Verification code sent",
-                  slug : slug
               });
               return;
           }
