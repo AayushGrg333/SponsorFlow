@@ -1,21 +1,27 @@
 import {RequestHandler} from "express";
 import UserModel from "../models/User";
 import CompanyModel from "../models/Company";
+import { verifySchema } from "@shared/validations/signupVerifySchema";
 
 const verifySignupCode : RequestHandler = async (req,res) =>{
      try {
-          const { usertype , username } = req.params;
-          const { verificationCode } = req.body;
-          if(!verificationCode){
-               res.status(400).json(
-                    {
-                         success: false,
-                         message: "Verification Code is required",
-                    }
-               )
-               return;
 
+
+          const parsedData = verifySchema.safeParse({
+               username : req.params.username,
+               usertype : req.params.usertype,
+               verificationCode : req.body.verificationCode
+          })
+
+          if(!parsedData.success){
+               res.status(400).json({
+                    success : false,
+                    message: "invalid verification data",
+               })
+               return;
           }
+
+          const {username , usertype, verificationCode} = parsedData.data;
 
           const existingByUsername = usertype === "influencer"
           ? await UserModel.findOne({ username : username}) 
