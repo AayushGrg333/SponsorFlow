@@ -11,6 +11,10 @@ const ContentSchema = new Schema({
 
 const companySchema = new Schema(
     {
+        usertype: {
+            type : String,
+            default  : "company"
+        },
         isProfileComplete: {
             type: Boolean,
             default: false,

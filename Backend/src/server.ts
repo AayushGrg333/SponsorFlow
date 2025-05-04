@@ -3,7 +3,7 @@ dotenv.config();
 import express, {Request,Response} from 'express';
 import influencerRoutes from './routes/influencerRoutes'
 import companyRoutes from './routes/companyRoutes';
-import verifyRoute from './routes/verifyRoute';
+import verifyRoute from './routes/auth/verifyRoute';
 
 //connect mongodb
 import connectDB from './config/connnectdb';

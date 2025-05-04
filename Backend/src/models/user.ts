@@ -30,7 +30,11 @@ const ContentSchema = new Schema({
 
 // Main userSchema
 const userSchema = new Schema(
-    {
+    {   
+        usertype: {
+            type : String,
+            default  : "influencer"
+        },
         isProfileComplete:{
             default : false,
             type : Boolean,
