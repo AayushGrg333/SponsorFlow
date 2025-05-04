@@ -3,7 +3,7 @@ dotenv.config();
 import express, {Request,Response} from 'express';
 import influencerRoutes from './routes/influencerRoutes'
 import companyRoutes from './routes/companyRoutes';
-import verifyRoute from './routes/auth/verifyRoute';
+import authRoutes from './routes/auth/authRoutes';
 
 //connect mongodb
 import connectDB from './config/connnectdb';
@@ -19,12 +19,9 @@ app.use(express.json());
 //Routes
 app.use("/api/influencer",influencerRoutes);
 app.use("/api/company",companyRoutes);
-app.use("/api/auth",verifyRoute)
+app.use("/api/auth",authRoutes)
 
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('This is the home page!');
-});
 
 app.listen(PORT,()=>{
   console.log(`Server is running at ${PORT}`)
