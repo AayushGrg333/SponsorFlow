@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {usernameValidation,passwordValidation} from './signupSchema'
+import {usernameValidation,passwordValidation, companyNameValidation} from './signupSchema'
 
 const emailSchema = z.object({
      email : z.string().email({message: "Invalid email format"})
@@ -8,10 +8,22 @@ const emailSchema = z.object({
 const usernameSchema = z.object({
      username : usernameValidation
 })
-const identifierSchema = z.union([usernameSchema,emailSchema])
+const influencerIdentifierSchema = z.union([usernameSchema,emailSchema])
 
 export const influencerLoginSchema = z.object({
-     identifier : identifierSchema,
+     identifier : influencerIdentifierSchema,
+     password : passwordValidation,
+     usertype : z.enum(["influencer","company"])
+})
+
+const companyNameSchema = z.object({
+     companyName : companyNameValidation
+})
+
+const CompanyidentifierSchema = z.union([companyNameSchema,emailSchema])
+
+export const CompanyLoginSchema = z.object({
+     identifier : CompanyidentifierSchema,
      password : passwordValidation,
      usertype : z.enum(["influencer","company"])
 })
