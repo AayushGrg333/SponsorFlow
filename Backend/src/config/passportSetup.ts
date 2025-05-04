@@ -46,7 +46,7 @@ passport.use('company-local',
                try {
                     //decide if its an email or username? 
                     const isEmail = login.includes("@");
-                    const user = await UserModel.findOne(
+                    const user = await CompanyModel.findOne(
                          isEmail ? {email : login} : {companyName : login}
                     )
                     if(!user) return done(null, false, {message : "company not found"});
