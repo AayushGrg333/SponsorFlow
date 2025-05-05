@@ -16,7 +16,7 @@ export const influencerLoginSchema = z.object({
      usertype : z.enum(["influencer","company"])
 })
 
-const companyNameSchema = z.object({
+export const companyNameSchema = z.object({
      companyName : companyNameValidation
 })
 

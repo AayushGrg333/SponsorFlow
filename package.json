@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "tsconfig-paths": "^4.2.0",
     "zod": "^3.24.1"
   }
 }
