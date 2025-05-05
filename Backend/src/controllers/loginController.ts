@@ -1,59 +1,51 @@
 import { RequestHandler } from "express";
 import passport from "passport";
-import { CompanyLoginSchema,influencerLoginSchema,companyNameSchema } from "../../../Shared/validations/loginSchema";
-import { z } from "zod";
+import { loginSchema } from "../../../Shared/validations/loginSchema";
 
-const CompanyloginController : RequestHandler  = async (req,res,next) =>{
-     try {
+const loginController: RequestHandler = async (req, res, next) => {
+    try {
+        const parsedData = loginSchema.safeParse({
+            identifier: req.body.identifier,
+            password: req.body.password,
+            usertype: req.body.usertype,
+        });
 
-          const checkEmail = z.string().email({ message: "Invalid email format" })
+        if (!parsedData.success) {
+            res.status(400).json({
+                success: false,
+                message: "invalid login data",
+                error: parsedData.error.errors,
+            });
+            return;
+        }
 
-          const isEmail = (email : string)=>{
-               return checkEmail.safeParse(email).success;
-          }
+        const { identifier, password, usertype } = parsedData.data;
 
-          let parsedData;
+        const Strategy =
+            usertype === "company" ? "company-local" : "influencer-local";
 
-          isEmail(req.body.identifier)
-          if(!isEmail) {
-                parsedData = CompanyLoginSchema.safeParse({
-                    identifier : companyNameSchema,
-                    password : req.body.password,
-                    usertype : req.body.usertype
-               })
-          }else{
-               const emailSchema = z.object({
-                    email: checkEmail
-               })
-                parsedData = CompanyLoginSchema.safeParse({
-                    identifier : emailSchema,
-                    password : req.body.password,
-                    usertype : req.body.usertype
-               })
-          }
+        passport.authenticate(
+            Strategy,
+            (err: any, user: Express.User | false, info: any) => {
+                if (err) return next(err);
 
-          if(!parsedData.success){
-               res.status(400).json({
-                    success : false,
-                    message: "invalid login data",
-                    error : parsedData.error.errors
-               })
-               return;
-          }
+                if (!user) {
+                    return res.status(401).json({
+                        success: false,
+                        message: info?.message || "Authentication failed",
+                    });
+                }
+                req.logIn(user, (err)=>{
+                    if (err) return next(err);
+                    return res.status(200).json({
+                         success : true,
+                         message : "login successful",
+                         user,
+                    })
+                })
+            }
+        )(req,res,next);
+    } catch (error) {}
+};
 
-          const {identifier , password, usertype} = parsedData.data
-          console.log(identifier,password,usertype)
-
-          res.status(200).json({
-               success : true,
-               message: "login successful"
-          })
-
-
-
-     } catch (error) {
-          
-     }
-}
-
- export default CompanyloginController;
+export default loginController;
