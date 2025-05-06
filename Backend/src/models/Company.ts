@@ -1,13 +1,40 @@
 import mongoose, { model, Schema, Document } from "mongoose";
 
-export interface Company extends Document {}
+export interface Company extends Document {
+    usertype : "company";
+    isProfileComplete : boolean;
+    companyName : string;
+    slug : string;
+    email : string;
+    password : string;
+    verifyCode : string;
+    verifyCodeExpiry : Date;
+    isVerified : boolean;
+    address : string;
+    contactNumber : string;
+    contentType : contentType[];
+    profileImage : string;
+    products : Product[];
+    establishedYear : number;
+    description : string;
+}
 
 const ContentSchema = new Schema({
     content: {
         type: String,
         required: true,
     },
-});
+})
+
+type contentType = {
+    name: string;
+}
+
+type Product = {
+    name : string;
+}
+
+
 
 const companySchema = new Schema(
     {

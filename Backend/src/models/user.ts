@@ -7,6 +7,7 @@ import {
 } from "../interfaces/userinterfaces";
 
 export interface User extends Document {
+    usertype : "influencer",
     username: string;
     email: string;
     password: string;

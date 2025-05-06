@@ -1,0 +1,33 @@
+import dotenv from "dotenv"
+dotenv.config()
+import { RequestHandler } from 'express'
+import jwt from 'jsonwebtoken'
+
+
+const refreshTokenController : RequestHandler = (req,res) => {
+     const token = req.cookies.refreshToken;
+     if(!token) res.status(401).json({message : "refresh token not found"});
+     
+     const secret = process.env.JWT_SECRET!
+     jwt.verify(token,secret,(err : any,decoded : any)=>{
+          if (err) return res.status(403).json({ message: "Invalid refresh token" });
+
+          const {id,usertype} = decoded;
+          
+          const newAccessToken = jwt.sign({id,usertype},secret,{
+               expiresIn : "15m"
+          })
+
+          res.cookie("accessToken", newAccessToken, {
+               httpOnly: true,
+               sameSite: 'strict',
+               maxAge: 15 * 60 * 1000
+           });
+
+           res.json({ success: true , message : "new access token has been assigned"});
+
+     })
+}
+
+
+export default refreshTokenController

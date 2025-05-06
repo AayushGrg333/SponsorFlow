@@ -6,6 +6,7 @@ import passport from "passport";
 import { loginSchema } from "../../../Shared/validations/loginSchema";
 import jwt from 'jsonwebtoken'
 import { User } from "../models/User";
+import { Company } from "../models/Company";
 
 const loginController: RequestHandler = async (req, res, next) => {
     try {
@@ -29,7 +30,7 @@ const loginController: RequestHandler = async (req, res, next) => {
 
         passport.authenticate(
             Strategy,
-            (err: any, user: User | false, info: any) => {
+            (err: any, user: User | Company |false, info: any) => {
                 if (err) return next(err);
 
                 if (!user) {
@@ -40,15 +41,27 @@ const loginController: RequestHandler = async (req, res, next) => {
                 }
 
                 const secret = process.env.JWT_SECRET!
-                const token = jwt.sign({
+
+                const accessToken = jwt.sign({
                     id: user._id,
                     usertype
-                },secret,{expiresIn : "1d"});
+                },secret,{expiresIn : "15m"});
 
-                res.cookie("token",token,{
+                const refreshToken = jwt.sign({
+                    id: user._id,
+                    usertype
+                },secret,{expiresIn : "30d"});
+
+                res.cookie("refreshToken",refreshToken,{
                     httpOnly: true,
                     sameSite: 'strict',
-                    maxAge: 24 * 60 * 60 * 1000 // 1 day
+                    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 day
+                })
+
+                res.cookie("accessToken",accessToken,{
+                    httpOnly: true,
+                    sameSite: 'strict',
+                    maxAge: 15 * 60 * 1000 // 15 min
                 })
 
                 return res.status(200).json({
