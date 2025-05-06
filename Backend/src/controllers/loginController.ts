@@ -1,6 +1,11 @@
+import dotenv from "dotenv"
+dotenv.config();
+
 import { RequestHandler } from "express";
 import passport from "passport";
 import { loginSchema } from "../../../Shared/validations/loginSchema";
+import jwt from 'jsonwebtoken'
+import { User } from "../models/User";
 
 const loginController: RequestHandler = async (req, res, next) => {
     try {
@@ -18,13 +23,13 @@ const loginController: RequestHandler = async (req, res, next) => {
             });
             return;
         }
-
+        const  { usertype } = parsedData.data
         const Strategy =
             parsedData.data.usertype === "company" ? "company-local" : "influencer-local";
 
         passport.authenticate(
             Strategy,
-            (err: any, user: Express.User | false, info: any) => {
+            (err: any, user: User | false, info: any) => {
                 if (err) return next(err);
 
                 if (!user) {
@@ -33,14 +38,18 @@ const loginController: RequestHandler = async (req, res, next) => {
                         message: info?.message || "User Authentication failed",
                     });
                 }
-                // req.logIn(user, (err)=>{
-                //     if (err) return next(err);
-                //     return res.status(200).json({
-                //          success : true,
-                //          message : "login successful",
-                //          user,
-                //     })
-                // })
+
+                const secret = process.env.JWT_SECRET!
+                const token = jwt.sign({
+                    id: user._id,
+                    usertype
+                },secret,{expiresIn : "1d"});
+
+                res.cookie("token",token,{
+                    httpOnly: true,
+                    sameSite: 'strict',
+                    maxAge: 24 * 60 * 60 * 1000 // 1 day
+                })
 
                 return res.status(200).json({
                     success : true,

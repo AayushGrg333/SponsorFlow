@@ -1,8 +1,39 @@
+import dotenv from "dotenv"
+dotenv.config();
+
 import passport from 'passport';
-import {Strategy as LocalStrategy}  from "passport-local"
 import bcrypt from "bcrypt"
 import UserModel from '../models/User';
 import CompanyModel from '../models/Company';
+import {Strategy as LocalStrategy}  from "passport-local"
+import { Strategy as JwtStrategy,ExtractJwt } from 'passport-jwt';
+
+
+let options = {
+     jwtFromRequest  : ExtractJwt.fromAuthHeaderAsBearerToken(),
+     secretOrKey : process.env.JWT_SECRET!,
+}
+
+
+passport.use(
+     new JwtStrategy(
+          options,
+          async function name(payload,done) {
+               try {
+                    const model = payload.usertype === "company" ? CompanyModel : UserModel  
+
+                    const user = await model.findById(payload.id);
+                    if(user){
+                         return done(null,user);
+                    }
+
+                    return done(null,false);
+               } catch (error) {
+                    return done(error,false);
+               }
+          }
+     )
+)
 
 passport.use('influencer-local',
      new LocalStrategy (
@@ -34,7 +65,6 @@ passport.use('influencer-local',
      )
 )
 
-
 passport.use('company-local',
      new LocalStrategy (
           {
@@ -64,5 +94,11 @@ passport.use('company-local',
           }
      )
 )
+
+
+
+
+
+
 
 export  default passport

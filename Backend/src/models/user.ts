@@ -4,7 +4,7 @@ import {
     FollowersCount,
     PreviousSponsorships,
     SocialMediaProfileLinks,
-} from "../interfaces/user.interfaces";
+} from "../interfaces/userinterfaces";
 
 export interface User extends Document {
     username: string;

@@ -16,5 +16,6 @@ export interface SocialMediaProfileLinks {
  export interface ContentType {
      content: string;
  }
- 
+
+
  
