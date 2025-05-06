@@ -19,10 +19,8 @@ const loginController: RequestHandler = async (req, res, next) => {
             return;
         }
 
-        const { identifier, password, usertype } = parsedData.data;
-
         const Strategy =
-            usertype === "company" ? "company-local" : "influencer-local";
+            parsedData.data.usertype === "company" ? "company-local" : "influencer-local";
 
         passport.authenticate(
             Strategy,
@@ -32,20 +30,28 @@ const loginController: RequestHandler = async (req, res, next) => {
                 if (!user) {
                     return res.status(401).json({
                         success: false,
-                        message: info?.message || "Authentication failed",
+                        message: info?.message || "User Authentication failed",
                     });
                 }
-                req.logIn(user, (err)=>{
-                    if (err) return next(err);
-                    return res.status(200).json({
-                         success : true,
-                         message : "login successful",
-                         user,
-                    })
-                })
+                // req.logIn(user, (err)=>{
+                //     if (err) return next(err);
+                //     return res.status(200).json({
+                //          success : true,
+                //          message : "login successful",
+                //          user,
+                //     })
+                // })
+
+                return res.status(200).json({
+                    success : true,
+                    message : "login successful",
+                    user,
+               })
             }
         )(req,res,next);
-    } catch (error) {}
+    } catch (error) {
+        next(error)
+    }
 };
 
 export default loginController;

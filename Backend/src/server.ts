@@ -8,6 +8,9 @@ import authRoutes from "./routes/auth/authRoutes";
 //connect mongodb
 import connectDB from "./config/connnectdb";
 
+//authtication import
+import passport from "../src/config/passportSetup";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -15,6 +18,7 @@ connectDB();
 
 //Middleware
 app.use(express.json());
+app.use(passport.initialize());
 
 //Routes
 app.use("/api/influencer", influencerRoutes);

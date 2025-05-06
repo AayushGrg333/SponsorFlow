@@ -64,3 +64,5 @@ passport.use('company-local',
           }
      )
 )
+
+export  default passport
