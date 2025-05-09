@@ -15,25 +15,25 @@ let options = {
 }
 
 
-passport.use(
-     new JwtStrategy(
-          options,
-          async function name(payload,done) {
-               try {
-                    const model = payload.usertype === "company" ? CompanyModel : UserModel  
+// passport.use(
+//      new JwtStrategy(
+//           options,
+//           async function name(payload,done) {
+//                try {
+//                     const model = payload.usertype === "company" ? CompanyModel : UserModel  
 
-                    const user = await model.findById(payload.id);
-                    if(user){
-                         return done(null,user);
-                    }
+//                     const user = await model.findById(payload.id);
+//                     if(user){
+//                          return done(null,user);
+//                     }
 
-                    return done(null,false);
-               } catch (error) {
-                    return done(error,false);
-               }
-          }
-     )
-)
+//                     return done(null,false);
+//                } catch (error) {
+//                     return done(error,false);
+//                }
+//           }
+//      )
+// )
 
 passport.use('influencer-local',
      new LocalStrategy (

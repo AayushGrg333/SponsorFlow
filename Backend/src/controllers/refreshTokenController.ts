@@ -8,13 +8,14 @@ const refreshTokenController : RequestHandler = (req,res) => {
      const token = req.cookies.refreshToken;
      if(!token) res.status(401).json({message : "refresh token not found"});
      
-     const secret = process.env.JWT_SECRET!
-     jwt.verify(token,secret,(err : any,decoded : any)=>{
+     const accessTokenSecret = process.env.JWT_ACCESS_SECRET!
+     const refreshTokenSecret = process.env.JWT_REFRESH_SECRET!
+     jwt.verify(token,refreshTokenSecret,(err : any,decoded : any)=>{
           if (err) return res.status(403).json({ message: "Invalid refresh token" });
 
           const {id,usertype} = decoded;
           
-          const newAccessToken = jwt.sign({id,usertype},secret,{
+          const newAccessToken = jwt.sign({id,usertype},accessTokenSecret,{
                expiresIn : "15m"
           })
 
