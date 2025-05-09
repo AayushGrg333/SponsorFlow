@@ -38,17 +38,20 @@ passport.use(
 passport.use('influencer-local',
      new LocalStrategy (
           {
-               usernameField: 'login',//we will use either username or email so 'login'
+               usernameField: 'identifier',//we will use either username or email so 'login'
                passwordField : 'password'
           },
-          async function userData(login, password, done){
+          async function userData(identifier, password, done){
                //done(error, user, info)
                try {
-                    //decide if its an email or username? 
-                    const isEmail = login.includes("@");
-                    const user = await UserModel.findOne(
-                         isEmail ? {email : login} : {username : login}
-                    )
+                    const isEmail = identifier.includes("@");
+                    let user;
+                    if(!isEmail){
+                         user = await UserModel.findOne({username : identifier})
+                    }else{
+                          user = await UserModel.findOne({email : identifier})
+                    }
+                    
                     if(!user) return done(null, false, {message : "User not found"});
 
                     const isValid = await bcrypt.compare(password,user.password);
@@ -68,16 +71,19 @@ passport.use('influencer-local',
 passport.use('company-local',
      new LocalStrategy (
           {
-               usernameField: 'login',//we will use either username or email so 'login'
+               usernameField: 'identifier',//we will use either username or email so 'login'
                passwordField : 'password'
           },
-          async function userData(login, password, done){
+          async function userData(identifier, password, done){
                //done(error, user, info)
                try {
                     //decide if its an email or username? 
-                    const isEmail = login.includes("@");
+                    console.log(identifier)
+                    console.log(password)
+                    const isEmail = identifier.includes("@");
+                    console.log(isEmail)
                     const user = await CompanyModel.findOne(
-                         isEmail ? {email : login} : {companyName : login}
+                         isEmail ? {email : identifier} : {companyName : identifier}
                     )
                     if(!user) return done(null, false, {message : "company not found"});
 
