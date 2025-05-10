@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "passport": "^0.7.0",
+    "passport-google-oidc": "^0.1.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "randomatic": "^3.1.1",

@@ -13,8 +13,11 @@ router.post(`/signup/verify/:usertype/:username`,verifySignupCode)
 router.post('/login',loginController);
 router.post('/logout',logoutcontroller);
 
+// router.get('/login/federated/google', passport.authenticate('google'));
+
 //refresh token endpoint
 router.post('/refresh-token',refreshTokenController)
+
 
 export default router;
 

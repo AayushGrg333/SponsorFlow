@@ -7,6 +7,7 @@ import UserModel from '../models/User';
 import CompanyModel from '../models/Company';
 import {Strategy as LocalStrategy}  from "passport-local"
 import { Strategy as JwtStrategy,ExtractJwt } from 'passport-jwt';
+import { GoogleStrategy } from "passport-google-oidc"
 
 
 let options = {
@@ -15,25 +16,25 @@ let options = {
 }
 
 
-// passport.use(
-//      new JwtStrategy(
-//           options,
-//           async function name(payload,done) {
-//                try {
-//                     const model = payload.usertype === "company" ? CompanyModel : UserModel  
+passport.use(
+     new JwtStrategy(
+          options,
+          async function name(payload,done) {
+               try {
+                    const model = payload.usertype === "company" ? CompanyModel : UserModel  
 
-//                     const user = await model.findById(payload.id);
-//                     if(user){
-//                          return done(null,user);
-//                     }
+                    const user = await model.findById(payload.id);
+                    if(user){
+                         return done(null,user);
+                    }
 
-//                     return done(null,false);
-//                } catch (error) {
-//                     return done(error,false);
-//                }
-//           }
-//      )
-// )
+                    return done(null,false);
+               } catch (error) {
+                    return done(error,false);
+               }
+          }
+     )
+)
 
 passport.use('influencer-local',
      new LocalStrategy (
@@ -78,8 +79,7 @@ passport.use('company-local',
                //done(error, user, info)
                try {
                     //decide if its an email or username? 
-                    console.log(identifier)
-                    console.log(password)
+
                     const isEmail = identifier.includes("@");
                     console.log(isEmail)
                     const user = await CompanyModel.findOne(
@@ -100,6 +100,25 @@ passport.use('company-local',
           }
      )
 )
+
+passport.use(new GoogleStrategy(
+     {
+          clientID: process.env.GOOGLE_CLIENT_ID!,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+          callbackURL: '/oauth2/redirect/google',
+          issuer : "https://accounts.google.com"
+     },
+     async function verify (issuer,profile,done){
+          try {
+               
+          } catch (error) {
+               
+          }
+     }
+
+))
+
+
 
 
 
