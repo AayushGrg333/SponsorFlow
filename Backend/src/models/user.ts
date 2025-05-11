@@ -9,10 +9,12 @@ import {
 export interface User extends Document {
     usertype : "influencer",
     username: string;
+    displayName : string;
     email: string;
     password: string;
     verifyCode: string;
     verifyCodeExpiry: Date;
+    googleId: string;
     isVerified: boolean;
     socialMediaProfileLinks: SocialMediaProfileLinks[];
     followersCount: FollowersCount[];
@@ -46,6 +48,9 @@ const userSchema = new Schema(
             unique: [true, "Username already exists"],
             trim: true,
         },
+        displayName:{
+            type : String,
+        },
         email: {
             type: String,
             required: [true, "Email is required"],
@@ -55,6 +60,9 @@ const userSchema = new Schema(
         password: {
             type: String,
             required: [true, "password is required"],
+        },
+        googleId : {
+            type : String,
         },
         verifyCode: {
             type: String,

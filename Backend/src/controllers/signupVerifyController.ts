@@ -1,7 +1,7 @@
 import {RequestHandler} from "express";
 import UserModel from "../models/User";
 import CompanyModel from "../models/Company";
-import { verifySchema } from "../../../Shared/validations/signupVerifySchema";
+import { verifySchema } from "@/Shared/validations/signupVerifySchema";
 
 const verifySignupCode : RequestHandler = async (req,res) =>{
      try {

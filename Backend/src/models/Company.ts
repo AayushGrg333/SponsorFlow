@@ -10,6 +10,7 @@ export interface Company extends Document {
     verifyCode : string;
     verifyCodeExpiry : Date;
     isVerified : boolean;
+    googleId : string;
     address : string;
     contactNumber : string;
     contentType : contentType[];
@@ -78,6 +79,9 @@ const companySchema = new Schema(
         },
         verifyCodeExpiry: {
             type: Date,
+        },
+        googleId : {
+            type : String,
         },
         isVerified: {
             type: Boolean,

@@ -101,16 +101,29 @@ passport.use('company-local',
      )
 )
 
-passport.use(new GoogleStrategy(
+
+passport.use('influencer-google',new GoogleStrategy(
      {
           clientID: process.env.GOOGLE_CLIENT_ID!,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-          callbackURL: '/oauth2/redirect/google',
+          callbackURL: '/oauth2/google/callback',
           issuer : "https://accounts.google.com"
      },
-     async function verify (issuer,profile,done){
+     async function verify (accessToken,refreshToken,profile,done){
           try {
-               
+               const existingUser = await UserModel.findOne({googleId : profile.id})
+
+               if(existingUser) return done(null,existingUser);
+               const random = Math.floor(Math.random() * 1000) + 1
+               const usernamecreation = profile.displayname.replace(/\s+/g,"")
+               const newUsername = usernamecreation.concat(random)
+               const newUser = new UserModel({
+                    googleId : profile.id,
+                    email : profile.emails[0].value,
+                    username : usernamecreation,
+                    displayName : profile.displayname,
+                    isVerified : true,
+               })
           } catch (error) {
                
           }
