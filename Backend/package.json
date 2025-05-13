@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-jwt": "^4.0.1",
+    "@types/passport-oauth2": "^1.4.17",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

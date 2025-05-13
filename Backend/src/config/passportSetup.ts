@@ -8,6 +8,9 @@ import CompanyModel from '../models/Company';
 import {Strategy as LocalStrategy}  from "passport-local"
 import { Strategy as JwtStrategy,ExtractJwt } from 'passport-jwt';
 import { GoogleStrategy } from "passport-google-oidc"
+import { Profile } from "passport-google-oauth20"
+import { VerifyCallback } from "passport-oauth2";
+import jwt from "jsonwebtoken";
 
 
 let options = {
@@ -109,23 +112,30 @@ passport.use('influencer-google',new GoogleStrategy(
           callbackURL: '/oauth2/google/callback',
           issuer : "https://accounts.google.com"
      },
-     async function verify (accessToken,refreshToken,profile,done){
+     async function verify (accessToken : string,refreshToken : string,profile : Profile,done : VerifyCallback){
           try {
                const existingUser = await UserModel.findOne({googleId : profile.id})
 
                if(existingUser) return done(null,existingUser);
+
                const random = Math.floor(Math.random() * 1000) + 1
-               const usernamecreation = profile.displayname.replace(/\s+/g,"")
-               const newUsername = usernamecreation.concat(random)
+               const usernamecreation = profile.displayName.replace(/\s+/g,"")
+               const newUsername = usernamecreation.concat(random.toString())
                const newUser = new UserModel({
                     googleId : profile.id,
-                    email : profile.emails[0].value,
-                    username : usernamecreation,
-                    displayName : profile.displayname,
+                    email : profile.emails?.[0].value,
+                    username : newUsername,
+                    displayName : profile.displayName,
                     isVerified : true,
                })
+
+               await newUser.save();
+
+               return done(null, newUser);
+
           } catch (error) {
-               
+               console.error("Error during O-auth google",error);
+               done(error)
           }
      }
 

@@ -32,7 +32,6 @@ const loginController: RequestHandler = async (req, res, next) => {
             (err: any, user: User | Company |false, info: any) => {
                 if (err) return next(err);
 
-                console.log(user)
                 if (!user) {
                     return res.status(401).json({
                         success: false,
