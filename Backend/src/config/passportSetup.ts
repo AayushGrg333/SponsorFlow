@@ -127,6 +127,7 @@ passport.use('influencer-google',new GoogleStrategy(
                     username : newUsername,
                     displayName : profile.displayName,
                     isVerified : true,
+                    usertype,
                })
 
                await newUser.save();

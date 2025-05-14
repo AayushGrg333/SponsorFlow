@@ -3,10 +3,10 @@ dotenv.config();
 
 import { RequestHandler } from "express";
 import passport from "passport";
-import { loginSchema } from "../../../Shared/validations/loginSchema";
+import { loginSchema } from "@/Shared/validations/loginSchema";
 import jwt from 'jsonwebtoken'
-import { User } from "../models/User";
-import { Company } from "../models/Company";
+import { User } from "../../models/User";
+import { Company } from "../../models/Company";
 
 const loginController: RequestHandler = async (req, res, next) => {
     try {

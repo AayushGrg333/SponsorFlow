@@ -1,10 +1,10 @@
 
 import { RequestHandler } from "express";
-import UserModel from "../models/User";
+import UserModel from "../../models/User";
 import { signupSchema } from "@/Shared/validations/signupSchema";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
-import sendVerificationEmail from "../utils/sendVerificationEmail";
+import sendVerificationEmail from "../../utils/sendVerificationEmail";
 
 const influencerSignupController: RequestHandler = async (req, res) => {
     try {

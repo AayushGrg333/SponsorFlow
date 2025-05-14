@@ -1,7 +1,7 @@
 import express from "express";
 import verifySignupCode from '../../controllers/signupVerifyController'
-import loginController from "../../controllers/loginController";
-import logoutcontroller from "../../controllers/logoutcontroller";
+import loginController from "../../controllers/auth/loginController";
+import logoutcontroller from "../../controllers/auth/logoutcontroller";
 import refreshTokenController from "../../controllers/refreshTokenController";
 
 const router = express.Router();
