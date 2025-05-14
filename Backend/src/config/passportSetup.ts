@@ -127,7 +127,38 @@ passport.use('influencer-google',new GoogleStrategy(
                     username : newUsername,
                     displayName : profile.displayName,
                     isVerified : true,
-                    usertype,
+               })
+
+               await newUser.save();
+
+               return done(null, newUser);
+
+          } catch (error) {
+               console.error("Error during O-auth google",error);
+               done(error)
+          }
+     }
+
+))
+
+passport.use('company-google',new GoogleStrategy(
+     {
+          clientID: process.env.GOOGLE_CLIENT_ID!,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+          callbackURL: '/oauth2/google/callback',
+          issuer : "https://accounts.google.com"
+     },
+     async function verify (accessToken : string,refreshToken : string,profile : Profile,done : VerifyCallback){
+          try {
+               const existingUser = await CompanyModel.findOne({googleId : profile.id})
+
+               if(existingUser) return done(null,existingUser);
+
+               const newUser = new CompanyModel({
+                    googleId : profile.id,
+                    email : profile.emails?.[0].value,
+                    companyName : profile.displayName,
+                    isVerified : true,
                })
 
                await newUser.save();

@@ -24,7 +24,7 @@ const influencerCallbackController: RequestHandler = (req, res, next) => {
                 const accessToken = jwt.sign(
                     {
                         id: user.googleId,
-                        usertype,
+                        usertype : user.usertype,
                     },
                     accessTokenSecret,
                     { expiresIn: "15m" }
@@ -34,7 +34,7 @@ const influencerCallbackController: RequestHandler = (req, res, next) => {
                 const refreshToken = jwt.sign(
                     {
                         id: user._id,
-                        usertype,
+                        usertype : user.usertype,
                     },
                     refreshTokenSecret,
                     { expiresIn: "30d" }
@@ -50,8 +50,13 @@ const influencerCallbackController: RequestHandler = (req, res, next) => {
                     sameSite: "strict",
                     maxAge: 15 * 60 * 1000, // 15 min
                 });
+
+                return res.status(200).json({
+                    success : true,
+                    message  : "logged in successfully with google",
+                })
             }
-        );
+        )(req,res,next);
     } catch (error) {}
 };
 
