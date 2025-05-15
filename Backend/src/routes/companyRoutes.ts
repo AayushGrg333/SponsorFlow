@@ -9,7 +9,7 @@ router.get('/auth/google',passport.authenticate('influencer-google',{
           scope : ['profile','email'],
           session : false,
      }));
-router.get('/oauth2/google/callback/',
+router.get('/oauth2/google/callback',
      passport.authenticate ('influencer-google',{session : false}),
      influencerCallbackController
 )

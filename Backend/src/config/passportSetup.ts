@@ -7,15 +7,15 @@ import UserModel from '../models/User';
 import CompanyModel from '../models/Company';
 import {Strategy as LocalStrategy}  from "passport-local"
 import { Strategy as JwtStrategy,ExtractJwt } from 'passport-jwt';
-import { GoogleStrategy } from "passport-google-oidc"
+import { Strategy as  GoogleStrategy } from "passport-google-oidc"
 import { Profile } from "passport-google-oauth20"
 import { VerifyCallback } from "passport-oauth2";
-import jwt from "jsonwebtoken";
+
 
 
 let options = {
      jwtFromRequest  : ExtractJwt.fromAuthHeaderAsBearerToken(),
-     secretOrKey : process.env.JWT_SECRET!,
+     secretOrKey : process.env.JWT_SECRET_OR_KEY!,
 }
 
 
