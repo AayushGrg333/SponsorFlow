@@ -1,20 +1,22 @@
 import dotenv from "dotenv";
 dotenv.config();
+
+import jwt from "jsonwebtoken";
 import { RequestHandler } from "express";
 import passport from "passport";
-import { User } from "../../models/User";
-import jwt from 'jsonwebtoken'
+import CompanyModel from "../../models/Company";
+import { Company } from "../../models/Company";
 
-const influencerCallbackController: RequestHandler = (req, res, next) => {
+const CompanyCallbackController: RequestHandler = (req, res, next) => {
     try {
         passport.authenticate(
-            "influencer-google",
-            (error: any, user: User, info: any) => {
+            "company-google",
+            (error: any, user: Company, info: any) => {
                 if (error) return next(error);
                 if (!user) {
                     return res.status(401).json({
                         success: false,
-                        message: "Unable to signup with google",
+                        message: "User not found",
                     });
                 }
 
@@ -23,18 +25,17 @@ const influencerCallbackController: RequestHandler = (req, res, next) => {
 
                 const accessToken = jwt.sign(
                     {
-                        id: user.googleId,
-                        usertype : user.usertype,
+                        id: user._id,
+                        usertype: user.usertype,
                     },
                     accessTokenSecret,
                     { expiresIn: "15m" }
                 );
 
-                console.log(accessToken);
                 const refreshToken = jwt.sign(
                     {
                         id: user._id,
-                        usertype : user.usertype,
+                        usertype: user.usertype,
                     },
                     refreshTokenSecret,
                     { expiresIn: "30d" }
@@ -52,14 +53,10 @@ const influencerCallbackController: RequestHandler = (req, res, next) => {
                 });
 
                 return res.status(200).json({
-                    success : true,
-                    message  : "logged in successfully with google",
-                })
+                    success: true,
+                    message: "logged in successfully with google",
+                });
             }
-        )(req,res,next);
-    } catch (error) {
-        
-    }
+        )(req, res, next);
+    } catch (error) {}
 };
-
-export default influencerCallbackController;

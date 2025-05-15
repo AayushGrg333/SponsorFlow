@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
-import { companySignupSchema } from "../../../Shared/validations/signupSchema";
+import { companySignupSchema } from "@/Shared/validations/signupSchema";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
-import CompanyModel from "../models/Company";
-import sendVerificationEmail from "../utils/sendVerificationEmail";
+import CompanyModel from "../../models/Company";
+import sendVerificationEmail from "../../utils/sendVerificationEmail";
 
 const companySignupController : RequestHandler = async (req, res) =>{
      try {
