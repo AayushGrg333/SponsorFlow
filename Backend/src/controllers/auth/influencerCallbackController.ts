@@ -58,7 +58,10 @@ const influencerCallbackController: RequestHandler = (req, res, next) => {
             }
         )(req,res,next);
     } catch (error) {
-        
+         res.status(500).json({
+                        success: false,
+                        message: "Error found in influencer callback controller",
+                    });
     }
 };
 

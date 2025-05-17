@@ -6,10 +6,18 @@ import {
     SocialMediaProfileLinks,
 } from "../interfaces/userinterfaces";
 
+interface Realname {
+    realName: {
+        familyName: string;
+        givenName: string;
+        middleName : string;
+    };
+}
+
 export interface User extends Document {
-    usertype : string,
+    usertype: string;
     username: string;
-    displayName : string;
+    displayName: string;
     email: string;
     password: string;
     verifyCode: string;
@@ -21,6 +29,7 @@ export interface User extends Document {
     experienceYears: number;
     previousSponsorships: PreviousSponsorships[];
     contentType: ContentType[];
+    realName: Realname;
     profileImage: string;
 }
 
@@ -31,16 +40,18 @@ const ContentSchema = new Schema({
     },
 });
 
+
+
 // Main userSchema
 const userSchema = new Schema(
-    {   
+    {
         usertype: {
-            type : String,
-            default  : "influencer"
+            type: String,
+            default: "influencer",
         },
-        isProfileComplete:{
-            default : false,
-            type : Boolean,
+        isProfileComplete: {
+            default: false,
+            type: Boolean,
         },
         username: {
             type: String,
@@ -48,8 +59,8 @@ const userSchema = new Schema(
             unique: [true, "Username already exists"],
             trim: true,
         },
-        displayName:{
-            type : String,
+        displayName: {
+            type: String,
         },
         email: {
             type: String,
@@ -59,10 +70,9 @@ const userSchema = new Schema(
         },
         password: {
             type: String,
-            required: [true, "password is required"],
         },
-        googleId : {
-            type : String,
+        googleId: {
+            type: String,
         },
         verifyCode: {
             type: String,
@@ -72,17 +82,15 @@ const userSchema = new Schema(
         },
         isVerified: {
             type: Boolean,
-            default : false
+            default: false,
         },
-        bio:{
-            type: String
+        bio: {
+            type: String,
         },
         realName: {
-            type: String,
-            match: [
-                /^[a-zA-Z]+(?: [a-zA-Z]+)*$/,
-                "name can only contain letters and spaces",
-            ],
+            familyName: String,
+            middleName : String,
+            givenName: String,
         },
         socialMediaProfileLinks: [
             {
@@ -127,8 +135,6 @@ const userSchema = new Schema(
     },
     { timestamps: true }
 );
-
-
 
 const UserModel = mongoose.models.User || model<User>("User", userSchema);
 

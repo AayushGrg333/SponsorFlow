@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import influencerRoutes from "./routes/influencerRoutes";
-import companyRoutes from "./routes/companyRoutes";
+import companyRoutes from "./routes/companyRoutes" 
 import authRoutes from "./routes/auth/authRoutes";
 import session from "express-session";
 
