@@ -7,9 +7,7 @@ import UserModel from "../models/User";
 import CompanyModel from "../models/Company";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-// import { Strategy as GoogleStrategy } from "passport-google-oidc";
 import { Strategy as GoogleStrategy,Profile,VerifyCallback } from "passport-google-oauth20";
-// import { VerifyCallback } from "passport-oauth2";
 
 let options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -115,8 +113,6 @@ passport.use(
     },
     async (accessToken: string, refreshToken: string, profile: Profile, done: VerifyCallback) => {
       try {
-        console.log("==> Google Strategy verify triggered");
-        console.log("Full Google profile:", JSON.stringify(profile, null, 2));
 
         // Check existing user by googleId
         const existingUser = await UserModel.findOne({ googleId: profile.id });
@@ -138,8 +134,8 @@ passport.use(
           profileImage : profile.photos?.[0].value,
           realName : {
                familyName : profile.name?.familyName,
+               middleName : profile.name?.middleName,
                givenName : profile.name?.givenName,
-               middleName : profile.name?.middleName
           }
         });
 

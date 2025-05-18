@@ -7,34 +7,30 @@ import jwt from 'jsonwebtoken'
 
 const influencerCallbackController: RequestHandler = (req, res, next) => {
     try {
-        passport.authenticate(
-            "influencer-google",
-            (error: any, user: User, info: any) => {
-                if (error) return next(error);
-                if (!user) {
-                    return res.status(401).json({
-                        success: false,
-                        message: "Unable to signup with google",
-                    });
-                }
-
+        const influencerData = req.user as User;
+        if(!influencerData){
+            res.status(401).json({
+                success : false,
+                message : "unable to signup with google "
+            })
+        }
+        console.log("influencerDataa : ",influencerData)
                 const accessTokenSecret = process.env.JWT_ACCESS_SECRET!;
                 const refreshTokenSecret = process.env.JWT_REFRESH_SECRET!;
 
                 const accessToken = jwt.sign(
                     {
-                        id: user.googleId,
-                        usertype : user.usertype,
+                        id: influencerData.googleId,
+                        usertype : influencerData.usertype,
                     },
                     accessTokenSecret,
                     { expiresIn: "15m" }
                 );
 
-                console.log(accessToken);
                 const refreshToken = jwt.sign(
                     {
-                        id: user._id,
-                        usertype : user.usertype,
+                        id: influencerData._id,
+                        usertype : influencerData.usertype,
                     },
                     refreshTokenSecret,
                     { expiresIn: "30d" }
@@ -51,13 +47,12 @@ const influencerCallbackController: RequestHandler = (req, res, next) => {
                     maxAge: 15 * 60 * 1000, // 15 min
                 });
 
-                return res.status(200).json({
+                 res.status(200).json({
                     success : true,
                     message  : "logged in successfully with google",
                 })
             }
-        )(req,res,next);
-    } catch (error) {
+    catch (error) {
          res.status(500).json({
                         success: false,
                         message: "Error found in influencer callback controller",
