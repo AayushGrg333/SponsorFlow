@@ -48,7 +48,6 @@ const loginController: RequestHandler = async (req, res, next) => {
                     usertype
                 },accessTokenSecret,{expiresIn : "15m"});
 
-                console.log(accessToken)
                 const refreshToken = jwt.sign({
                     id: user._id,
                     usertype

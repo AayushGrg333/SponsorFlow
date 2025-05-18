@@ -18,7 +18,17 @@ export interface Company extends Document {
     products : Product[];
     establishedYear : number;
     description : string;
+  socialLinks: SocialLink[];
+
 }
+
+export type SocialPlatform = "website" | "instagram" | "linkedin" | "twitter" | "youtube" | "facebook";
+
+export interface SocialLink {
+  type: SocialPlatform;
+  url: string;
+}
+
 
 const ContentSchema = new Schema({
     content: {
@@ -34,6 +44,16 @@ type contentType = {
 type Product = {
     name : string;
 }
+
+const socialLinkSchema = new Schema({
+    types : {
+        type : String,
+        enum: ["website", "instagram", "linkedin", "twitter", "youtube", "facebook"],
+    },
+    url : {
+        type : String,
+    }
+})
 
 
 
@@ -115,6 +135,8 @@ const companySchema = new Schema(
                 return this.isProfileComplete;
             },
         },
+        socialLinks : [socialLinkSchema]
+
     },
     { timestamps: true }
 );

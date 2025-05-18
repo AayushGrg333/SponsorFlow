@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 import { RequestHandler } from "express";
-import passport from "passport";
 import { User } from "../../models/User";
 import jwt from 'jsonwebtoken'
 
@@ -14,7 +13,6 @@ const influencerCallbackController: RequestHandler = (req, res, next) => {
                 message : "unable to signup with google "
             })
         }
-        console.log("influencerDataa : ",influencerData)
                 const accessTokenSecret = process.env.JWT_ACCESS_SECRET!;
                 const refreshTokenSecret = process.env.JWT_REFRESH_SECRET!;
 

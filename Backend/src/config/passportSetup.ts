@@ -7,7 +7,11 @@ import UserModel from "../models/User";
 import CompanyModel from "../models/Company";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import { Strategy as GoogleStrategy,Profile,VerifyCallback } from "passport-google-oauth20";
+import {
+    Strategy as GoogleStrategy,
+    Profile,
+    VerifyCallback,
+} from "passport-google-oauth20";
 
 let options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -80,7 +84,6 @@ passport.use(
                 //decide if its an email or username?
 
                 const isEmail = identifier.includes("@");
-                console.log(isEmail);
                 const user = await CompanyModel.findOne(
                     isEmail
                         ? { email: identifier }
@@ -103,50 +106,56 @@ passport.use(
     )
 );
 passport.use(
-  "influencer-google",
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: "http://localhost:8001/api/influencer/oauth2/google/callback"
+    "influencer-google",
+    new GoogleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            callbackURL:
+                "http://localhost:8001/api/influencer/oauth2/google/callback",
+        },
+        async (
+            accessToken: string,
+            refreshToken: string,
+            profile: Profile,
+            done: VerifyCallback
+        ) => {
+            try {
+                // Check existing user by googleId
+                const existingUser = await UserModel.findOne({
+                    googleId: profile.id,
+                });
+                if (existingUser) return done(null, existingUser);
 
-    },
-    async (accessToken: string, refreshToken: string, profile: Profile, done: VerifyCallback) => {
-      try {
+                // Prepare username
+                const rawName = profile.displayName || "user";
+                const usernameCreation = rawName.replace(/\s+/g, "");
+                const random = Math.floor(Math.random() * 1000) + 1;
+                const newUsername = usernameCreation + random.toString();
 
-        // Check existing user by googleId
-        const existingUser = await UserModel.findOne({ googleId: profile.id });
-        if (existingUser) return done(null, existingUser);
+                // Create new user
+                const newUser = new UserModel({
+                    googleId: profile.id,
+                    email: profile.emails?.[0].value,
+                    username: newUsername,
+                    displayName: profile.displayName,
+                    isVerified: true,
+                    profileImage: profile.photos?.[0].value,
+                    realName: {
+                        familyName: profile.name?.familyName,
+                        middleName: profile.name?.middleName,
+                        givenName: profile.name?.givenName,
+                    },
+                });
 
-        // Prepare username
-        const rawName = profile.displayName || "user";
-        const usernameCreation = rawName.replace(/\s+/g, "");
-        const random = Math.floor(Math.random() * 1000) + 1;
-        const newUsername = usernameCreation + random.toString();
-
-        // Create new user
-        const newUser = new UserModel({
-          googleId: profile.id,
-          email: profile.emails?.[0].value,
-          username: newUsername,
-          displayName: profile.displayName,
-          isVerified: true,
-          profileImage : profile.photos?.[0].value,
-          realName : {
-               familyName : profile.name?.familyName,
-               middleName : profile.name?.middleName,
-               givenName : profile.name?.givenName,
-          }
-        });
-
-        await newUser.save();
-        return done(null, newUser);
-      } catch (error) {
-        console.error("Error during OAuth google", error);
-        done(error);
-      }
-    }
-  )
+                await newUser.save();
+                return done(null, newUser);
+            } catch (error) {
+                console.error("Error during OAuth google", error);
+                done(error);
+            }
+        }
+    )
 );
 
 passport.use(
@@ -155,33 +164,36 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            callbackURL: "/oauth2/google/callback",
+            callbackURL:
+                "http://localhost:8001/api/company/oauth2/google/callback",
         },
-        async function verify(
+        async (
             accessToken: string,
             refreshToken: string,
             profile: Profile,
             done: VerifyCallback
-        ) {
+        ) => {
             try {
-                const existingUser = await CompanyModel.findOne({
+                // Check existing user by googleId
+                const existingCompany = await CompanyModel.findOne({
                     googleId: profile.id,
                 });
+                if (existingCompany) return done(null, existingCompany);
 
-                if (existingUser) return done(null, existingUser);
 
+                // Create new user
                 const newUser = new CompanyModel({
                     googleId: profile.id,
                     email: profile.emails?.[0].value,
-                    companyName: profile.displayName,
+                    companyName : profile.displayName,
                     isVerified: true,
+                    profileImage: profile.photos?.[0].value,
                 });
 
                 await newUser.save();
-
                 return done(null, newUser);
             } catch (error) {
-                console.error("Error during O-auth google", error);
+                console.error("Error during OAuth google", error);
                 done(error);
             }
         }
