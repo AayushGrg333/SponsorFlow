@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth/authRoutes";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import verifyToken from './middlewares/verifytoken'
+import checkRole from "./middlewares/rolecheck";
 
 //connect mongodb
 import connectDB from "./config/connnectdb";

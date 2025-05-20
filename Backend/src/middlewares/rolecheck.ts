@@ -19,3 +19,5 @@ function checkRole(role: "company" | "influencer"): RequestHandler {
           }
      };
 }
+
+export default checkRole;

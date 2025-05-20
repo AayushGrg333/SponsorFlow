@@ -83,12 +83,7 @@ passport.use(
             try {
                 //decide if its an email or username?
 
-                const isEmail = identifier.includes("@");
-                const user = await CompanyModel.findOne(
-                    isEmail
-                        ? { email: identifier }
-                        : { companyName: identifier }
-                );
+                const user = await CompanyModel.findOne({ email: identifier });
                 if (!user)
                     return done(null, false, { message: "company not found" });
 

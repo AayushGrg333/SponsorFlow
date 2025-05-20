@@ -3,8 +3,9 @@ import influencerSignupController from "../controllers/auth/influencerController
 import passport from "passport";
 import influencerCallbackController from "../controllers/auth/influencerCallbackController";
 import { User } from "../models/User";
-
+import verifyToken from "../middlewares/verifytoken";
 const router = express.Router();
+
 router.post("/auth/sign-up", influencerSignupController);
 router.get(
     "/auth/google",

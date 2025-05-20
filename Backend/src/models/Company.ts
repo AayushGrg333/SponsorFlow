@@ -11,6 +11,7 @@ export interface Company extends Document {
     verifyCodeExpiry : Date;
     isVerified : boolean;
     googleId : string;
+    addressType : addresstype;
     address : string;
     contactNumber : string;
     contentType : contentType[];
@@ -23,7 +24,7 @@ export interface Company extends Document {
 }
 
 export type SocialPlatform = "website" | "instagram" | "linkedin" | "twitter" | "youtube" | "facebook";
-
+export type addresstype = 'Physical' | 'Online'
 export interface SocialLink {
   type: SocialPlatform;
   url: string;
@@ -106,12 +107,16 @@ const companySchema = new Schema(
             type: Boolean,
             default: false,
         },
+        addressType:{
+            type : String,
+            enum : ["Online","Physical"],
+            required : true,
+        },
         address: {
             type: String,
             required: function (this: any) {
                 return this.isProfileComplete;
             },
-            enum: ["Online", "Physical"],
         },
         contactNumber: {
             type: String,

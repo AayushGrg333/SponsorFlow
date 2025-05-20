@@ -5,6 +5,8 @@ import { Company } from "../models/Company";
 import CompanyCallbackController from "../controllers/auth/companyCallbackController";
 
 const router = express.Router(); 
+
+//auth
 router.post('/auth/sign-up',companySignupController);
 router.get('/auth/google',passport.authenticate('company-google',{
           scope : ['profile','email'],
@@ -27,6 +29,9 @@ router.get('/oauth2/google/callback',(req,res,next) => {
           }
      )(req,res,next)
 })
+
+//profile
+router.post('/profile',)
 
 
 export default router;
