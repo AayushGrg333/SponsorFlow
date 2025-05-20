@@ -5,6 +5,8 @@ import influencerRoutes from "./routes/influencerRoutes";
 import companyRoutes from "./routes/companyRoutes" 
 import authRoutes from "./routes/auth/authRoutes";
 import session from "express-session";
+import cookieParser from "cookie-parser";
+import verifyToken from './middlewares/verifytoken'
 
 //connect mongodb
 import connectDB from "./config/connnectdb";
@@ -18,6 +20,8 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 //Middleware
+app.use(cookieParser());
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your_default_secret",
