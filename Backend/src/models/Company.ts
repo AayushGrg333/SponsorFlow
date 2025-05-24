@@ -136,9 +136,6 @@ const companySchema = new Schema(
         },
         description: {
             type: String,
-            required: function (this: any) {
-                return this.isProfileComplete;
-            },
         },
         socialLinks : [socialLinkSchema]
 
