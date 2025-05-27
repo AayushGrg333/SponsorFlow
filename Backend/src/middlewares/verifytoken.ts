@@ -23,52 +23,35 @@ const verifyToken: RequestHandler = async (req, res, next) => {
      }
 
      try {
-          const decodedToken = jwt.verify(
+          const decodedPayload = jwt.verify(
                token,
                process.env.JWT_ACCESS_SECRET!
           ) as JwtPayload;
 
-          let user: any = await redisclient.get(`user:${decodedToken.id}`);
-
-          if (!user) {
-               if (decodedToken.usertype === "company") {
-                    const userFromDb = await CompanyModel.findById(
-                         decodedToken.id
-                    ).select("-password");
-                    if (!userFromDb) {
-                          res.status(401).json({
-                              success: false,
-                              message: "Company user not found",
-                         });
-                    }
-                    user = userFromDb;
-               } else {
-                    const userFromDb = await UserModel.findById(
-                         decodedToken.id
-                    ).select("-password");
-                    if (!userFromDb) {
-                          res.status(401).json({
-                              success: false,
-                              message: "Influencer user not found",
-                         });
-                    }
-                    user = userFromDb;
+          if ((decodedPayload.usertype = "compnay")) {
+               const userFromDb = await CompanyModel.findById(
+                    decodedPayload.id
+               ).select("-password");
+               if (!userFromDb) {
+                    res.status(401).json({
+                         success: false,
+                         message: "User not found in the database",
+                    });
                }
-
-               // Cache user
-               await redisclient.set(
-                    `user:${decodedToken.id}`,
-                    JSON.stringify(user),
-                    {
-                         EX: 60 * 60, // 1 hour
-                    }
-               );
-          } else {
-               user = JSON.parse(user);
+               req.user = userFromDb;
+          }else{
+                const userFromDb = await UserModel.findById(
+                    decodedPayload.id
+               ).select("-password");
+               if (!userFromDb) {
+                    res.status(401).json({
+                         success: false,
+                         message: "User not found in the database",
+                    });
+               }
+               req.user = userFromDb;
           }
 
-          // Attach to request
-          req.user = user;
           next();
      } catch (error) {
           res.status(401).json({

@@ -3,6 +3,8 @@ import companySignupController from "../controllers/auth/companyController";
 import passport from "passport";
 import { Company } from "../models/Company";
 import CompanyCallbackController from "../controllers/auth/companyCallbackController";
+import verifyToken from "../middlewares/verifytoken";
+import profileSetup from "../controllers/profile/profileSetup";
 
 const router = express.Router(); 
 
@@ -31,7 +33,7 @@ router.get('/oauth2/google/callback',(req,res,next) => {
 })
 
 //profile
-router.post('/profile',)
+router.post('/profile',verifyToken,profileSetup)
 
 
 export default router;
