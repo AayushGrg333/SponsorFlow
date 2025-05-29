@@ -26,7 +26,6 @@ router.get('/oauth2/google/callback',(req,res,next) => {
                     })
                }
                req.user = company as Company;
-               next()
                return CompanyCallbackController(req,res,next);
           }
      )(req,res,next)

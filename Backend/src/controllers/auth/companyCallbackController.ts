@@ -5,14 +5,16 @@ import jwt from "jsonwebtoken";
 import { RequestHandler } from "express";
 import { Company } from "../../models/Company";
 
-const CompanyCallbackController: RequestHandler = (req, res, next) => {
+const CompanyCallbackController: RequestHandler = async (req, res, next) => {
     try {
         const companyData = req.user as Company;
+
         if (!companyData) {
             res.status(401).json({
                 success: false,
-                message: "unable to signup with google ",
+                message: "Unable to signup with Google",
             });
+            return; 
         }
 
         const accessTokenSecret = process.env.JWT_ACCESS_SECRET!;
@@ -35,29 +37,33 @@ const CompanyCallbackController: RequestHandler = (req, res, next) => {
             refreshTokenSecret,
             { expiresIn: "30d" }
         );
+
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             sameSite: "strict",
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
         });
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             sameSite: "strict",
-            maxAge: 15 * 60 * 1000, // 15 min
+            maxAge: 15 * 60 * 1000, // 15 minutes
         });
 
-         res.status(200).json({
+        res.status(200).json({
             success: true,
-            message: "logged in successfully with google",
+            message: "Logged in successfully with Google",
         });
     } catch (error) {
-        console.error("Error during signing up company with google");
-                res.status(401).json({
+        console.error("Error during signing up company with Google:", error);
+
+        if (!res.headersSent) {
+            res.status(500).json({
                 success: false,
-                message: "Error during signing up company with google",
+                message: "Internal server error during Google signup",
             });
+        }
     }
 };
 
-export default CompanyCallbackController;
+export default CompanyCallbackController

@@ -107,7 +107,7 @@ passport.use(
             clientID: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             callbackURL:
-                "http://localhost:8001/api/influencer/oauth2/google/callback",
+                "http://localhost:8000/api/influencer/oauth2/google/callback",
         },
         async (
             accessToken: string,
@@ -160,7 +160,7 @@ passport.use(
             clientID: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             callbackURL:
-                "http://localhost:8001/api/company/oauth2/google/callback",
+                "http://localhost:8000/api/company/oauth2/google/callback",
         },
         async (
             accessToken: string,

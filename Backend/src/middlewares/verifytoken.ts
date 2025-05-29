@@ -3,7 +3,6 @@ dotenv.config();
 
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import redisclient from "../config/redisClient";
 import UserModel from "../models/User";
 import CompanyModel from "../models/Company";
 
@@ -20,6 +19,7 @@ const verifyToken: RequestHandler = async (req, res, next) => {
                success: false,
                message: "Access denied, No token found.",
           });
+          return;
      }
 
      try {
