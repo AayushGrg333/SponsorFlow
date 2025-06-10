@@ -23,6 +23,7 @@
     "cookies": "^0.9.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
     "libphonenumber-js": "^1.12.8",
     "mongoose": "^8.9.5",
