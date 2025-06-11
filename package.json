@@ -15,6 +15,7 @@
     "libphonenumber-js": "^1.12.8",
     "passport-google-oidc": "^0.1.0",
     "tsconfig-paths": "^4.2.0",
+    "winston": "^3.17.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
