@@ -1,22 +1,23 @@
 
-import { RequestHandler } from "express";
+import { Request, Response, RequestHandler } from "express";
 import UserModel from "../../models/User";
 import { signupSchema } from "@/Shared/validations/signupSchema";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
 import sendVerificationEmail from "../../utils/sendVerificationEmail";
+import Apiresponse from "../../utils/apiresponse";
+import { asyncWrapper } from "../../utils/asyncHandler";
 
-const influencerSignupController: RequestHandler = async (req, res) => {
-    try {
-        // Validate input data using Zod
+const influencerSignupController: RequestHandler = asyncWrapper(async (req: Request, res: Response) => {   
+     // Validate input data using Zod
         const parsedData = signupSchema.safeParse(req.body);
         if (!parsedData.success) {
-            res.status(400).json({
-                success: false,
-                message: "Invalid signup data",
-                errors: parsedData.error.errors,
-            });
-            return;
+                        res.status(400).json({
+                        success: false,
+                        message: "Invalid signup data",
+                        errors: parsedData.error.errors,
+                    });
+                    return;
         }
 
         const { username, email, password } = parsedData.data;
@@ -27,11 +28,7 @@ const influencerSignupController: RequestHandler = async (req, res) => {
         });
 
         if (existingUserByUsername) {
-            res.status(400).json({
-                success: false,
-                message: "Username already exists",
-            });
-            return;
+                return Apiresponse.error(res,"username already exists",400);
         }
 
         const existingUserByEmail = await UserModel.findOne({ email });
@@ -42,11 +39,7 @@ const influencerSignupController: RequestHandler = async (req, res) => {
 
         if (existingUserByEmail) {
             if (existingUserByEmail.isVerified) {
-                res.status(400).json({
-                    success: false,
-                    message: "Email already exists",
-                });
-                return;
+                return Apiresponse.error(res,"Email already exists",400);
             } else {
                 //condition 1:  If email exists but is NOT verified, update the previous entry
                 existingUserByEmail.username = username;
@@ -59,12 +52,7 @@ const influencerSignupController: RequestHandler = async (req, res) => {
 
             await sendVerificationEmail(username,email, verificationCode,"influencer");
 
-                res.status(200).json({
-                    success: true,
-                    message: "Signup successful. Verification code sent",
-                    verificationCode,
-                });
-                return;
+                return Apiresponse.success(res, "Signup successful. Verification code sent");
             }
         } else {
             //condition 2 :  Create a new user if email does not exist
@@ -78,22 +66,9 @@ const influencerSignupController: RequestHandler = async (req, res) => {
 
             await sendVerificationEmail(username,email, verificationCode,"influencer");
 
-            res.status(200).json({
-                success: true,
-                message: "Signup successful. Verification code sent",
-            });
-
-
-            return;
+            return Apiresponse.success(res, "Signup successful. Verification code sent");
         }
-    } catch (error) {
-        console.error("Error registering influencer:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed during influencer signup",
-        });
-        return;
-    }
-};
+})
+
 
 export default influencerSignupController;

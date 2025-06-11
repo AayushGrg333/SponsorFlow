@@ -2,12 +2,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import jwt from "jsonwebtoken";
-import { RequestHandler } from "express";
+import { RequestHandler, Request, Response } from "express";
 import { Company } from "../../models/Company";
+import { asyncWrapper } from "../../utils/asyncHandler";
 
-const CompanyCallbackController: RequestHandler = async (req, res, next) => {
-    try {
-        const companyData = req.user as Company;
+
+
+
+
+const CompanyCallbackController: RequestHandler = asyncWrapper(async (req : Request, res: Response) => {
+    const companyData = req.user as Company;
 
         if (!companyData) {
             res.status(401).json({
@@ -54,16 +58,6 @@ const CompanyCallbackController: RequestHandler = async (req, res, next) => {
             success: true,
             message: "Logged in successfully with Google",
         });
-    } catch (error) {
-        console.error("Error during signing up company with Google:", error);
+});
 
-        if (!res.headersSent) {
-            res.status(500).json({
-                success: false,
-                message: "Internal server error during Google signup",
-            });
-        }
-    }
-};
-
-export default CompanyCallbackController
+export default CompanyCallbackController;

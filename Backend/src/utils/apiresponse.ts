@@ -1,9 +1,9 @@
 import { Response } from "express";
 
 class Apiresponse{
-     static success(res: Response , data : any , message : string) {
+     static success(res: Response , message : string, data : any  = null) {
           res.status(200).json({
-               status : "success",
+               "success" : true,
                message,
                data,
           })
@@ -11,12 +11,19 @@ class Apiresponse{
 
      static error(res : Response, message : string, statuscode : number ){
           res.status(statuscode).json({
-               status : "Error",
+               "success" : false,
                message,
           })
      }
 
-     
-     
-     
-}
+     static created(res: Response, message: string, data: any = null) {
+          res.status(201).json({
+               "success" : true,
+               message,
+               data,
+          });
+     }
+
+    }
+
+    export default Apiresponse;
