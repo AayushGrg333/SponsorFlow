@@ -1,6 +1,7 @@
-import mongoose, { model, Schema, Document } from "mongoose";
+import mongoose, { model, Schema, Document, ObjectId } from "mongoose";
 
 export interface Company extends Document {
+    _id: string | ObjectId;
     usertype : "company";
     isProfileComplete : boolean;
     companyName : string;
