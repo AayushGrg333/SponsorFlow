@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import verifyToken from './middlewares/verifytoken'
 import checkRole from "./middlewares/rolecheck";
 import { errorHandler } from "./middlewares/errorHandler";
+import { Request, Response } from "express";
 
 //connect mongodb
 import connectDB from "./config/connnectdb";
@@ -44,9 +45,7 @@ app.use("/api/influencer", influencerRoutes);
 app.use("/api/company", companyRoutes);
 app.use("/api/auth", authRoutes);
 
-app.get("/", (req,res) => {
-  return Apiresponse.success(res, "Welcome to the Influencer Marketing API", null);
-});
+
 
 app.use(errorHandler);
 

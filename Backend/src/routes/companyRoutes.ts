@@ -3,7 +3,8 @@ import {companySignupController,CompanyCallbackController} from "../controllers/
 import passport from "passport";
 import { Company } from "../models/Company";
 import verifyToken from "../middlewares/verifytoken";
-import profileSetup from "../controllers/profile/profileSetup";
+import {companyProfileSetupController,getCompanyProfileController } from "../controllers/profile/companyProfile";
+
 
 const router = express.Router(); 
 
@@ -24,14 +25,15 @@ router.get('/oauth2/google/callback',(req,res,next) => {
                          message : "Error signing up with google"
                     })
                }
-               req.user = company as Company;
+               req.user = { ...company.toObject?.() ?? company, role: "company" };
                return CompanyCallbackController(req,res,next);
           }
      )(req,res,next)
 })
 
 //profile
-router.post('/profile',verifyToken,profileSetup)
+router.post('/profile',verifyToken,companyProfileSetupController);
+router.get('/profile/:companyId',verifyToken, getCompanyProfileController);
 
 
 export default router;
