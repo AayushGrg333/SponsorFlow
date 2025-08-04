@@ -90,3 +90,27 @@ export const notfoundHandler = (req: Request, res: Response, next: NextFunction)
     message: `Route ${req.originalUrl} not found`
   });
 }
+
+
+
+export const log = {
+  info: (message: string, meta?: any) => {
+    logger.info(message, meta);
+  },
+  
+  error: (message: string, error?: Error | any, meta?: any) => {
+    logger.error(message, { 
+      error: error?.message || error,
+      stack: error?.stack,
+      ...meta 
+    });
+  },
+  
+  warn: (message: string, meta?: any) => {
+    logger.warn(message, meta);
+  },
+  
+  debug: (message: string, meta?: any) => {
+    logger.debug(message, meta);
+  }
+};

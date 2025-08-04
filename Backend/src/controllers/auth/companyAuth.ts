@@ -1,13 +1,16 @@
-import { RequestHandler } from "express";
+import { RequestHandler, Request, Response } from "express";
 import { companySignupSchema } from "@/Shared/validations/signupSchema";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
 import CompanyModel from "../../models/Company";
 import sendVerificationEmail from "../../utils/sendVerificationEmail";
+import { asyncWrapper } from "../../utils/asyncHandler";
+import { Company } from "../../models/Company";
+import Jwt  from "jsonwebtoken";
+import {config} from "../../config/config";
 
-const companySignupController : RequestHandler = async (req, res) =>{
-     try {
-          // Validate input data using Zod
+export const companySignupController : RequestHandler = asyncWrapper(
+     async (req: Request, res: Response) =>{
           const parsedData = companySignupSchema.safeParse(req.body);
           if (!parsedData.success) {
               res.status(400).json({
@@ -91,14 +94,56 @@ const companySignupController : RequestHandler = async (req, res) =>{
               });
               return;
           }
-      } catch (error) {
-          console.error("Error registering Company:", error);
-          res.status(500).json({
-              success: false,
-              message: "Failed during Company signup",
-          });
-          return;
-      }
-  };
+      
+  });
 
-export  default companySignupController;
+
+export const CompanyCallbackController: RequestHandler = asyncWrapper(async (req : Request, res: Response) => {
+    const companyData = req.user as Company;
+
+        if (!companyData) {
+            res.status(401).json({
+                success: false,
+                message: "Unable to signup with Google",
+            });
+            return; 
+        }
+
+        const accessTokenSecret = config.JWT_ACCESS_SECRET;
+        const refreshTokenSecret = config.JWT_REFRESH_SECRET;
+
+        const accessToken = Jwt.sign(
+            {
+                id: companyData._id,
+                usertype: companyData.usertype,
+            },
+            accessTokenSecret,
+            { expiresIn: "15m" }
+        );
+
+        const refreshToken = Jwt.sign(
+            {
+                id: companyData._id,
+                usertype: companyData.usertype,
+            },
+            refreshTokenSecret,
+            { expiresIn: "30d" }
+        );
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        });
+
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Logged in successfully with Google",
+        });
+});

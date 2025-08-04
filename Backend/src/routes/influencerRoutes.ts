@@ -1,7 +1,6 @@
 import express from "express";
-import influencerSignupController from "../controllers/auth/influencerController";
+import {influencerSignupController,influencerCallbackController} from "../controllers/auth/influencerAuth";
 import passport from "passport";
-import influencerCallbackController from "../controllers/auth/influencerCallbackController";
 import { User } from "../models/User";
 import verifyToken from "../middlewares/verifytoken";
 const router = express.Router();

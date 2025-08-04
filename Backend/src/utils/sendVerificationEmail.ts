@@ -101,5 +101,6 @@ const sendVerificationEmail = async (
     }
 };
 
+
 export default sendVerificationEmail;
     
