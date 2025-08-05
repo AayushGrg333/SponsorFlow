@@ -49,3 +49,5 @@ export const companyProfileSchema = z
       path: ["address"],
     }
   );
+
+export const companyProfileUpdateSchema = companyProfileSchema._def.schema.partial();
