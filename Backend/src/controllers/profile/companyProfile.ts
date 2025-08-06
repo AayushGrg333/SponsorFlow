@@ -4,7 +4,7 @@ import CompanyModel from "../../models/Company";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { ObjectId } from "mongoose";
-import CampaignModel from "../../models/campaign";
+import CampaignModel from "../../models/Campaign";
 
 declare global {
      namespace Express {
