@@ -6,11 +6,9 @@ import {
 } from "../interfaces/userinterfaces";
 
 interface Realname {
-     realName: {
           familyName: string;
           givenName: string;
           middleName: string;
-     };
 }
 
 export type SocialPlatform =
@@ -183,6 +181,9 @@ userSchema.pre<User>("save", function (next) {
      }));
      next();
 });
+
+
+
 
 userSchema.virtual("primaryTier").get(function (this: User) {
      if (this.platforms.length === 0) return undefined;
