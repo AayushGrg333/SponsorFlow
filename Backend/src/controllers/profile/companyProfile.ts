@@ -8,7 +8,7 @@ import CampaignModel from "../../models/Campaign";
 
 declare global {
      namespace Express {
-          interface Company {
+          interface User {
                _id: string | ObjectId;
           }
      }
@@ -16,8 +16,8 @@ declare global {
 
 export const companyProfileSetupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const user = req.user as { companyId?: string };
-          if (!user || !user.companyId) {
+          const user = req.user 
+          if (!user) {
                return Apiresponse.error(res, "Unauthorized", 401);
           }
 
@@ -31,7 +31,7 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
                return;
           }
 
-          const company = await CompanyModel.findById(user.companyId);
+          const company = await CompanyModel.findById(user!._id);
           if (!company) {
                return Apiresponse.error(res, "Company not found", 404);
           }
@@ -67,6 +67,7 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
                company.description = description;
           }
           company.socialLinks = socialLinks;
+          company.isProfileComplete = true;
 
           await company.save();
 
@@ -100,10 +101,7 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
                return Apiresponse.error(res, "Company not found", 404);
           }
 
-          return res.status(200).json({
-               status: "success",
-               company,
-          });
+          return Apiresponse.success(res, "Company profile fetched successfully", company);
      }
 );
 
@@ -122,7 +120,10 @@ export const listCompaniesController: RequestHandler = asyncWrapper(
 			limit?: string;
 		}
 
-		const query : any = {}
+		const query : any = {
+               isVerified: true,
+               isProfileComplete: true,
+          }
 
 		if(search){
 			query.companyName = { $regex: search, $options: "i"}
