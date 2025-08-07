@@ -1,14 +1,15 @@
-
 import { RequestHandler, Request, Response } from "express";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
-import {influencerProfileSchema} from "@/Shared/validations/profileCompletionSchema"
+import { influencerProfileSchema } from "@/Shared/validations/profileCompletionSchema";
 import UserModel from "../../models/User";
+import ApplicationModel from "../../models/Application";
+import CampaignModel from "../../models/Campaign";
 
 export const influencerProfileSetupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           const user = req.user;
-          if( !user) {
+          if (!user) {
                return Apiresponse.error(res, "Unauthorized", 401);
           }
 
@@ -25,10 +26,17 @@ export const influencerProfileSetupController: RequestHandler = asyncWrapper(
           if (!influencer) {
                return Apiresponse.error(res, "Influencer not found", 404);
           }
-          
+
           const {
-               realName,displayName, socialMediaProfileLinks, experienceYears, previousSponsorships,
-               contentType, profileImage, platforms, bio
+               realName,
+               displayName,
+               socialMediaProfileLinks,
+               experienceYears,
+               previousSponsorships,
+               contentType,
+               profileImage,
+               platforms,
+               bio,
           } = parsedData.data;
 
           influencer.realName = realName;
@@ -39,31 +47,36 @@ export const influencerProfileSetupController: RequestHandler = asyncWrapper(
           influencer.contentType = contentType;
           influencer.profileImage = profileImage;
           influencer.platforms = platforms;
-          influencer.displayName = displayName
+          influencer.displayName = displayName;
           influencer.isProfileComplete = true;
           await influencer.save();
 
-          return Apiresponse.success(res, "Influencer profile updated successfully", influencer);
-
+          return Apiresponse.success(
+               res,
+               "Influencer profile updated successfully",
+               influencer
+          );
      }
 );
 
 export const getCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const { influencerId }  = req.params;
-          const influencer = await UserModel.findOne ({
-               $or : [{_id : influencerId},{slug: influencerId}],
-               isVerified: true, isProfileComplete: true,
-          })
-          .select("-password -__v -email -createdAt -updatedAt");
+          const { influencerId } = req.params;
+          const influencer = await UserModel.findOne({
+               $or: [{ _id: influencerId }, { slug: influencerId }],
+               isVerified: true,
+               isProfileComplete: true,
+          }).select("-password -__v -email -createdAt -updatedAt");
 
           if (!influencer) {
                return Apiresponse.error(res, "Influencer not found", 404);
           }
 
-          return Apiresponse.success(res, "Influencer profile fetched successfully", influencer);
-
-         
+          return Apiresponse.success(
+               res,
+               "Influencer profile fetched successfully",
+               influencer
+          );
      }
 );
 
@@ -79,7 +92,7 @@ export const updateCompnayProfileController: RequestHandler = asyncWrapper(
           if (!parsedData.success) {
                res.status(400).json({
                     status: "error",
-                    message: "Invalid data",      
+                    message: "Invalid data",
                     errors: parsedData.error.errors,
                });
                return;
@@ -88,7 +101,7 @@ export const updateCompnayProfileController: RequestHandler = asyncWrapper(
           const influencer = await UserModel.findByIdAndUpdate(
                influencerId,
                {
-                    $set : parsedData.data
+                    $set: parsedData.data,
                },
                { new: true, runValidators: true }
           );
@@ -97,23 +110,27 @@ export const updateCompnayProfileController: RequestHandler = asyncWrapper(
                return Apiresponse.error(res, "Influencer not found", 404);
           }
 
-          return Apiresponse.success(res, "Influencer profile updated successfully", influencer);
+          return Apiresponse.success(
+               res,
+               "Influencer profile updated successfully",
+               influencer
+          );
      }
-)
+);
 
 export const listInfluencersController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const {search, contentType ,page = 1, limit = 10} = req.query;
+          const { search, contentType, page = 1, limit = 10 } = req.query;
           const query: any = {
                isVerified: true,
                isProfileComplete: true,
-          }
-          if(search){
-               query.displayName = { $regex : search , $options: "i"}
+          };
+          if (search) {
+               query.displayName = { $regex: search, $options: "i" };
           }
 
-          if(contentType){
-              query.contentType = {$elemMatch : {contentType : contentType}}
+          if (contentType) {
+               query.contentType = { $elemMatch: { contentType: contentType } };
           }
 
           const skip = (Number(page) - 1) * Number(limit);
@@ -121,7 +138,7 @@ export const listInfluencersController: RequestHandler = asyncWrapper(
                .select("-password -__v -email -createdAt -updatedAt")
                .skip(skip)
                .limit(Number(limit))
-               .sort({createdAt: -1});
+               .sort({ createdAt: -1 });
 
           const total = await UserModel.countDocuments(query);
 
@@ -129,7 +146,39 @@ export const listInfluencersController: RequestHandler = asyncWrapper(
                succsess: true,
                companies,
                total,
-              currentPage: Number(page),
-              totalPages : Math.ceil(total / Number(limit))
+               currentPage: Number(page),
+               totalPages: Math.ceil(total / Number(limit)),
+          });
+     }
+);
+
+export const listInfluencerCampaignsController: RequestHandler = asyncWrapper(
+     async (req: Request, res: Response) => {
+          const { influencerId } = req.params;
+          if (!influencerId) {
+               return Apiresponse.error(res, "Influencer ID is required", 400);
+          }
+
+          const applications = await ApplicationModel.find({
+               influencer: influencerId,
           })
-     })
+               .populate({
+                    path: "campaign",
+                    model: CampaignModel,
+                    select: "title budget budgetVisibility status startDate endDate company", // Select only needed fields
+               })
+               .sort({ createdAt: -1 });
+
+          const formatted = applications.map((app) => ({
+               campaign: app.campaign,
+               status: app.status,
+               appliedAt: app.createdAt,
+          }));
+
+          return res.status(200).json({
+               status: "success",
+               count: formatted.length,
+               campaigns: formatted,
+          });
+     }
+);
