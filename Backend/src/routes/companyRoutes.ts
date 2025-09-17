@@ -3,7 +3,7 @@ import {companySignupController,CompanyCallbackController} from "../controllers/
 import passport from "passport";
 import { Company } from "../models/Company";
 import verifyToken from "../middlewares/verifytoken";
-import {companyProfileSetupController,getCompanyProfileController ,listCompanyCampaignsController,updateCompanyProfileController} from "../controllers/profile/companyProfile";
+import {companyProfileSetupController,listCompaniesController,getCompanyProfileController ,listCompanyCampaignsController,updateCompanyProfileController} from "../controllers/profile/companyProfile";
 
 
 const router = express.Router(); 
@@ -34,6 +34,7 @@ router.get('/oauth2/google/callback',(req,res,next) => {
 //profile
 router.post('/profile',verifyToken,companyProfileSetupController);
 router.get('/profile/:companyId',verifyToken, getCompanyProfileController);
+router.get('/profile/me',verifyToken,listCompaniesController );
 router.get('/profile/update-profile/:companyId',verifyToken, updateCompanyProfileController);
 router.get('/profile/:companyId/campaigns', verifyToken,listCompanyCampaignsController);
 
