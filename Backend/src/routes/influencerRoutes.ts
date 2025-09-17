@@ -1,8 +1,11 @@
 import express from "express";
-import {influencerSignupController,influencerCallbackController} from "../controllers/auth/influencerAuth";
+import { influencerSignupController, influencerCallbackController } from "../controllers/auth/influencerAuth";
 import passport from "passport";
 import { User } from "../models/User";
 import verifyToken from "../middlewares/verifytoken";
+import mongoose from "mongoose";
+
+
 const router = express.Router();
 
 router.post("/auth/sign-up", influencerSignupController);
@@ -27,7 +30,7 @@ router.get("/oauth2/google/callback", (req, res, next) => {
                 });
             }
 
-            req.user = user as User//manually attacted the user
+            (req as any).user = user as User//manually attacted the user
             next(); 
             return influencerCallbackController(req, res, next);
         }
