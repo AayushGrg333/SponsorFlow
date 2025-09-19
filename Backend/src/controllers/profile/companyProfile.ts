@@ -191,75 +191,76 @@ export const updateCompanyProfileController: RequestHandler = asyncWrapper(
      }
      );
 
-/**
- * Controller to list campaigns for a company.
- * 
- * Access rules:
- * - Logged in as company or influencer: full campaign details
- * - Visitor (not logged in): limited campaign details
- */
-export const listCompanyCampaignsController: RequestHandler = asyncWrapper(
-  async (req: Request, res: Response) => {
-    const user = req.user as { usertype?: string; companyId?: string } | undefined;
-    const companyId = req.params.companyId;
+// /**
+//  * Controller to list campaigns for a company.
+//  * 
+//  * Access rules:
+//  * - Logged in as company or influencer: full campaign details
+//  * - Visitor (not logged in): limited campaign details
+//  */
+// export const listCompanyCampaignsController: RequestHandler = asyncWrapper(
+//   async (req: Request, res: Response) => {
+//     const user = req.user as { usertype?: string; companyId?: string } | undefined;
+//     const companyId = req.params.companyId;
 
-    if (!companyId) {
-      return Apiresponse.error(res, "Company ID is required", 400);
-    }
+//     if (!companyId) {
+//       return Apiresponse.error(res, "Company ID is required", 400);
+//     }
 
-    // Fetch campaigns for company, sorted by newest first
-    const campaigns = await CampaignModel.find({ company: companyId }).sort({ createdAt: -1 });
+//     // Fetch campaigns for company, sorted by newest first
+//     const campaigns = await CampaignModel.find({ company: companyId }).sort({ createdAt: -1 });
 
-    // Define a limited view for visitors
-    const limitedCampaignView = (campaign: typeof campaigns[0]) => ({
-      _id: campaign._id,
-      title: campaign.title,
-      description: campaign.description.length > 150 ? campaign.description.slice(0, 150) + "..." : campaign.description,
-      budgetRange: campaign.budgetVisibility === "masked" ? campaign.budgetRange : undefined,
-      platforms: campaign.platforms,
-      status: campaign.status === "active" ? campaign.status : undefined,
-      startDate: campaign.startDate,
-      endDate: campaign.endDate,
-    });
+//     // Define a limited view for visitors
+//     const limitedCampaignView = (campaign: typeof campaigns[0]) => ({
+//       _id: campaign._id,
+//       title: campaign.title,
+//       description: campaign.description.length > 150 ? campaign.description.slice(0, 150) + "..." : campaign.description,
+//       budgetRange: campaign.budgetVisibility === "masked" ? campaign.budgetRange : undefined,
+//       platforms: campaign.platforms,
+//       status: campaign.status === "active" ? campaign.status : undefined,
+//       startDate: campaign.startDate,
+//       endDate: campaign.endDate,
+//     });
 
-    // If user is logged in as company or influencer, send full campaigns
-    if (user && (user.usertype === "company" || user.usertype === "influencer")) {
-      // For budget, apply visibility rules
-      const fullCampaigns = campaigns.map(campaign => {
-        let budgetToShow: number | undefined;
-        if (campaign.budgetVisibility === "public") {
-          budgetToShow = campaign.budget;
-        } else if (campaign.budgetVisibility === "masked") {
-          budgetToShow = undefined; // budget hidden, range shown instead
-        } else if (campaign.budgetVisibility === "private") {
-          budgetToShow = undefined; // budget hidden entirely
-        }
+//     // If user is logged in as company or influencer, send full campaigns
+//     if (user && (user.usertype === "company" || user.usertype === "influencer")) {
+//       // For budget, apply visibility rules
+//       const fullCampaigns = campaigns.map(campaign => {
+//         let budgetToShow: number | undefined;
+//         if (campaign.budgetVisibility === "public") {
+//           budgetToShow = campaign.budget;
+//         } else if (campaign.budgetVisibility === "masked") {
+//           budgetToShow = undefined; // budget hidden, range shown instead
+//         } else if (campaign.budgetVisibility === "private") {
+//           budgetToShow = undefined; // budget hidden entirely
+//         }
 
-        return {
-          _id: campaign._id,
-          title: campaign.title,
-          description: campaign.description,
-          budget: budgetToShow,
-          budgetRange: campaign.budgetVisibility === "masked" ? campaign.budgetRange : undefined,
-          platforms: campaign.platforms,
-          status: campaign.status,
-          startDate: campaign.startDate,
-          endDate: campaign.endDate,
-          createdAt: campaign.createdAt,
-          updatedAt: campaign.updatedAt,
-        };
-      });
+//         return {
+//           _id: campaign._id,
+//           title: campaign.title,
+//           description: campaign.description,
+//           budget: budgetToShow,
+//           budgetRange: campaign.budgetVisibility === "masked" ? campaign.budgetRange : undefined,
+//           platforms: campaign.platforms,
+//           status: campaign.status,
+//           startDate: campaign.startDate,
+//           endDate: campaign.endDate,
+//           createdAt: campaign.createdAt,
+//           updatedAt: campaign.updatedAt,
+//         };
+//       });
 
-      return Apiresponse.success(res, "Company campaigns fetched", {
-        campaigns: fullCampaigns,
-      });
-    }
+//       return Apiresponse.success(res, "Company campaigns fetched", {
+//         campaigns: fullCampaigns,
+//       });
+//     }
 
-    // Visitor fallback: limited view only
-    const limitedCampaigns = campaigns.map(limitedCampaignView);
+//     // Visitor fallback: limited view only
+//     const limitedCampaigns = campaigns.map(limitedCampaignView);
 
-    return Apiresponse.success(res, "Company campaigns fetched", {
-      campaigns: limitedCampaigns,
-    });
-  }
-);
+//     return Apiresponse.success(res, "Company campaigns fetched", {
+//       campaigns: limitedCampaigns,
+//     });
+//   }
+// );
+
