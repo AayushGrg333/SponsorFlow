@@ -8,6 +8,7 @@ export interface Application extends Document {
   _id: string | Types.ObjectId;
   influencer: Types.ObjectId;
   campaign: Types.ObjectId;
+  company: Types.ObjectId;
   status: "pending" | "accepted" | "rejected";
   message?: string;
   appliedAt: Date;
@@ -27,6 +28,11 @@ const applicationSchema = new Schema<Application>(
       type: Schema.Types.ObjectId,
       ref: "Campaign",
       required: [true, "Application must belong to a campaign"],
+    },
+    company:{
+      type: Schema.Types.ObjectId,
+      ref: "Company",
+      required: [true, "Application must belong to a company"],
     },
     status: {
       type: String,
