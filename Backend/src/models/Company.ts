@@ -20,7 +20,7 @@ export interface Company extends Document {
     products : Product[];
     establishedYear : number;
     description : string;
-  socialLinks: SocialLink[];
+     socialLinks: SocialLink[];
 
 }
 
