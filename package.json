@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "backend": "npm run dev --prefix backend",
-    "frontend": "cd frontend && npm start"
+    "frontend": "npm run dev --prefix frontend"
   },
   "keywords": [],
   "author": "",
@@ -14,11 +14,14 @@
     "express-session": "^1.18.1",
     "libphonenumber-js": "^1.12.8",
     "passport-google-oidc": "^0.1.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "tsconfig-paths": "^4.2.0",
     "winston": "^3.17.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/express-session": "^1.18.1"
+    "@types/express-session": "^1.18.1",
+    "@types/socket.io": "^3.0.2"
   }
 }

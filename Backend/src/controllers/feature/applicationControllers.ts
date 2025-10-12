@@ -53,7 +53,7 @@ export const createApplication: RequestHandler = asyncWrapper(
 );
 
 //  POST /api/campaigns/:campaignId/applications
-export const getAplicationsByCampaign: RequestHandler = asyncWrapper(
+export const getApplicationsByCampaign: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           const user = req.user as Company;
           if (!user || user.usertype !== "company") {
