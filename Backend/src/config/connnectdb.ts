@@ -1,6 +1,5 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import mongoose from "mongoose";
+import { config } from "./config";
 
 async function connectDB():Promise<void> {
      if(mongoose.connection.readyState !== 0){
@@ -8,11 +7,11 @@ async function connectDB():Promise<void> {
           return;
      }
      try {
-          if(!process.env.MONGODB_URL){
+          if(!config.MONGODB_URL){
                throw new Error("MONGODB_URL is not defined in the environment variables.")
           }
 
-           await mongoose.connect(process.env.MONGODB_URL!);
+           await mongoose.connect(config.MONGODB_URL);
            console.log("Database Connected Successfully");
      } catch (error) {
           console.log("Database connection failed",error);

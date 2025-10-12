@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import { config } from "./config/config";
 import express from "express";
 import influencerRoutes from "./routes/influencerRoutes";
 import companyRoutes from "./routes/companyRoutes" 
@@ -11,6 +10,11 @@ import checkRole from "./middlewares/rolecheck";
 import { errorHandler } from "./middlewares/errorHandler";
 import { Request, Response } from "express";
 
+//import for socket.io
+import http from "http"; 
+import {Server} from "socket.io";
+import cors from "cors";
+
 //connect mongodb
 import connectDB from "./config/connnectdb";
 
@@ -19,7 +23,29 @@ import passport from "../src/config/passportSetup";
 import Apiresponse from "./utils/apiresponse";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.PORT || 8000;
+const server = http.createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+});
+
+// Listen for new socket connections
+io.on("connection", (socket) => {
+  console.log("🟢 New client connected:", socket.id);
+
+  socket.on("chatMessage", (msg) => {
+  console.log("📩 Message received:", msg);
+  io.emit("chatMessage", msg); // send to everyone
+  });
+
+  // Example: handle user disconnect
+  socket.on("disconnect", () => {
+    console.log("🔴 Client disconnected:", socket.id);
+  });
+});
 
 connectDB();
 
@@ -49,6 +75,6 @@ app.use("/api/auth", authRoutes);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`Server is running at ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
