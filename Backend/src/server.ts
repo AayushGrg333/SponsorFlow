@@ -8,7 +8,6 @@ import cookieParser from "cookie-parser";
 import verifyToken from './middlewares/verifytoken'
 import checkRole from "./middlewares/rolecheck";
 import { errorHandler } from "./middlewares/errorHandler";
-import { Request, Response } from "express";
 
 //import for socket.io
 import http from "http"; 
@@ -35,12 +34,16 @@ const io = new Server(server, {
 // Listen for new socket connections
 io.on("connection", (socket) => {
   console.log("🟢 New client connected:", socket.id);
-
-  socket.on("chatMessage", (msg) => {
-  console.log("📩 Message received:", msg);
-  io.emit("chatMessage", msg); // send to everyone
-  });
-
+  socket.emit("welcome", "Welcome to the chat server!");
+  
+     // listen for messages from client
+     socket.on('chat:message',(msg)=>{
+          console.log('message from ' + socket.id + ': ' + msg);
+          io.emit('from_server',{
+               from : socket.id,
+               message : msg
+          }); // broadcast to all clients
+     })
   // Example: handle user disconnect
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected:", socket.id);
