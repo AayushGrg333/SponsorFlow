@@ -34,7 +34,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "randomatic": "^3.1.1",
-    "redis": "^5.1.0",
+    "redis": "^5.9.0",
     "resend": "^4.1.2",
     "tsconfig-paths": "^4.2.0",
     "uuid": "^11.0.5"
