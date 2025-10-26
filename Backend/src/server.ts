@@ -5,15 +5,12 @@ import companyRoutes from "./routes/companyRoutes"
 import authRoutes from "./routes/auth/authRoutes";
 import session from "express-session";
 import cookieParser from "cookie-parser";
-import verifyToken from './middlewares/verifytoken'
-import checkRole from "./middlewares/rolecheck";
 import { errorHandler } from "./middlewares/errorHandler";
-import { Request, Response } from "express";
 
 //import for socket.io
 import http from "http"; 
 import {Server} from "socket.io";
-import cors from "cors";
+import { setupSocket } from "./socket/socket";
 
 //connect mongodb
 import connectDB from "./config/connnectdb";
@@ -23,31 +20,22 @@ import passport from "../src/config/passportSetup";
 import Apiresponse from "./utils/apiresponse";
 
 const app = express();
-const PORT = config.PORT || 8000;
 const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials:true,
   },
 });
 
-// Listen for new socket connections
-io.on("connection", (socket) => {
-  console.log("🟢 New client connected:", socket.id);
 
-  socket.on("chatMessage", (msg) => {
-  console.log("📩 Message received:", msg);
-  io.emit("chatMessage", msg); // send to everyone
-  });
-
-  // Example: handle user disconnect
-  socket.on("disconnect", () => {
-    console.log("🔴 Client disconnected:", socket.id);
-  });
-});
-
+//mongodb connection
 connectDB();
+
+//initialize socket
+setupSocket(io)
+
 
 //Middleware
 app.use(cookieParser());
@@ -75,6 +63,5 @@ app.use("/api/auth", authRoutes);
 
 app.use(errorHandler);
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+const PORT = config.PORT || 8000;
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
