@@ -13,8 +13,8 @@ export interface IMessage extends Document {
   sender: Types.ObjectId;
   receiver: Types.ObjectId;
   conversationId: Types.ObjectId;
-  senderModel: "Influencer" | "Company";
-  receiverModel: "Influencer" | "Company";
+  senderType: "influencer" | "company";
+  receiverType: "influencer" | "company";
   content: string;
   isRead: boolean;
   createdAt: Date;
@@ -30,17 +30,17 @@ const messageSchema = new Schema<IMessage>(
     receiver: {
       type: Schema.Types.ObjectId,
       required: true,
-      refPath: "receiverModel",
+      refPath: "receiverType",
     },
-    senderModel: {
+    senderType: {
       type: String,
       required: true,
-      enum: ["Influencer", "Company"],
+      enum: ["influencer", "company"],
     },
-    receiverModel: {
+    receiverType: {
       type: String,
       required: true,
-      enum: ["Influencer", "Company"],
+      enum: ["influencer", "company"],
     },
     conversationId: {
       type: Schema.Types.ObjectId,
