@@ -1,6 +1,40 @@
-# SponsorFlow - Influencer & Brand Sponsorship Platform
+<div align="center" class="text-center">
+<h1> SponsorFlow - Influencer & Brand Sponsorship Platform</h1>
+<p><em>Connect Brands and Influencers Seamlessly, Accelerate Growth</em></p>
 
-SponsorFlow is a platform designed to connect brands and influencers for sponsorship and collaboration opportunities. Companies can find influencers tailored to their product type, while influencers can discover brands that match their niche.
+<img alt="last-commit" src="https://img.shields.io/github/last-commit/AayushGrg333/SponsorFlow?style=flat&amp;logo=git&amp;logoColor=white&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="repo-top-language" src="https://img.shields.io/github/languages/top/AayushGrg333/SponsorFlow?style=flat&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="repo-language-count" src="https://img.shields.io/github/languages/count/AayushGrg333/SponsorFlow?style=flat&amp;color=0080ff" class="inline-block mx-1" style="margin: 0px 2px;">
+<p><em>Built with the tools and technologies:</em></p>
+<img alt="Express" src="https://img.shields.io/badge/Express-000000.svg?style=flat&amp;logo=Express&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="JSON" src="https://img.shields.io/badge/JSON-000000.svg?style=flat&amp;logo=JSON&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Markdown" src="https://img.shields.io/badge/Markdown-000000.svg?style=flat&amp;logo=Markdown&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Resend" src="https://img.shields.io/badge/Resend-000000.svg?style=flat&amp;logo=Resend&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Socket.io" src="https://img.shields.io/badge/Socket.io-010101.svg?style=flat&amp;logo=socketdotio&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="npm" src="https://img.shields.io/badge/npm-CB3837.svg?style=flat&amp;logo=npm&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Autoprefixer" src="https://img.shields.io/badge/Autoprefixer-DD3735.svg?style=flat&amp;logo=Autoprefixer&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Redis" src="https://img.shields.io/badge/Redis-FF4438.svg?style=flat&amp;logo=Redis&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Mongoose" src="https://img.shields.io/badge/Mongoose-F04D35.svg?style=flat&amp;logo=Mongoose&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="PostCSS" src="https://img.shields.io/badge/PostCSS-DD3A0A.svg?style=flat&amp;logo=PostCSS&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt=".ENV" src="https://img.shields.io/badge/.ENV-ECD53F.svg?style=flat&amp;logo=dotenv&amp;logoColor=black" class="inline-block mx-1" style="margin: 0px 2px;">
+<br>
+<img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&amp;logo=JavaScript&amp;logoColor=black" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Nodemon" src="https://img.shields.io/badge/Nodemon-76D04B.svg?style=flat&amp;logo=Nodemon&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Passport" src="https://img.shields.io/badge/Passport-34E27A.svg?style=flat&amp;logo=Passport&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="React" src="https://img.shields.io/badge/React-61DAFB.svg?style=flat&amp;logo=React&amp;logoColor=black" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&amp;logo=TypeScript&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="tsnode" src="https://img.shields.io/badge/tsnode-3178C6.svg?style=flat&amp;logo=ts-node&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Zod" src="https://img.shields.io/badge/Zod-3E67B1.svg?style=flat&amp;logo=Zod&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="ESLint" src="https://img.shields.io/badge/ESLint-4B32C3.svg?style=flat&amp;logo=ESLint&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="Socket" src="https://img.shields.io/badge/Socket-C93CD7.svg?style=flat&amp;logo=Socket&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+<img alt="datefns" src="https://img.shields.io/badge/datefns-770C56.svg?style=flat&amp;logo=date-fns&amp;logoColor=white" class="inline-block mx-1" style="margin: 0px 2px;">
+</div>
+
+
+###
+<div align="center">
+SponsorFlow is a platform designed to connect brands and influencers for sponsorship and collaboration opportunities. Companies can find influencers tailored to their product type, while influencers can discover brands that match their niche. 
+</div>
 
 ### Features
 - **Company Profiles**: Companies can create profiles detailing their products, target audience, and marketing needs.
