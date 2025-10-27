@@ -4,7 +4,7 @@ import CompanyModel from "../../models/Company";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { ObjectId } from "mongoose";
-import CampaignModel from "../../models/Campaign";
+import Redis from "../../config/redis";
 
 declare global {
      namespace Express {
@@ -16,7 +16,9 @@ declare global {
 
 export const companyProfileSetupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const user = req.user 
+
+          const user = req.user;
+
           if (!user) {
                return Apiresponse.error(res, "Unauthorized", 401);
           }
@@ -88,6 +90,14 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
 export const getCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           const {companyId} = req.params;
+          const cacheKey = `company:${companyId}`;
+
+          //check Redis cache first
+          const cachedProfile = await Redis.client.get(cacheKey);
+          if(cachedProfile){
+               return Apiresponse.success(res, "Company profile fetched successfully", JSON.parse(cachedProfile));
+          }
+
           const company = await CompanyModel.findOne({
             $or : [{_id: companyId},{slug: companyId}],
             isverified: true,
@@ -100,6 +110,8 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
           if (!company) {
                return Apiresponse.error(res, "Company not found", 404);
           }
+
+          await Redis.client.set(cacheKey,JSON.stringify(company),{EX: 3600})
 
           return Apiresponse.success(res, "Company profile fetched successfully", company);
      }
