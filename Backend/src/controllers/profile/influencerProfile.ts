@@ -5,6 +5,7 @@ import { influencerProfileSchema } from "@/Shared/validations/profileCompletionS
 import UserModel from "../../models/User";
 import ApplicationModel from "../../models/Application";
 import CampaignModel from "../../models/Campaign";
+import Redis from "../../config/redis";
 
 export const influencerProfileSetupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
@@ -59,9 +60,18 @@ export const influencerProfileSetupController: RequestHandler = asyncWrapper(
      }
 );
 
-export const getCompanyProfileController: RequestHandler = asyncWrapper(
+export const getInfluencerProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           const { influencerId } = req.params;
+
+          const influencerKey = `influencer:${influencerId}`;
+
+          //check Redis cache first
+          const cachedProfile = await Redis.client.get(influencerKey);
+          if (cachedProfile) {
+               return Apiresponse.success(res, "Influencer profile fetched successfully", JSON.parse(cachedProfile));
+          }
+
           const influencer = await UserModel.findOne({
                $or: [{ _id: influencerId }, { slug: influencerId }],
                isVerified: true,
@@ -72,6 +82,8 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
                return Apiresponse.error(res, "Influencer not found", 404);
           }
 
+          await Redis.client.set(influencerKey, JSON.stringify(influencer), { EX: 3600 });
+
           return Apiresponse.success(
                res,
                "Influencer profile fetched successfully",
@@ -80,7 +92,7 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
      }
 );
 
-export const updateCompnayProfileController: RequestHandler = asyncWrapper(
+export const updateInfluencerProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           const influencerId = req.params.influencerId;
           const authCompanyId = req.user?._id.toString();

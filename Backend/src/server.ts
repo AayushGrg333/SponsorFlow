@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth/authRoutes";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/errorHandler";
+import Redis from "./config/redis";
 
 //import for socket.io
 import http from "http"; 
@@ -29,10 +30,12 @@ const io = new Server(server, {
   },
 });
 
+async function initConnections() {
+  await Redis.connectRedis();
+  await connectDB();
+}
 
-//mongodb connection
-connectDB();
-
+initConnections().catch(err => console.error(err));
 //initialize socket
 setupSocket(io)
 
