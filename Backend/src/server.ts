@@ -1,5 +1,5 @@
 import { config } from "./config/config";
-import express from "express";
+import express,{Request,Response} from "express";
 import influencerRoutes from "./routes/influencerRoutes";
 import companyRoutes from "./routes/companyRoutes" 
 import authRoutes from "./routes/auth/authRoutes";
@@ -7,7 +7,7 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/errorHandler";
 import Redis from "./config/redis";
-
+import healthRoutes from "./routes/healthRoutes";
 //import for socket.io
 import http from "http"; 
 import {Server} from "socket.io";
@@ -61,9 +61,14 @@ app.use(passport.session());
 app.use("/api/influencer", influencerRoutes);
 app.use("/api/company", companyRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/health", healthRoutes);
 
 
-
+app.use("/", (req:Request, res:Response) => {
+  res.json({
+    message: "API is running",
+  })
+});
 app.use(errorHandler);
 
 const PORT = config.PORT || 8000;

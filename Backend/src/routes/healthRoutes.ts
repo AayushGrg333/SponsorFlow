@@ -14,7 +14,7 @@ const router = Router();
  * @access Public
  */
 
-router.get('/health', asyncWrapper(async (req: Request, res: Response) => {
+router.get("/check", asyncWrapper(async (req: Request, res: Response) => {
 const healthStatus: any = {
     uptime: process.uptime(),
     message: "OK",
@@ -46,3 +46,5 @@ const healthStatus: any = {
 
   return Apiresponse.success(res, "Health check", healthStatus);
 }))
+
+export default router;
