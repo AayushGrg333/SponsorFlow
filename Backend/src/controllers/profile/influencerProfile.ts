@@ -1,7 +1,7 @@
 import { RequestHandler, Request, Response } from "express";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
-import { influencerProfileSchema } from "@/Shared/validations/profileCompletionSchema";
+import { influencerProfileSchema } from "../../../Shared/validations/profileCompletionSchema";
 import UserModel from "../../models/User";
 import ApplicationModel from "../../models/Application";
 import CampaignModel from "../../models/Campaign";
@@ -19,7 +19,7 @@ export const influencerProfileSetupController: RequestHandler = asyncWrapper(
                res.status(400).json({
                     status: "error",
                     message: "Invalid data",
-                    errors: parsedData.error.errors,
+                    errors: parsedData.error.issues,
                });
                return;
           }
@@ -105,7 +105,7 @@ export const updateInfluencerProfileController: RequestHandler = asyncWrapper(
                res.status(400).json({
                     status: "error",
                     message: "Invalid data",
-                    errors: parsedData.error.errors,
+                    errors: parsedData.error.issues,
                });
                return;
           }

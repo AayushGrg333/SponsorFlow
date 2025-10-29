@@ -1,5 +1,5 @@
 import { RequestHandler, Request, Response } from "express";
-import { companySignupSchema } from "@/Shared/validations/signupSchema";
+import { companySignupSchema } from "../../../Shared/validations/signupSchema";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
 import CompanyModel from "../../models/Company";
@@ -16,7 +16,7 @@ export const companySignupController : RequestHandler = asyncWrapper(
               res.status(400).json({
                   success: false,
                   message: "Invalid signup data",
-                  errors: parsedData.error.errors,
+                  errors: parsedData.error.issues,
               });
               return;
           }
