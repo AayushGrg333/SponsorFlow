@@ -73,7 +73,7 @@ export const companyProfileSchema = z
      );
 
 export const companyProfileUpdateSchema =
-     companyProfileSchema._def.schema.partial();
+     companyProfileSchema.partial();
 
 export const influencerProfileSchema = z.object({
      realName: z.object({

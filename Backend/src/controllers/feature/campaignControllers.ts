@@ -2,7 +2,7 @@ import CampaignModel from "../../models/Campaign";
 import { Request, Response, RequestHandler } from "express";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
-import { campaignSchema } from "@/Shared/validations/campaignSchema";
+import { campaignSchema } from "../../../Shared/validations/campaignSchema";
 
 export const createCampaignController: RequestHandler = asyncWrapper(
   async (req: Request, res: Response) => {
@@ -16,7 +16,7 @@ export const createCampaignController: RequestHandler = asyncWrapper(
           return res.status(400).json({
                status: "error",
                message: "Invalid data",
-               errors: parsedData.error.errors,
+               errors: parsedData.error.issues,
           });
      };
      const result = await CampaignModel.create({
@@ -88,7 +88,7 @@ export const updateCampaignController: RequestHandler = asyncWrapper(
                return res.status(400).json({
                     status: "error",
                     message: "Invalid data",
-                    errors: parsedData.error.errors,
+                    errors: parsedData.error.issues,
                });
           }
 

@@ -1,8 +1,8 @@
 import { RequestHandler, Request, Response } from "express";
 import UserModel from "../../models/User";
 import CompanyModel from "../../models/Company";
-import { verifySchema,resendVerifySchema } from "@/Shared/validations/signupVerifySchema";
-import { asyncWrapper } from "@/Backend/src/utils/asyncHandler";
+import { verifySchema,resendVerifySchema } from "../../../Shared/validations/signupVerifySchema";
+import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import randomize from "randomatic";
 import sendVerificationEmail from "../../utils/sendVerificationEmail";
@@ -20,7 +20,7 @@ export const verifySignupCode: RequestHandler = asyncWrapper(
                return res.status(400).json({
                     success: false,
                     message: "Invalid request data",
-                    errors: parsedData.error.errors,
+                    errors: parsedData.error.issues,
                });
           }
 
@@ -84,7 +84,7 @@ export const resendVerifyCode: RequestHandler = asyncWrapper(
                return res.status(400).json({
                     success: false,
                     message: "Invalid request data",
-                    errors: parsedData.error.errors,
+                    errors: parsedData.error.issues,
                });
           }
 

@@ -1,5 +1,5 @@
 import { RequestHandler, Request, Response } from "express";
-import { companyProfileSchema,companyProfileUpdateSchema } from "@/Shared/validations/profileCompletionSchema";
+import { companyProfileSchema,companyProfileUpdateSchema } from "../../../Shared/validations/profileCompletionSchema";
 import CompanyModel from "../../models/Company";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
@@ -28,7 +28,7 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
                res.status(400).json({
                     status: "error",
                     message: "Invalid data",
-                    errors: parsedData.error.errors,
+                    errors: parsedData.error.issues,
                });
                return;
           }
@@ -181,7 +181,7 @@ export const updateCompanyProfileController: RequestHandler = asyncWrapper(
                return res.status(400).json({
                     status: "error",
                     message: "Invalid data",
-                    errors: parsedData.error.errors,
+                    errors: parsedData.error.issues,
                });
           }
 

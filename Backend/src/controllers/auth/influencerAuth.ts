@@ -1,17 +1,17 @@
 import { Request,Response,NextFunction,RequestHandler } from "express";
 import passport from "passport";
-import { loginSchema } from "@/Shared/validations/loginSchema";
+import { loginSchema } from "../../../Shared/validations/loginSchema";
 import jwt from 'jsonwebtoken'
 import UserModel, { User } from "../../models/User";
 import { Company } from "../../models/Company";
 import { config } from "../../config/config";
 import { asyncWrapper } from "../../utils/asyncHandler";
-import { signupSchema } from "@/Shared/validations/signupSchema";
+import { signupSchema } from "../../../Shared/validations/signupSchema";
 import Apiresponse from "../../utils/apiresponse";
 import randomize from "randomatic";
 import bcrypt from "bcrypt";
 import sendVerificationEmail from "../../utils/sendVerificationEmail";
-import {log} from "@/Backend/src/middlewares/errorHandler"
+import {log} from "../../middlewares/errorHandler"
 
 
 
@@ -22,7 +22,7 @@ export const influencerSignupController: RequestHandler = asyncWrapper(async (re
                         res.status(400).json({
                         success: false,
                         message: "Invalid signup data",
-                        errors: parsedData.error.errors,
+                        errors: parsedData.error.issues,
                     });
                     return;
         }
@@ -143,7 +143,7 @@ export const loginController: RequestHandler = asyncWrapper(
             res.status(400).json({
                 success: false,
                 message: "invalid login data",
-                error: parsedData.error.errors,
+                error: parsedData.error.issues,
             });
             return;
         }

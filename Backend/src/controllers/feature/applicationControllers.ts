@@ -2,7 +2,7 @@ import ApplicationModel from "../../models/Application";
 import { Request, Response, RequestHandler } from "express";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
-import { applicationSchema } from "@/Shared/validations/applicationSchema";
+import { applicationSchema } from "../../../Shared/validations/applicationSchema";
 import CompanyModel, { Company } from "../../models/Company";
 import { User } from "../../models/User";
 import CampaignModel from "../../models/Campaign";
