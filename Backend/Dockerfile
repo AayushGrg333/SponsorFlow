@@ -24,11 +24,13 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --production
 
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/Shared ./Shared  
+# Use absolute path to avoid Render ambiguity
+COPY --from=build /app/dist /app/dist
+COPY --from=build /app/Shared /app/Shared  
 
 RUN npm install pm2 -g
 
 EXPOSE 8000
 
-CMD ["pm2-runtime", "dist/src/server.js", "--name", "sponsorflow"]
+# PM2 runs the server using absolute path
+CMD ["pm2-runtime", "/app/dist/src/server.js", "--name", "sponsorflow"]
