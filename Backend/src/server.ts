@@ -63,8 +63,11 @@ app.use("/api/company", companyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/health", healthRoutes);
 
+app.get("/ping",(req:Request,res:Response)=>{
+  res.status(200).send("pong");
+});
 
-app.use("/", (req:Request, res:Response) => {
+app.get("/", (req:Request, res:Response) => {
   res.json({
     message: "API is running",
   })
