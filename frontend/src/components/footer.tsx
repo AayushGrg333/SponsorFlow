@@ -5,18 +5,14 @@ import { Zap, Twitter, Instagram, Linkedin, Youtube } from "lucide-react"
 const footerLinks = {
   product: [
     { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
     { name: "Testimonials", href: "#testimonials" },
-    { name: "API", href: "#" },
   ],
   company: [
     { name: "About", href: "#" },
-    { name: "Blog", href: "#" },
     { name: "Careers", href: "#" },
     { name: "Contact", href: "#" },
   ],
   resources: [
-    { name: "Help Center", href: "#" },
     { name: "Community", href: "#" },
     { name: "Guidelines", href: "#" },
     { name: "Status", href: "#" },
@@ -28,12 +24,7 @@ const footerLinks = {
   ],
 }
 
-const socialLinks = [
-  { name: "Twitter", icon: Twitter, href: "#" },
-  { name: "Instagram", icon: Instagram, href: "#" },
-  { name: "LinkedIn", icon: Linkedin, href: "#" },
-  { name: "YouTube", icon: Youtube, href: "#" },
-]
+
 
 export function Footer() {
   return (
@@ -51,19 +42,7 @@ export function Footer() {
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               Connecting brands and influencers for seamless collaborations and accelerated growth.
             </p>
-            {/* Social Links */}
-            <div className="mt-6 flex gap-4">
-              {socialLinks.map((social) => (
-                <Link
-                  key={social.name}
-                  href={social.href}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-                  aria-label={social.name}
-                >
-                  <social.icon className="h-5 w-5" />
-                </Link>
-              ))}
-            </div>
+          
           </div>
 
           {/* Links */}

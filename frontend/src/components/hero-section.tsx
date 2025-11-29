@@ -2,15 +2,15 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Play, Users, Building2, Sparkles } from "lucide-react"
+import { ArrowRight, Users, Building2,  } from "lucide-react"
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen overflow-hidden pt-16">
+    <section className="relative min-h-screen overflow-hidden ">
       {/* Background Effects */}
       <div className="absolute inset-0 -z-10">
         {/* Gradient Orbs */}
-        <div className="absolute left-1/4 top-1/4 h-[500px] w-[500px] rounded-full bg-primary/20 blur-[120px] animate-pulse-glow" />
+        <div className="absolute left-1/4 top-1/ h-[500px] w-[500px] rounded-full bg-primary/20 blur-[120px] animate-pulse-glow" />
         <div
           className="absolute right-1/4 bottom-1/4 h-[400px] w-[400px] rounded-full bg-accent/15 blur-[100px] animate-pulse-glow"
           style={{ animationDelay: "1.5s" }}
@@ -59,8 +59,8 @@ export function HeroSection() {
           >
             <Button size="lg" className="group h-12 px-8 text-base" asChild>
               <Link href="/signup">
-                Get Started Free
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                Get Started
+                <ArrowRight className=" h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
             
