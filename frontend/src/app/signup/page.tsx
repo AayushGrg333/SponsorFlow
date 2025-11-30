@@ -23,7 +23,6 @@ export default function SignupPage() {
   const [acceptTerms, setAcceptTerms] = useState(false)
 
   const [influencerData, setInfluencerData] = useState({
-    fullName: "",
     username: "",
     email: "",
     password: "",
@@ -31,7 +30,6 @@ export default function SignupPage() {
 
   const [companyData, setCompanyData] = useState({
     companyName: "",
-    contactName: "",
     email: "",
     password: "",
   })
@@ -219,23 +217,11 @@ export default function SignupPage() {
               </div>
 
               <form onSubmit={handleInfluencerSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="fullName"
-                        placeholder="John Doe"
-                        className="pl-10"
-                        value={influencerData.fullName}
-                        onChange={(e) => setInfluencerData({ ...influencerData, fullName: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
+                    <div className="relative"
+                    >
                     <Input
                       id="username"
                       placeholder="@johndoe"
@@ -243,9 +229,9 @@ export default function SignupPage() {
                       onChange={(e) => setInfluencerData({ ...influencerData, username: e.target.value })}
                       required
                     />
+                    </div>
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="influencer-email">Email</Label>
                   <div className="relative">
@@ -356,31 +342,17 @@ export default function SignupPage() {
               </div>
 
               <form onSubmit={handleCompanySubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Company Name</Label>
                     <div className="relative">
                       <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="companyName"
-                        placeholder="Acme Inc."
+                        placeholder="Company private limited"
                         className="pl-10"
                         value={companyData.companyName}
                         onChange={(e) => setCompanyData({ ...companyData, companyName: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="contactName">Contact Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="contactName"
-                        placeholder="Jane Smith"
-                        className="pl-10"
-                        value={companyData.contactName}
-                        onChange={(e) => setCompanyData({ ...companyData, contactName: e.target.value })}
                         required
                       />
                     </div>
@@ -435,13 +407,9 @@ export default function SignupPage() {
                   />
                   <label htmlFor="terms-company" className="text-sm text-muted-foreground">
                     I agree to the{" "}
-                    <Link href="#" className="text-primary hover:underline">
                       Terms of Service
-                    </Link>{" "}
                     and{" "}
-                    <Link href="#" className="text-primary hover:underline">
                       Privacy Policy
-                    </Link>
                   </label>
                 </div>
 

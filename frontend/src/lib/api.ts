@@ -99,7 +99,6 @@ export const authAPI = {
 export const influencerAPI = {
   // Signup
   signup: async (data: {
-    fullName: string
     username: string
     email: string
     password: string
@@ -181,7 +180,6 @@ export const companyAPI = {
   // Signup
   signup: async (data: {
     companyName: string
-    contactName: string
     email: string
     password: string
   }) => {

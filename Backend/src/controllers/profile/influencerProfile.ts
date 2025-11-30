@@ -82,7 +82,7 @@ export const getInfluencerProfileController: RequestHandler = asyncWrapper(
                return Apiresponse.error(res, "Influencer not found", 404);
           }
 
-          await Redis.client.set(influencerKey, JSON.stringify(influencer), { EX: 3600 });
+          // await Redis.client.set(influencerKey, JSON.stringify(influencer), { EX: 3600 });
 
           return Apiresponse.success(
                res,
