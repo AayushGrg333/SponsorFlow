@@ -1,14 +1,18 @@
 {
-    "extends": "../tsconfig.json",
-    "compilerOptions": {
-        "outDir": "./dist",
-        "rootDir": "../",
-        "module": "CommonJS",
-        "target": "ES6",
-        "esModuleInterop": true,
-        "strict": true,
-        "skipLibCheck": true,
-        "typeRoots": ["./src/types", "./node_modules/@types"]
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "module": "CommonJS",
+    "target": "ES6",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@Shared/*": ["Shared/*"]
     },
-    "include": ["src", "src/types", "../Shared"]
+    "typeRoots": ["./src/types", "./node_modules/@types"]
+  },
+  "include": ["src", "Shared"]
 }

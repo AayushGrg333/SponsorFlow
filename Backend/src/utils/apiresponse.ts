@@ -1,29 +1,38 @@
 import { Response } from "express";
-
-class Apiresponse{
-     static success(res: Response , message : string, data : any  = null) {
-          res.status(200).json({
-               "success" : true,
-               message,
-               data,
-          })
-     }
-
-     static error(res : Response, message : string, statuscode : number ){
-          res.status(statuscode).json({
-               "success" : false,
-               message,
-          })
-     }
-
-     static created(res: Response, message: string, data: any = null) {
-          res.status(201).json({
-               "success" : true,
+export class Apiresponse {
+     static success(
+          res: Response,
+          message: string = "Success",
+          data: any = null
+     ) {
+          return res.status(200).json({
+               status: "success",
                message,
                data,
           });
      }
 
-    }
+     static created(
+          res: Response,
+          data: any = null,
+          message: string = "Resource created successfully"
+     ) {
+          return res.status(201).json({
+               status: "success",
+               message,
+               data,
+          });
+     }
 
-    export default Apiresponse;
+     static noContent(res: Response) {
+          return res.status(204).send();
+     }
+
+     static error(res: Response, message: string, statusCode: number = 500) {
+          return res.status(statusCode).json({
+               status: "error",
+               message,
+          });
+     }
+}
+export default Apiresponse;

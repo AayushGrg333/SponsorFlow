@@ -3,10 +3,7 @@ export interface SocialMediaProfileLinks {
      link: string;
  }
  
- export interface FollowersCount {
-     platform: string;
-     count: number;
- }
+
  
  export interface PreviousSponsorships {
       company_name: string;

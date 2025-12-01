@@ -1,14 +1,16 @@
-import dotenv from "dotenv";
-dotenv.config();
-import express from "express";
+import { config } from "./config/config";
+import express,{Request,Response} from "express";
 import influencerRoutes from "./routes/influencerRoutes";
 import companyRoutes from "./routes/companyRoutes" 
 import authRoutes from "./routes/auth/authRoutes";
 import session from "express-session";
 import cookieParser from "cookie-parser";
-import verifyToken from './middlewares/verifytoken'
-import checkRole from "./middlewares/rolecheck";
 import { errorHandler } from "./middlewares/errorHandler";
+import healthRoutes from "./routes/healthRoutes";
+//import for socket.io
+import http from "http"; 
+import {Server} from "socket.io";
+import { setupSocket } from "./socket/socket";
 
 //connect mongodb
 import connectDB from "./config/connnectdb";
@@ -18,9 +20,23 @@ import passport from "../src/config/passportSetup";
 import Apiresponse from "./utils/apiresponse";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const server = http.createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials:true,
+  },
+});
 
-connectDB();
+async function initConnections() {
+  await connectDB();
+}
+
+initConnections().catch(err => console.error(err));
+//initialize socket
+setupSocket(io)
+
 
 //Middleware
 app.use(cookieParser());
@@ -43,13 +59,18 @@ app.use(passport.session());
 app.use("/api/influencer", influencerRoutes);
 app.use("/api/company", companyRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/health", healthRoutes);
 
-app.get("/", (req,res) => {
-  return Apiresponse.success(res, "Welcome to the Influencer Marketing API", null);
+app.get("/ping",(req:Request,res:Response)=>{
+  res.status(200).send("pong");
 });
 
+app.get("/", (req:Request, res:Response) => {
+  res.json({
+    message: "API is running",
+  })
+});
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`Server is running at ${PORT}`);
-});
+const PORT = config.PORT || 8000;
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
