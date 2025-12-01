@@ -7,7 +7,7 @@ import {createApplication
 deleteApplication,
 getApplicationsByInfluencer
 } from "../controllers/feature/applicationControllers"
-const router = Express.Router();
+const router = Express.Router()
 
 //routes
 router.post("/campaigns/:campaignId/applications",verifyToken,createApplication);
