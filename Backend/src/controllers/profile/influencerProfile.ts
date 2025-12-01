@@ -2,7 +2,7 @@ import { RequestHandler, Request, Response } from "express";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { influencerProfileSchema } from "../../../Shared/validations/profileCompletionSchema";
-import UserModel from "../../models/User";
+import UserModel from "../../models/user";
 import ApplicationModel from "../../models/Application";
 import CampaignModel from "../../models/Campaign";
 import Redis from "../../config/redis";

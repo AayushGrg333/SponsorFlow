@@ -3,7 +3,7 @@ dotenv.config();
 
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import UserModel from "../models/User";
+import UserModel from "../models/user";
 import CompanyModel from "../models/Company";
 
 export interface JwtPayload {

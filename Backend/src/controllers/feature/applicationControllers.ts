@@ -4,7 +4,7 @@ import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { applicationSchema } from "../../../Shared/validations/applicationSchema";
 import CompanyModel, { Company } from "../../models/Company";
-import { User } from "../../models/User";
+import { User } from "../../models/user";
 import CampaignModel from "../../models/Campaign";
 //create new aplication
 //  POST /api/campaigns/:campaignId/applications

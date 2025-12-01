@@ -3,7 +3,7 @@ dotenv.config();
 
 import passport from "passport";
 import bcrypt from "bcrypt";
-import UserModel from "../models/User";
+import UserModel from "../models/user";
 import CompanyModel from "../models/Company";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";

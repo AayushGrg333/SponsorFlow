@@ -30,7 +30,7 @@ export interface PlatformStats {
      readonly tier?: TierLabel;
      platformVerified: boolean;
 }
-//make this global
+//make this globa
 export interface User extends Document {
      usertype: string;
      username: string;

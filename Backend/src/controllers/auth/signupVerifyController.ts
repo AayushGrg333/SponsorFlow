@@ -1,5 +1,5 @@
 import { RequestHandler, Request, Response } from "express";
-import UserModel from "../../models/User";
+import UserModel from "../../models/user";
 import CompanyModel from "../../models/Company";
 import { verifySchema,resendVerifySchema } from "../../../Shared/validations/signupVerifySchema";
 import { asyncWrapper } from "../../utils/asyncHandler";
