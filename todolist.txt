@@ -1,0 +1,66 @@
+
+for backend : 
+
+     Campaigns (Company creates/manages)
+          GET /api/campaigns — List all campaigns (with optional filters)
+
+          GET /api/campaigns/:campaignId — Get campaign details       
+
+          POST /api/campaigns — Create campaign (company only)
+
+          PATCH /api/campaigns/:campaignId — Update campaign (company only)
+
+          DELETE /api/campaigns/:campaignId — Delete campaign (company only)
+
+          GET /api/companies/:companyId/campaigns — List campaigns by company (company only)
+
+
+     Applications (Influencers apply; Companies manage)
+          POST /api/campaigns/:campaignId/applications — Apply to a campaign (influencer only)
+
+          GET /api/campaigns/:campaignId/applications — List applications for campaign (company only)
+
+          GET /api/applications/:applicationId — Get application details (company or influencer)
+
+          PATCH /api/applications/:applicationId — Update application status (accept/decline) (company only)
+
+          DELETE /api/applications/:applicationId — Withdraw/delete application (influencer or admin)
+
+          GET /api/influencers/:influencerId/applications — List influencer’s applications
+
+
+     Messaging (Realtime via Socket.io + REST fallback)
+          GET /api/conversations — List all user’s conversations (auth only)
+
+          POST /api/conversations — Start new conversation with another user (auth only)
+
+          GET /api/conversations/:conversationId — Get conversation metadata (auth only)
+
+          GET /api/conversations/:conversationId/messages — Get all messages in a conversation (auth only)
+
+          POST /api/conversations/:conversationId/messages — Send message in conversation (auth only)
+ 
+
+     Matchmaking (Coming Soon - AI powered)
+          GET /api/matchmaking/campaigns — Campaign recommendations for influencer (auth only)
+
+          GET /api/matchmaking/influencers — Influencer recommendations for company (auth only)
+
+          GET /api/matchmaking/companies — Company/campaign recommendations for influencer (optional)
+      
+           
+     Payments (Coming Soon - Stripe)
+
+          GET /api/stripe/account — Retrieve Stripe account status (auth only)
+
+          POST /api/stripe/connect — Initiate Stripe connect flow (auth only)
+
+          POST /api/payments/create-intent — Create payment intent for campaign (auth only)
+
+          GET /api/payments/history — List user’s payments (auth only)
+
+          GET /api/payments/:paymentId — Get payment details (auth only)
+
+          POST /api/webhooks/stripe — Stripe webhook endpoint (public, secured via signature verification)
+
+

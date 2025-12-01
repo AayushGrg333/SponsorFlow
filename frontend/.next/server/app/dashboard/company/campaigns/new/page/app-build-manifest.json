@@ -1,0 +1,17 @@
+{
+  "pages": {
+    "/dashboard/company/campaigns/new/page": [
+      "static/chunks/6e9ac5b86215ad1c.js",
+      "static/chunks/a8ab2b647e93ae5e.js",
+      "static/chunks/45e182fac187a6b4.css",
+      "static/chunks/518b00829c956ed3.js",
+      "static/chunks/6633af4ad288295d.js",
+      "static/chunks/4a02be86980a42c5.js",
+      "static/chunks/7aedbb427285b2d7.js",
+      "static/chunks/77e35a7392eb51c1.js",
+      "static/chunks/5de279d359288aec.js",
+      "static/chunks/9b7b712bde9d32c6.js",
+      "static/chunks/turbopack-0203693bd5960335.js"
+    ]
+  }
+}

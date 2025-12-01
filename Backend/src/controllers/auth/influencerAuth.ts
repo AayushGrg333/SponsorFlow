@@ -2,7 +2,7 @@ import { Request,Response,NextFunction,RequestHandler } from "express";
 import passport from "passport";
 import { loginSchema } from "@/Shared/validations/loginSchema";
 import jwt from 'jsonwebtoken'
-import UserModel, { User } from "../../models/User";
+import UserModel, { User } from "../../models/user"
 import { Company } from "../../models/Company";
 import { config } from "../../config/config";
 import { asyncWrapper } from "../../utils/asyncHandler";

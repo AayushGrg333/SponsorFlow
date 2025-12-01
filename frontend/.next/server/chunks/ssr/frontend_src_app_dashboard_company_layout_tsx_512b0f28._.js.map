@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/web%20app%20projects/SponsorFlow/frontend/src/app/dashboard/company/layout.tsx"],"sourcesContent":["import type React from \"react\"\r\nexport default function CompanyDashboardLayout({\r\n  children,\r\n}: {\r\n  children: React.ReactNode\r\n}) {\r\n  return <>{children}</>\r\n}\r\n"],"names":[],"mappings":";;;;;;AACe,SAAS,uBAAuB,EAC7C,QAAQ,EAGT;IACC,qBAAO;kBAAG;;AACZ","debugId":null}}]
+}

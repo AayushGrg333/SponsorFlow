@@ -1,0 +1,1 @@
+{"version":3,"sources":["turbopack:///[project]/frontend/src/app/dashboard/company/discover/loading.tsx"],"sourcesContent":["export default function Loading() {\r\n  return null\r\n}\r\n"],"names":[],"mappings":"uCAAe,SAAS,IACtB,OAAO,IACT"}

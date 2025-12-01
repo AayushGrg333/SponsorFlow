@@ -1,0 +1,1 @@
+{"version":3,"sources":["turbopack:///[project]/frontend/src/app/dashboard/influencer/discover/loading.tsx"],"sourcesContent":["export default function Loading() {\r\n  return null\r\n}\r\n"],"names":[],"mappings":"sCAAe,SAAS,IACtB,OAAO,IACT"}
