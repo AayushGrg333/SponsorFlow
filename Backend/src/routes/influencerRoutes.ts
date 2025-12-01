@@ -11,7 +11,7 @@ import {
      listInfluencerCampaignsController,
 } from "../controllers/profile/influencerProfile";
 import passport from "passport";
-import { User } from "../../src/models/User"
+import { User } from "../models/User"
 import verifyToken from "../middlewares/verifytoken";
 import mongoose from "mongoose";
 
