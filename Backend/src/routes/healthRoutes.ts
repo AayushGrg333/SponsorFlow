@@ -32,13 +32,13 @@ const healthStatus: any = {
     healthStatus.services.mongodb = "down";
   }
 
-   // Check Redis connection
-  try {
-  await Redis.client?.ping();
-      healthStatus.services.redis = "up";
-  } catch (err) {
-    healthStatus.services.redis = "down";
-  }
+  //  // Check Redis connection
+  // try {
+  // await Redis.client?.ping();
+  //     healthStatus.services.redis = "up";
+  // } catch (err) {
+  //   healthStatus.services.redis = "down";
+  // }
 
   // Set HTTP status
   const allServicesUp = Object.values(healthStatus.services).every(status => status === "up");

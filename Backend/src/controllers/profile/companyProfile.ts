@@ -111,7 +111,7 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
                return Apiresponse.error(res, "Company not found", 404);
           }
 
-          await Redis.client.set(cacheKey,JSON.stringify(company),{EX: 3600})
+          // await Redis.client.set(cacheKey,JSON.stringify(company),{EX: 3600})
 
           return Apiresponse.success(res, "Company profile fetched successfully", company);
      }
