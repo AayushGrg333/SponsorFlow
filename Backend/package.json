@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.ts",
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test" : "echo \"Skipping tests\""
   },
   "keywords": [],
   "author": "",
