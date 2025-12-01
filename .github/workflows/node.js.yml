@@ -1,7 +1,4 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Node.js CI
+name: Backend CI/CD
 
 on:
   push:
@@ -11,21 +8,55 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: "npm"
+          cache-dependency-path: Backend/package-lock.json
+
+      # INSTALL DEPENDENCIES INSIDE Backend FOLDER
+      - name: Install dependencies
+        working-directory: ./Backend
+        run: npm ci
+
+      # BUILD PROJECT INSIDE Backend FOLDER
+      - name: Build project
+        working-directory: ./Backend
+        run: npm run build
+
+      # OPTIONAL TEST STEP
+      - name: Run tests
+        working-directory: ./Backend
+        run: npm test
+
+      # -----------------------------
+      # DOCKER STEPS
+      # -----------------------------
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKER_HUB_USERNAME }}/sponsorflow:v${{ github.run_number }} \
+            ./Backend
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/sponsorflow:v${{ github.run_number }}
+
+      # -----------------------------
+      # RENDER DEPLOY HOOK
+      # -----------------------------
+      - name: Trigger Render Deployment
+        if: github.ref == 'refs/heads/main'
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
