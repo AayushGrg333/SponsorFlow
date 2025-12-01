@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/web%20app%20projects/SponsorFlow/frontend/src/app/dashboard/company/campaigns/loading.tsx"],"sourcesContent":["export default function Loading() {\r\n  return null\r\n}\r\n"],"names":[],"mappings":";;;;AAAe,SAAS;IACtB,OAAO;AACT","debugId":null}}]
-}

@@ -1,3 +1,0 @@
-module.exports=[93695,(a,b,c)=>{b.exports=a.x("next/dist/shared/lib/no-fallback-error.external.js",()=>require("next/dist/shared/lib/no-fallback-error.external.js"))},73148,a=>{a.n(a.i(39257))},79509,a=>{a.n(a.i(56499))},30218,(a,b,c)=>{},66223,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(2497);a.n(d("[project]/frontend/src/app/dashboard/company/applications/page.tsx <module evaluation>"))},95737,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(2497);a.n(d("[project]/frontend/src/app/dashboard/company/applications/page.tsx"))},54189,a=>{"use strict";a.i(66223);var b=a.i(95737);a.n(b)}];
-
-//# sourceMappingURL=%5Broot-of-the-server%5D__1ea2c76d._.js.map
