@@ -7,7 +7,7 @@
     "start": "node src/server.ts",
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/server.ts",
     "build": "tsc",
-    "test" : "echo \"Skipping tests\""
+    "test": "echo \"Skipping tests\""
   },
   "keywords": [],
   "author": "",
@@ -24,6 +24,7 @@
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cookies": "^0.9.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-async-handler": "^1.2.0",

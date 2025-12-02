@@ -1,6 +1,6 @@
 // API Configuration and Service Layer for SponsorFlow Backend
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api"
 
 // Generic fetch wrapper with auth handling
 async function fetchAPI<T>(
@@ -97,17 +97,13 @@ export const authAPI = {
 // ==================== INFLUENCER API ====================
 
 export const influencerAPI = {
-  // Signup
-  signup: async (data: {
-    username: string
-    email: string
-    password: string
-  }) => {
+  signup: async (data: { username: string; email: string; password: string }) => {
     return fetchAPI<{ message: string; username: string }>("/influencer/auth/sign-up", {
       method: "POST",
       body: JSON.stringify(data),
     })
   },
+
 
   // Verify signup code
   verifySignupCode: async (username: string, code: string) => {

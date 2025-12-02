@@ -13,7 +13,6 @@ import {
 import passport from "passport";
 import { User } from "../models/user"
 import verifyToken from "../middlewares/verifytoken";
-import mongoose from "mongoose";
 
 const router = express.Router();
 

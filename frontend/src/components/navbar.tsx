@@ -14,8 +14,8 @@ export function Navbar() {
     <div className="flex h-20 items-center justify-between">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <Zap className="h-5 w-5 text-primary-foreground" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg">
+          <img src="/sponsorflow_logo.png" alt="SponsorFlow Logo"  className="h-8 w-8" />
         </div>
         <span className="text-xl font-bold text-foreground">SponsorFlow</span>
       </Link>

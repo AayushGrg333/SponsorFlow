@@ -7,10 +7,12 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/errorHandler";
 import healthRoutes from "./routes/healthRoutes";
+import cors from 'cors'
 //import for socket.io
 import http from "http"; 
 import {Server} from "socket.io";
 import { setupSocket } from "./socket/socket";
+
 
 //connect mongodb
 import connectDB from "./config/connnectdb";
@@ -25,9 +27,15 @@ const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials:true,
+    credentials: true,
   },
 });
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET','POST','PUT','DELETE'],
+  credentials: true,
+}))
 
 async function initConnections() {
   await connectDB();

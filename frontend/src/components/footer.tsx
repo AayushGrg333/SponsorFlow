@@ -34,9 +34,10 @@ export function Footer() {
           {/* Logo & Description */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Zap className="h-5 w-5 text-primary-foreground" />
-              </div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg ">
+          <img src="/sponsorflow_logo.png" alt="SponsorFlow Logo"  className="h-10 w-10" />
+
+          </div>
               <span className="text-xl font-bold text-foreground">SponsorFlow</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">

@@ -100,8 +100,9 @@ export default function SignupPage() {
       {/* Left Side - Branding */}
       <div className="hidden w-1/2 flex-col justify-between bg-card/30 p-12 lg:flex">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <Zap className="h-6 w-6 text-primary-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg ">
+          <img src="/sponsorflow_logo.png" alt="SponsorFlow Logo"  className="h-10 w-10" />
+
           </div>
           <span className="text-2xl font-bold text-foreground">SponsorFlow</span>
         </Link>
@@ -141,8 +142,9 @@ export default function SignupPage() {
       {/* Right Side - Signup Form */}
       <div className="flex w-full flex-col justify-center px-4 py-12 lg:w-1/2 lg:px-12">
         <Link href="/" className="mb-8 flex items-center gap-2 lg:hidden">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Zap className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg ">
+          <img src="/sponsorflow_logo.png" alt="SponsorFlow Logo"  className="h-8 w-8" />
+
           </div>
           <span className="text-xl font-bold text-foreground">SponsorFlow</span>
         </Link>

@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
-  Zap,
   LayoutDashboard,
   Search,
   MessageSquare,
@@ -54,8 +53,9 @@ export function Sidebar({ userType }: SidebarProps) {
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-border px-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Zap className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg ">
+          <img src="/sponsorflow_logo.png" alt="SponsorFlow Logo"  className="h-10 w-10" />
+
           </div>
           <span className="text-xl font-bold text-foreground">SponsorFlow</span>
         </Link>
@@ -135,8 +135,8 @@ export function Sidebar({ userType }: SidebarProps) {
       {/* Mobile Header */}
       <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-card px-4 lg:hidden">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Zap className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg ">
+            <img src="/sponsorflow_logo.png" alt="SponsorFlow Logo"  className="h-8 w-8" />
           </div>
           <span className="text-xl font-bold text-foreground">SponsorFlow</span>
         </Link>
