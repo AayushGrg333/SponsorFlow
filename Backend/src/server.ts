@@ -88,4 +88,4 @@ app.get("/", (req: Request, res: Response) => {
 app.use(errorHandler);
 
 const PORT = config.PORT || 8000;
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`))
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT} #1`))
