@@ -81,7 +81,7 @@ app.get("/ping", (req: Request, res: Response) => {
 
 app.get("/", (req: Request, res: Response) => {
   res.json({
-    message: "API is running",
+    message: "API is running #1",
   });
 });
 
