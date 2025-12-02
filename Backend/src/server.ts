@@ -32,15 +32,20 @@ const io = new Server(server, {
   },
 });
 
-const corsOptions = {
-  origin: "http://localhost:3000",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+app.use(cors({
+  origin: 'http://localhost:3000',  // your frontend
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-};
+}));
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+// Handle OPTIONS preflight for all routes
+app.options('*', cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
 
 async function initConnections() {
   await connectDB();

@@ -19,7 +19,7 @@ async function fetchAPI<T>(
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
-      credentials: "include", // For cookies (refresh tokens)
+      credentials: "include" as RequestCredentials, // For cookies (refresh tokens)
     })
 
     const data = await response.json()
