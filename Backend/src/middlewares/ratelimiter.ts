@@ -1,21 +1,31 @@
-import Redis from "../config/redis";
-import { Request,Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import Apiresponse from "../utils/apiresponse";
-import { asyncWrapper } from "../utils/asyncHandler";
 
+const rateLimitStore: Record<string, { count: number; expiresAt: number }> = {};
 
-export const rateLimiter = asyncWrapper(async (req: Request, res: Response, next: NextFunction) => {
-     const userId = req.ip;
-     const key = `rate:${userId}`;
+export function rateLimiter(req: Request, res: Response, next: NextFunction) {
+  const userId = req.ip as string;// identify user by IP
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute
 
-     // increment in count 
-     const count = await Redis.client.incr(key)
-     if(count === 1){
-          await Redis.client.expire(key,60); // set expiry of 60 seconds
-     }
-     if(count > 10){
-          return Apiresponse.error(res, "Too many requests, please try again later", 429);
-     }else{
-          next();
-     }
-})
+  if (!rateLimitStore[userId] || now > rateLimitStore[userId].expiresAt) {
+    // reset counter
+    rateLimitStore[userId] = {
+      count: 1,
+      expiresAt: now + windowMs,
+    };
+  } else {
+    // increment
+    rateLimitStore[userId].count++;
+  }
+
+  if (rateLimitStore[userId].count > 10) {
+    return Apiresponse.error(
+      res,
+      "Too many requests, please try again later",
+      429
+    );
+  }
+
+  next();
+}
