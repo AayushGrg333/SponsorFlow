@@ -80,7 +80,7 @@ export default function VerifyPage() {
       return
     }
 
-    router.push(`/profile/setup/${usertype}`)
+    router.push(`/setup/profile/${usertype}`)
   }
 
   const handleResend = async () => {

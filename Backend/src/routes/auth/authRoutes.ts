@@ -7,13 +7,13 @@ import { rateLimiter } from "../../middlewares/ratelimiter";
 const router = express.Router();
 
 //to verify signup code
-router.post(`/signup/verify/:usertype/:username`,verifySignupCode)
-router.post(`/signup/resend-verify/:usertype/:username`,resendVerifyCode)
+router.post(`/signup/verify/:usertype/:username`,rateLimiter,verifySignupCode)
+router.post(`/signup/resend-verify/:usertype/:username`,rateLimiter,resendVerifyCode)
 
 // to verify login auths
-router.post('/login',loginController);
-router.post('/logout',logoutcontroller);
-router.post('/forgot-password' )
+router.post('/login',rateLimiter,loginController);
+router.post('/logout',rateLimiter,logoutcontroller);
+router.post('/forgot-password',rateLimiter)
 
 //refresh token endpoint
 router.post('/refresh-token',refreshTokenController)

@@ -20,11 +20,7 @@ export function rateLimiter(req: Request, res: Response, next: NextFunction) {
   }
 
   if (rateLimitStore[userId].count > 10) {
-    return Apiresponse.error(
-      res,
-      "Too many requests, please try again later",
-      429
-    );
+     Apiresponse.error(res, "Too many requests. Please try again later.");
   }
 
   next();
