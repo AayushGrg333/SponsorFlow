@@ -1,5 +1,7 @@
 // API Configuration and Service Layer for SponsorFlow Backend
 
+import { profile } from "console";
+
 const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api"
 
 // Generic fetch wrapper with auth handling
@@ -109,7 +111,9 @@ export const influencerAPI = {
   verifySignupCode: async (username: string, code: string) => {
     return fetchAPI(`/auth/signup/verify/influencer/${username}`, {
       method: "POST",
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({
+        verificationCode: code,
+      }),
     })
   },
 
@@ -121,22 +125,86 @@ export const influencerAPI = {
   },
 
   // Profile setup
-  setupProfile: async (profileData: {
-    bio: string
-    categories: string[]
-    instagram?: string
-    youtube?: string
-    twitter?: string
-    website?: string
-    followers?: number
-    experience?: number
-    avatar?: string
-  }) => {
-    return fetchAPI("/influencer/profile", {
-      method: "POST",
-      body: JSON.stringify(profileData),
-    })
-  },
+/** 
+ * Send influencer profile data to backend
+ * Matches influencerProfileSchema exactly
+ */
+setupProfile: async (profileData: {
+  realName: {
+    givenName: string;
+    middleName?: string;
+    familyName: string;
+  };
+  displayName: string;
+  bio: string;
+  categories: string[];
+  instagram?: string;
+  youtube?: string;
+  twitter?: string;
+  facebook?: string;
+  followers?: number;
+  experience?: number;
+  avatar?: string;
+}) => {
+
+  // Build social links array
+  const socialMediaProfileLinks = [
+    profileData.instagram && { platform: "instagram", url: profileData.instagram },
+    profileData.youtube && { platform: "youtube", url: profileData.youtube },
+    profileData.twitter && { platform: "twitter", url: profileData.twitter },
+    profileData.facebook && { platform: "facebook", url: profileData.facebook },
+  ].filter(Boolean) as { platform: string; url: string }[];
+
+  // Build platforms array
+  const platforms = [
+    profileData.instagram && {
+      platform: "instagram",
+      followers: profileData.followers ?? 0,
+    },
+    profileData.youtube && {
+      platform: "youtube",
+      followers: profileData.followers ?? 0,
+    },
+    profileData.twitter && {
+      platform: "twitter",
+      followers: profileData.followers ?? 0,
+    },
+    profileData.facebook && {
+      platform: "facebook",
+      followers: profileData.followers ?? 0,
+    },
+  ].filter(Boolean) as {
+    platform: string;
+    followers: number;
+    engagementRate: number;
+  }[];
+
+  // Final backend payload
+  const backendPayload = {
+    realName: profileData.realName,
+    displayName: profileData.displayName,
+    bio: profileData.bio || "",
+
+    socialMediaProfileLinks,
+
+    experienceYears: profileData.experience ?? 0,
+
+    previousSponsorships: [],
+
+    contentType: profileData.categories.map((cat) => ({ name: cat })),
+
+    profileImage: profileData.avatar || "",
+
+    platforms,
+  };
+
+  return fetchAPI("/influencer/setup/profile/", {
+    method: "POST",
+    body: JSON.stringify(backendPayload),
+  });
+}
+,
+
 
   // Get profile
   getProfile: async (influencerId: string) => {

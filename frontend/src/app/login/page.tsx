@@ -38,7 +38,8 @@ export default function LoginPage() {
 
     if (data?.accessToken) {
       authHelpers.setTokens(data.accessToken)
-      router.push(activeTab === "influencer" ? "/dashboard/influencer" : "/dashboard/company")
+
+      router.push(activeTab === "influencer" ? `/profile/setup/${activeTab}` : `/profile/setup/${activeTab}`)
     }
   }
 

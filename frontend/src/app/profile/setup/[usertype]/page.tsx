@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import {
-  Zap,
   Upload,
   X,
   Instagram,
@@ -47,6 +46,13 @@ const categories = [
   "Parenting",
 ]
 
+type PlatformRow = {
+  id: string
+  platform: string
+  followers: string // keep as string in UI, convert on submit
+   link: string
+}
+
 export default function ProfileSetupPage() {
   const router = useRouter()
   const params = useParams()
@@ -59,15 +65,30 @@ export default function ProfileSetupPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
+  // ---- NEW: realName + displayName (required by backend) ----
+  const [realName, setRealName] = useState({
+    givenName: "",
+    middleName: "",
+    familyName: "",
+  })
+  const [displayName, setDisplayName] = useState("")
+
+  // Existing influencerProfile kept for compatibility with UI
   const [influencerProfile, setInfluencerProfile] = useState({
     bio: "",
     instagram: "",
     youtube: "",
     twitter: "",
-    website: "",
+    facebook: "",
     followers: "",
     experience: "",
   })
+
+  // ---- NEW: previous sponsorships (array of strings) ----
+  const [previousSponsorships, setPreviousSponsorships] = useState<string[]>([])
+
+  // ---- NEW: platforms array (platform, followers, engagementRate) ----
+  const [platformRows, setPlatformRows] = useState<PlatformRow[]>([])
 
   const [companyProfile, setCompanyProfile] = useState({
     description: "",
@@ -97,22 +118,87 @@ export default function ProfileSetupPage() {
     }
   }
 
+  // ---- Platform row helpers ----
+  const addPlatformRow = () => {
+    const id = String(Date.now()) + Math.random().toString(16).slice(2)
+    setPlatformRows([...platformRows, { id, platform: "", followers: "", link: "" }])
+  }
+  const updatePlatformRow = (id: string, patch: Partial<PlatformRow>) => {
+    setPlatformRows(platformRows.map((r) => (r.id === id ? { ...r, ...patch } : r)))
+  }
+  const removePlatformRow = (id: string) => {
+    setPlatformRows(platformRows.filter((r) => r.id !== id))
+  }
+
+  // ---- Previous sponsorships helpers ----
+  const addPreviousSponsorship = () => setPreviousSponsorships([...previousSponsorships, ""])
+  const updatePreviousSponsorship = (index: number, val: string) => {
+    const arr = [...previousSponsorships]
+    arr[index] = val
+    setPreviousSponsorships(arr)
+  }
+  const removePreviousSponsorship = (index: number) => {
+    const arr = [...previousSponsorships]
+    arr.splice(index, 1)
+    setPreviousSponsorships(arr)
+  }
+
   const handleSubmit = async () => {
     setIsLoading(true)
     setError(null)
 
     if (isInfluencer) {
+      // Build socialMediaProfileLinks array from the simple social inputs (keeps your existing UI)
+      const socialMediaProfileLinks = [
+        influencerProfile.instagram ? { platform: "instagram", url: influencerProfile.instagram } : null,
+        influencerProfile.facebook ? { platform: "facebook", url: influencerProfile.facebook } : null,
+        influencerProfile.youtube ? { platform: "youtube", url: influencerProfile.youtube } : null,
+        influencerProfile.twitter ? { platform: "twitter", url: influencerProfile.twitter } : null,
+      ].filter(Boolean) as { platform: string; url: string }[]
+
+      // Build platforms array converting numbers
+const platforms = platformRows
+  .filter((r) => r.platform && r.link)
+  .map((r) => ({
+    platform: r.platform,
+    followers: r.followers ? Number.parseInt(r.followers) : 0,
+    url: r.link, // send as url instead of engagementRate
+  }))
+
+      // Map selectedCategories -> contentType objects (backend expects array of objects)
+      const contentType = selectedCategories.map((name) => ({ name }))
+
+      // Final payload matching influencerProfileSchema
+      const backendPayload = {
+        realName: {
+          givenName: realName.givenName,
+          middleName: realName.middleName || undefined,
+          familyName: realName.familyName,
+        },
+        displayName: displayName || realName.givenName + " " + realName.familyName, // ensure something there
+        bio: influencerProfile.bio || "",
+        socialMediaProfileLinks,
+        experienceYears: influencerProfile.experience ? Number.parseInt(influencerProfile.experience) : 0,
+        previousSponsorships: previousSponsorships.filter((s) => s.trim() !== ""),
+        contentType,
+        profileImage: avatarPreview || undefined,
+        platforms,
+      }
+
       const { error: apiError } = await influencerAPI.setupProfile({
-        bio: influencerProfile.bio,
-        categories: selectedCategories,
-        instagram: influencerProfile.instagram,
-        youtube: influencerProfile.youtube,
-        twitter: influencerProfile.twitter,
-        website: influencerProfile.website,
-        followers: influencerProfile.followers ? Number.parseInt(influencerProfile.followers) : undefined,
-        experience: influencerProfile.experience ? Number.parseInt(influencerProfile.experience) : undefined,
-        avatar: avatarPreview || undefined,
-      })
+  realName: realName,
+  displayName: displayName || influencerProfile.instagram || "",
+  bio: influencerProfile.bio || "",
+  categories: selectedCategories,            // <- required by setupProfile()
+  instagram: influencerProfile.instagram,
+  youtube: influencerProfile.youtube,
+  twitter: influencerProfile.twitter,
+  facebook: influencerProfile.facebook,
+  followers: influencerProfile.followers ? Number.parseInt(influencerProfile.followers) : undefined,
+  experience: influencerProfile.experience ? Number.parseInt(influencerProfile.experience) : undefined,
+  avatar: avatarPreview || undefined,
+})
+
 
       if (apiError) {
         setError(apiError)
@@ -180,6 +266,56 @@ export default function ProfileSetupPage() {
               <p className="mt-2 text-sm text-muted-foreground">
                 {isInfluencer ? "Upload your photo" : "Upload company logo"}
               </p>
+            </div>
+
+            {/* NEW: Name fields + Display Name (keeps UI look consistent) */}
+            {isInfluencer && (
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Given Name</Label>
+                  <Input
+                    placeholder="Given name"
+                    value={realName.givenName}
+                    onChange={(e) => setRealName({ ...realName, givenName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Middle Name</Label>
+                  <Input
+                    placeholder="Middle name (optional)"
+                    value={realName.middleName}
+                    onChange={(e) => setRealName({ ...realName, middleName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Family Name</Label>
+                  <Input
+                    placeholder="Family name"
+                    value={realName.familyName}
+                    onChange={(e) => setRealName({ ...realName, familyName: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label>{isInfluencer ? "Display Name" : "Company Description"}</Label>
+              {isInfluencer ? (
+                <Input
+                  placeholder="Display name (e.g., John Doe, JD Creator)"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                />
+              ) : (
+                <Textarea
+                  placeholder="Describe your company, products, and what you're looking for in influencer partnerships..."
+                  className="min-h-[120px] resize-none"
+                  value={companyProfile.description}
+                  onChange={(e) => {
+                    setCompanyProfile({ ...companyProfile, description: e.target.value })
+                  }}
+                />
+              )}
             </div>
 
             <div className="space-y-2">
@@ -283,10 +419,10 @@ export default function ProfileSetupPage() {
                 <div className="relative">
                   <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    placeholder="https://yourwebsite.com"
+                    placeholder="https://yourfacebook.com"
                     className="pl-10"
-                    value={influencerProfile.website}
-                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, website: e.target.value })}
+                    value={influencerProfile.facebook}
+                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, facebook: e.target.value })}
                   />
                 </div>
               </div>
@@ -309,6 +445,98 @@ export default function ProfileSetupPage() {
                     value={influencerProfile.experience}
                     onChange={(e) => setInfluencerProfile({ ...influencerProfile, experience: e.target.value })}
                   />
+                </div>
+              </div>
+
+{/* NEW: Platforms dynamic rows */}
+<div className="space-y-2">
+  <div className="flex items-center justify-between">
+    <Label>Platforms (followers & link)</Label>
+    <Button variant="outline" onClick={addPlatformRow} size="sm">
+      <Plus className="mr-2 h-3 w-3" /> Add
+    </Button>
+  </div>
+
+  <div className="space-y-3">
+    {platformRows.length === 0 && (
+      <p className="text-sm text-muted-foreground">
+        No platforms added yet. Use Add to include platform stats.
+      </p>
+    )}
+
+    {platformRows.map((row) => (
+      <div key={row.id} className="grid gap-2 sm:grid-cols-4">
+        <div className="space-y-2">
+          <Label className="text-xs">Platform</Label>
+          <select
+            className="h-9 rounded-md border px-2 text-sm bg-black"
+            value={row.platform}
+            onChange={(e) => updatePlatformRow(row.id, { platform: e.target.value })}
+          >
+            <option value="">Select</option>
+            <option value="instagram">Instagram</option>
+            <option value="youtube">YouTube</option>
+            <option value="twitter">Twitter</option>
+            <option value="tiktok">TikTok</option>
+            <option value="facebook">Facebook</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs">Followers</Label>
+          <Input
+            placeholder="e.g., 12000"
+            value={row.followers}
+            onChange={(e) => updatePlatformRow(row.id, { followers: e.target.value })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs">Link / URL</Label>
+          <Input
+            placeholder="https://..."
+            value={row.link}
+            onChange={(e) => updatePlatformRow(row.id, { link: e.target.value })}
+          />
+        </div>
+
+        <div className="flex items-end">
+          <Button variant="ghost" onClick={() => removePlatformRow(row.id)} className="ml-auto">
+            Remove
+          </Button>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+              {/* NEW: Previous sponsorships (array) */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Previous Sponsorships</Label>
+                  <Button variant="outline" onClick={addPreviousSponsorship} size="sm">
+                    <Plus className="mr-2 h-3 w-3" /> Add
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  {previousSponsorships.length === 0 && (
+                    <p className="text-sm text-muted-foreground">You can list past brand collaborations (optional).</p>
+                  )}
+
+                  {previousSponsorships.map((s, i) => (
+                    <div key={i} className="flex gap-2">
+                      <Input
+                        placeholder="Brand or campaign name"
+                        value={s}
+                        onChange={(e) => updatePreviousSponsorship(i, e.target.value)}
+                      />
+                      <Button variant="ghost" onClick={() => removePreviousSponsorship(i)}>
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
