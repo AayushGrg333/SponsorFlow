@@ -68,12 +68,17 @@ async function refreshToken(): Promise<boolean> {
 
 export const authAPI = {
   // Login
-  login: async (email: string, password: string, userType: "influencer" | "company") => {
-    return fetchAPI<{ accessToken: string; user: any }>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password, userType }),
-    })
-  },
+login: async (
+  email: string,
+  password: string,
+  userType: "influencer" | "company"
+): Promise<{ data: { accessToken: string; user: any } | null; error: string | null }> => {
+  return fetchAPI<{ accessToken: string; user: any }>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ identifier: email, password, usertype: userType }),
+    credentials: "include",
+  })
+},
 
   // Logout
   logout: async () => {

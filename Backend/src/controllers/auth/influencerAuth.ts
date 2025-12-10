@@ -190,6 +190,7 @@ export const loginController: RequestHandler = asyncWrapper(
                     success : true,
                     message : "login successful",
                     user,
+                    accessToken,
                })
             }
         )(req,res,next);

@@ -25,7 +25,9 @@ const refreshTokenController : RequestHandler = (req,res) => {
                maxAge: 15 * 60 * 1000
            });
 
-           res.json({ success: true , message : "new access token has been assigned"});
+           res.json({ success: true , message : "new access token has been assigned",
+               accessToken: newAccessToken
+           });
 
      })
 }

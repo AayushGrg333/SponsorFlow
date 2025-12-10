@@ -28,20 +28,22 @@ export default function LoginPage() {
     setIsLoading(true)
     setError(null)
 
-    const { data, error: apiError } = await authAPI.login(formData.email, formData.password, activeTab)
+const { data, error: apiError } = await authAPI.login(
+  formData.email,
+  formData.password,
+  activeTab
+)
 
-    if (apiError) {
-      setError(apiError)
-      setIsLoading(false)
-      return
-    }
+if (apiError) {
+  setError(apiError)
+  setIsLoading(false)
+  return
+}
 
-    if (data?.accessToken) {
-      authHelpers.setTokens(data.accessToken)
-
-      router.push(activeTab === "influencer" ? `/profile/setup/${activeTab}` : `/profile/setup/${activeTab}`)
-    }
-  }
+if (data?.accessToken) {
+  authHelpers.setTokens(data.accessToken)
+  router.push(`/profile/setup/${activeTab}`)
+}}
 
   const handleGoogleLogin = () => {
     setIsLoading(true)
