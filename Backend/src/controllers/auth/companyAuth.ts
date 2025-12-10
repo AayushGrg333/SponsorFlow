@@ -132,13 +132,15 @@ export const CompanyCallbackController: RequestHandler = asyncWrapper(async (req
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            sameSite: "strict",
+               sameSite: "lax",
+               secure: false,
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
         });
 
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            sameSite: "strict",
+               sameSite: "lax",
+               secure: false,
             maxAge: 15 * 60 * 1000, // 15 minutes
         });
 

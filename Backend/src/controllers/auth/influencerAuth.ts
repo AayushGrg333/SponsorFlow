@@ -111,13 +111,15 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
                 );
                 res.cookie("refreshToken", refreshToken, {
                     httpOnly: true,
-                    sameSite: "strict",
+               sameSite: "lax",
+               secure: false,
                     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day
                 });
 
                 res.cookie("accessToken", accessToken, {
                     httpOnly: true,
-                    sameSite: "strict",
+               sameSite: "lax",
+               secure: false,
                     maxAge: 15 * 60 * 1000, // 15 min
                 });
 
@@ -176,13 +178,15 @@ export const loginController: RequestHandler = asyncWrapper(
                 },refreshTokenSecret,{expiresIn : "30d"});
                 res.cookie("refreshToken",refreshToken,{
                     httpOnly: true,
-                    sameSite: 'strict',
+                    sameSite: 'lax',
+                    secure: false,
                     maxAge: 30 * 24 * 60 * 60 * 1000 // 30 day
                 })
 
                 res.cookie("accessToken",accessToken,{
                     httpOnly: true,
-                    sameSite: 'strict',
+               sameSite: "lax",
+               secure: false,
                     maxAge: 15 * 60 * 1000 // 15 min
                 })
 
@@ -201,11 +205,13 @@ export const loginController: RequestHandler = asyncWrapper(
 export const logoutcontroller : RequestHandler = (req,res) =>{
      res.clearCookie("refreshToken",{
           httpOnly : true,
-          sameSite : 'strict'
+               sameSite: "lax",
+               secure: false,
      })
      res.clearCookie("accessToken",{
            httpOnly : true,
-          sameSite : 'strict'
+               sameSite: "lax",
+               secure: false,
      })
      res.status(200).json({
           success : true,

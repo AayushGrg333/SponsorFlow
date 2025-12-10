@@ -78,7 +78,8 @@ login: async (
     body: JSON.stringify({ identifier: email, password, usertype: userType }),
     credentials: "include",
   })
-},
+}
+,
 
   // Logout
   logout: async () => {
