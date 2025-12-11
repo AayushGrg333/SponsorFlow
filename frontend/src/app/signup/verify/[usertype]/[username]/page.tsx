@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Zap, Mail, Loader2, ArrowLeft, RefreshCw } from "lucide-react"
+import { Mail, Loader2, ArrowLeft, RefreshCw } from "lucide-react"
 import { influencerAPI, companyAPI } from "@/lib/api"
 
 export default function VerifyPage() {
@@ -17,7 +17,6 @@ export default function VerifyPage() {
 
   const [code, setCode] = useState(["", "", "", "", "", ""])
   const [isLoading, setIsLoading] = useState(false)
-  const [isResending, setIsResending] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -83,20 +82,7 @@ export default function VerifyPage() {
     router.push(`/login`)
   }
 
-  const handleResend = async () => {
-    setIsResending(true)
-    setError(null)
 
-    const api = usertype === "influencer" ? influencerAPI : companyAPI
-    const { error: apiError } = await api.resendVerifyCode(username)
-
-    if (apiError) {
-      setError(apiError)
-    }
-
-    setIsResending(false)
-    setResendCooldown(60)
-  }
 
   const isCodeComplete = code.every((digit) => digit !== "")
 
@@ -166,23 +152,7 @@ export default function VerifyPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Didn&apos;t receive the code?{" "}
-              {resendCooldown > 0 ? (
-                <span className="text-muted-foreground">Resend in {resendCooldown}s</span>
-              ) : (
-                <button
-                  onClick={handleResend}
-                  disabled={isResending}
-                  className="inline-flex items-center gap-1 font-medium text-primary hover:underline disabled:opacity-50"
-                >
-                  {isResending && <RefreshCw className="h-3 w-3 animate-spin" />}
-                  Resend code
-                </button>
-              )}
-            </p>
-          </div>
+          
 
           <div className="mt-6 text-center">
             <Link

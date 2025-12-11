@@ -21,7 +21,6 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"influencer" | "company">("influencer")
   const [acceptTerms, setAcceptTerms] = useState(false)
-  const [slug, setSlug] = useState<string>("")
 
   const [influencerData, setInfluencerData] = useState({
     username: "",
@@ -67,14 +66,14 @@ export default function SignupPage() {
     setError(null)
 
     const { data, error: apiError, } = await companyAPI.signup(companyData)
-    setSlug(data?.slug || "")
+
     if (apiError) {
       setError(apiError)
       setIsLoading(false)
       return
     }
 
-    router.push(`/signup/verify/company/${slug}`)
+    router.push(`/signup/verify/company/${data?.slug}`)
   }
 
   const handleGoogleSignup = () => {
