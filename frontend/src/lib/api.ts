@@ -253,7 +253,7 @@ export const companyAPI = {
     email: string
     password: string
   }) => {
-    return fetchAPI<{ message: string; companyName: string }>("/company/auth/sign-up", {
+    return fetchAPI<{ message: string; companyName: string; slug: string }>("/company/auth/sign-up", {
       method: "POST",
       body: JSON.stringify(data),
     })
@@ -263,9 +263,12 @@ export const companyAPI = {
   verifySignupCode: async (companyName: string, code: string) => {
     return fetchAPI(`/auth/signup/verify/company/${companyName}`, {
       method: "POST",
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ 
+        verificationCode: code,
+       }),
     })
   },
+
 
   // Resend verification code
   resendVerifyCode: async (companyName: string) => {

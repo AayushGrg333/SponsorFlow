@@ -69,6 +69,7 @@ export const companySignupController : RequestHandler = asyncWrapper(
                   res.status(200).json({
                       success: true,
                       message: "Signup successful. Verification code sent",
+                      slug: existingUserByEmail.slug,
                       verificationCode,
                   });
                   return;
@@ -91,6 +92,8 @@ export const companySignupController : RequestHandler = asyncWrapper(
               res.status(200).json({
                   success: true,
                   message: "Signup successful. Verification code sent",
+                    slug,
+                    verificationCode,
               });
               return;
           }
