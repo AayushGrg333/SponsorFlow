@@ -1,8 +1,8 @@
 // API Configuration and Service Layer for SponsorFlow Backend
 
-import { profile } from "console";
 
-const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api";
+// const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api";
+const API_BASE_URL = "http://localhost:8000/api";
 
 // Generic fetch wrapper with auth handling
 async function fetchAPI<T>(

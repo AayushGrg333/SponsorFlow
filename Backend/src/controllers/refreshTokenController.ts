@@ -5,7 +5,10 @@ import jwt from "jsonwebtoken";
 
 const refreshTokenController: RequestHandler = (req, res) => {
      const token = req.cookies.refreshToken;
-     if (!token) res.status(401).json({ message: "refresh token not found" });
+          if (!token) {
+          res.status(401).json({ message: "refresh token not found" });
+          return; 
+     }
 
      const accessTokenSecret = process.env.JWT_ACCESS_SECRET!;
      const refreshTokenSecret = process.env.JWT_REFRESH_SECRET!;
@@ -14,6 +17,8 @@ const refreshTokenController: RequestHandler = (req, res) => {
                return res
                     .status(403)
                     .json({ message: "Invalid refresh token" });
+
+               
 
           const { id, usertype } = decoded;
 
@@ -31,7 +36,6 @@ const refreshTokenController: RequestHandler = (req, res) => {
           res.json({
                success: true,
                message: "new access token has been assigned",
-               accessToken: newAccessToken,
           });
      });
 };
