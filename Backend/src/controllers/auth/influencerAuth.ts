@@ -132,75 +132,78 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
 
 
 
-
-export const loginController: RequestHandler = asyncWrapper(
-    async (req: Request, res: Response, next: NextFunction) => {
-            const parsedData = loginSchema.safeParse({
-                identifier: req.body.identifier,
-            password: req.body.password,
-            usertype: req.body.usertype,
-        });
-
-        if (!parsedData.success) {
-            res.status(400).json({
+export const loginController: RequestHandler = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        // Your existing authentication logic
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            res.status(401).json({
                 success: false,
-                message: "invalid login data",
-                error: parsedData.error.issues,
+                message: "Invalid credentials"
             });
             return;
         }
-        const  { usertype } = parsedData.data
-        const Strategy =
-            parsedData.data.usertype === "company" ? "company-local" : "influencer-local";
-        passport.authenticate(
-            Strategy,
-            (err: any, user: User | Company |false, info: any) => {
-                if (err) return next(err);
-
-                if (!user) {
-                    log.info("Login failed", {
-                        error: info.message || "Invalid credentials",
-                    });
-                    return Apiresponse.error(res, "Invalid credentials", 401);
-                }
-
-                const accessTokenSecret = config.JWT_ACCESS_SECRET
-                const refreshTokenSecret = config.JWT_REFRESH_SECRET
-
-                const accessToken = jwt.sign({
-                    id: user._id,
-                    usertype
-                },accessTokenSecret,{expiresIn : "15m"});
-
-                const refreshToken = jwt.sign({
-                    id: user._id,
-                    usertype
-                },refreshTokenSecret,{expiresIn : "30d"});
-                res.cookie("refreshToken",refreshToken,{
-                    httpOnly: true,
-                    sameSite: 'lax',
-                    secure: false,
-                    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 day
-                })
-
-                res.cookie("accessToken",accessToken,{
-                    httpOnly: true,
-               sameSite: "lax",
-               secure: false,
-                    maxAge: 15 * 60 * 1000 // 15 min
-                })
-
-                return res.status(200).json({
-                    success : true,
-                    message : "login successful",
-                    user,
-                    accessToken,
-               })
+        
+        // Verify password (your existing logic)
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            res.status(401).json({
+                success: false,
+                message: "Invalid credentials"
+            });
+            return;
+        }
+        
+        // Generate tokens
+        const accessToken = jwt.sign(
+            { id: user._id.toString(), usertype: user.usertype },
+            process.env.JWT_ACCESS_SECRET!,
+            { expiresIn: '15m' }
+        );
+        
+        const refreshToken = jwt.sign(
+            { id: user._id.toString(), usertype: user.usertype },
+            process.env.JWT_REFRESH_SECRET!,
+            { expiresIn: '7d' }
+        );
+        
+        // Set HttpOnly cookies
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000 // 15 minutes
+        });
+        
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+        
+        // Return success (no tokens in body)
+        res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            user: {
+                id: user._id,
+                email: user.email,
+                usertype: user.usertype,
+                displayName: user.displayName,
+                isProfileComplete: user.isProfileComplete
             }
-        )(req,res,next);
-});
-
-
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error during login'
+        });
+    }
+};
 
 export const logoutcontroller : RequestHandler = (req,res) =>{
      res.clearCookie("refreshToken",{
