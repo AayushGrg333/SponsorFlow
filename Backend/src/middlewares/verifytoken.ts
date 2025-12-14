@@ -12,7 +12,14 @@ export interface JwtPayload {
 }
 
 const verifyToken: RequestHandler = async (req, res, next) => {
-     const token = req.cookies.accessToken;
+     let token = req.cookies.accessToken;
+
+     if (!token) { 
+          const authHeader = req.headers.authorization;
+          if(authHeader && authHeader.startsWith("Bearer ")) {
+               token  = authHeader.split(" ")[1];
+          }
+     } 
 
      if (!token) {
           res.status(401).json({
