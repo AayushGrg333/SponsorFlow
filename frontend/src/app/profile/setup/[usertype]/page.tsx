@@ -87,23 +87,24 @@ export default function ProfileSetupPage() {
   const [platformRows, setPlatformRows] = useState<PlatformRow[]>([])
 
   // ============= COMPANY STATE (UPDATED FOR BACKEND) =============
-  const [companyProfile, setCompanyProfile] = useState({
-    email: "",
-    description: "",
-    addressType: "Online" as "Online" | "Physical",
-    address: "",
-    contactNumber: "",
-    establishedYear: new Date().getFullYear(),
-    products: [] as string[],
-    
-    // Social links
-    website: "",
-    instagram: "",
-    linkedin: "",
-    twitter: "",
-    youtube: "",
-    facebook: "",
-  })
+ const [companyProfile, setCompanyProfile] = useState({
+  email: "",
+  description: "",
+  addressType: "Online" as "Online" | "Physical",
+  address: "",
+  contactNumber: "",
+  establishedYear: new Date().getFullYear(),
+  products: [] as string[],
+
+  // Social links
+  website: "",
+  instagram: "",
+  linkedin: "",
+  twitter: "",
+  youtube: "",
+  facebook: "",
+});
+
 
   const [productInput, setProductInput] = useState("")
 
@@ -211,31 +212,33 @@ export default function ProfileSetupPage() {
     } else {
       // ============= COMPANY SUBMISSION (UPDATED) =============
       const contentType = selectedCategories.map((name) => ({ name }))
+const socialLinks = [
+  companyProfile.website && { platform: "website", link: companyProfile.website },
+  companyProfile.instagram && { platform: "instagram", link: companyProfile.instagram },
+  companyProfile.linkedin && { platform: "linkedin", link: companyProfile.linkedin },
+  companyProfile.twitter && { platform: "twitter", link: companyProfile.twitter },
+  companyProfile.youtube && { platform: "youtube", link: companyProfile.youtube },
+  companyProfile.facebook && { platform: "facebook", link: companyProfile.facebook },
+].filter(Boolean) as { platform: string; link: string }[];
 
-      const socialLinks = [
-        companyProfile.website && { platform: "website", url: companyProfile.website },
-        companyProfile.instagram && { platform: "instagram", url: companyProfile.instagram },
-        companyProfile.linkedin && { platform: "linkedin", url: companyProfile.linkedin },
-        companyProfile.twitter && { platform: "twitter", url: companyProfile.twitter },
-        companyProfile.youtube && { platform: "youtube", url: companyProfile.youtube },
-        companyProfile.facebook && { platform: "facebook", url: companyProfile.facebook },
-      ].filter(Boolean) as { platform: string; url: string }[]
 
-      const payload = {
-        email: companyProfile.email,
-        addressType: companyProfile.addressType,
-        ...(companyProfile.addressType === "Physical" && companyProfile.address
-          ? { address: companyProfile.address }
-          : {}),
-        contactNumber: companyProfile.contactNumber,
-        categories : selectedCategories,
-        contentType,
-        ...(avatarPreview ? { profileImage: avatarPreview } : {}),
-        products: companyProfile.products,
-        establishedYear: companyProfile.establishedYear,
-        ...(companyProfile.description ? { description: companyProfile.description } : {}),
-        socialLinks,
-      }
+
+     const payload = {
+  email: companyProfile.email,
+  addressType: companyProfile.addressType,
+  ...(companyProfile.addressType === "Physical" && companyProfile.address
+    ? { address: companyProfile.address }
+    : {}),
+  contactNumber: companyProfile.contactNumber,
+  categories: selectedCategories, // or whatever your categories are
+  contentType: selectedCategories.map((name) => ({ name })),
+  products: companyProfile.products,
+  establishedYear: companyProfile.establishedYear,
+  ...(companyProfile.description ? { description: companyProfile.description } : {}),
+  socialLinks, // mapped array
+  ...(avatarPreview ? { profileImage: avatarPreview } : {}),
+};
+
 
       const { error: apiError } = await companyAPI.setupProfile(payload)
 

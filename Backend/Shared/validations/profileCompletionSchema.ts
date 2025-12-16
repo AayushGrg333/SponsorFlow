@@ -35,8 +35,8 @@ export const companyProfileSchema = z
                .string()
                .refine(
                     (val) => {
-                         const phoneNumber = parsePhoneNumberFromString(val);
-                         return phoneNumber?.isValid() ?? false;
+                         const digitsOnly = val.replace(/\D/g, "");
+          return digitsOnly.length === 10;
                     },
                     {
                          message: "Invalid phone number. Use international format like +123456789",
@@ -55,10 +55,8 @@ export const companyProfileSchema = z
      })
      .refine(
           (data) => {
-               if (data.addressType === "Physical") {
-                    return !!data.address;
-               }
-               return true;
+ if (data.addressType === "Physical") return !!data.address;
+      return true;
           },
           {
                message: "Address is required when address type is Physical",

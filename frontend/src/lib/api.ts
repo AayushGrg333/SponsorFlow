@@ -268,46 +268,59 @@ export const companyAPI = {
                }),
           });
      },
+ setupProfile: async (profileData: {
+  email: string;
+  addressType: "Online" | "Physical";
+  address?: string;
+  contactNumber: string;
+  description?: string;
+  categories: string[];
+  logo?: string;
+  products: string[];
+  establishedYear: number;
+  website?: string;
+  instagram?: string;
+  linkedin?: string;
+  twitter?: string;
+  youtube?: string;
+  facebook?: string;
+}) => {
+  // Build socialLinks array based on available URLs
+  const socialLinks = [
+    profileData.website?.trim() && { platform: "website", link: profileData.website },
+    profileData.instagram?.trim() && { platform: "instagram", link: profileData.instagram },
+    profileData.linkedin?.trim() && { platform: "linkedin", link: profileData.linkedin },
+    profileData.twitter?.trim() && { platform: "twitter", link: profileData.twitter },
+    profileData.youtube?.trim() && { platform: "youtube", link: profileData.youtube },
+    profileData.facebook?.trim() && { platform: "facebook", link: profileData.facebook },
+  ].filter((p): p is { platform: string; link: string } => !!p);
 
-     // Profile setup
-     setupProfile: async (profileData: {
-          email: string;
-          addressType: "Online" | "Physical";
-          address?: string;
-          contactNumber: string;
-          description?: string;
-          categories: string[];
-          logo?: string;
-          products: string[];
-          establishedYear: number;
-          socialLinks?: Array<{ platform: string; url: string }>; // Adjust based on your socialLinkSchema
-     }) => {
-          // Convert categories to objects if backend expects { name: string } format
-          const contentType = profileData.categories.map((cat) => ({
-               name: cat,
-          }));
+  // Build contentType array
+  const contentType = profileData.categories.map(cat => ({ content: cat }));
 
-          const backendPayload = {
-  email: profileData.email,
-  addressType: profileData.addressType,
-  ...(profileData.addressType === "Physical" && profileData.address
-    ? { address: profileData.address }
-    : {}),
-  contactNumber: profileData.contactNumber,
-  categories: profileData.categories, // directly use categories
-  ...(profileData.logo ? { logo: profileData.logo } : {}),
-  products: profileData.products,
-  establishedYear: profileData.establishedYear,
-  ...(profileData.description ? { description: profileData.description } : {}),
-  socialLinks: profileData.socialLinks || [],
-};
+  // Final payload for backend
+  const backendPayload = {
+    email: profileData.email,
+    addressType: profileData.addressType,
+    ...(profileData.addressType === "Physical" && profileData.address
+      ? { address: profileData.address }
+      : {}),
+    contactNumber: profileData.contactNumber,
+    categories: profileData.categories,
+    contentType, // { content: string } objects
+    ...(profileData.logo ? { profileImage: profileData.logo } : {}),
+    products: profileData.products,
+    establishedYear: profileData.establishedYear,
+    ...(profileData.description ? { description: profileData.description } : {}),
+    socialLinks, // { platform, link } objects
+  };
 
+  return fetchAPI("/company/profile", {
+    method: "POST",
+    body: JSON.stringify(backendPayload),
+  });
+},
 
-          return fetchAPI("/company/profile", {
-               method: "POST",
-               body: JSON.stringify(backendPayload),
-          });
-     },
      // Get profile
      getProfile: async (companyId: string) => {
           return fetchAPI(`/company/profile/${companyId}`);
