@@ -28,8 +28,7 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
           if (!parsedData.success) {
                res.status(400).json({
                     status: "error",
-                    message: "Invalid data",
-                    errors: parsedData.error.issues,
+                    message: parsedData.error.issues,
                });
                return;
           }
