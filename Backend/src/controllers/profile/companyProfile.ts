@@ -18,6 +18,7 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
 
           const user = req.user;
+          console.log(req.body)
 
           if (!user) {
                return Apiresponse.error(res, "Unauthorized", 401);

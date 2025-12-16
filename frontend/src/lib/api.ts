@@ -1,8 +1,8 @@
 // API Configuration and Service Layer for SponsorFlow Backend
 
 
-const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api";
-// const API_BASE_URL = "http://localhost:8000/api";
+// const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api";
+const API_BASE_URL = "http://localhost:8000/api";
 
 // Generic fetch wrapper with auth handling
 async function fetchAPI<T>(
@@ -193,24 +193,23 @@ export const influencerAPI = {
           const platforms = [
                profileData.instagram && {
                     platform: "instagram",
-                    followers: profileData.followers ?? 0,
+                    count: profileData.followers ?? 0,
                },
                profileData.youtube && {
                     platform: "youtube",
-                    followers: profileData.followers ?? 0,
+                    count: profileData.followers ?? 0,
                },
                profileData.twitter && {
                     platform: "twitter",
-                    followers: profileData.followers ?? 0,
+                    count: profileData.followers ?? 0,
                },
                profileData.facebook && {
                     platform: "facebook",
-                    followers: profileData.followers ?? 0,
+                    count: profileData.followers ?? 0,
                },
           ].filter(Boolean) as {
                platform: string;
-               followers: number;
-               engagementRate: number;
+               count: number;
           }[];
 
           // Final backend payload
@@ -229,7 +228,6 @@ export const influencerAPI = {
                     name: cat,
                })),
 
-               profileImage: profileData.avatar || "",
 
                platforms,
           };

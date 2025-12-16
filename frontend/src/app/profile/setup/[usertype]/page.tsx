@@ -126,7 +126,6 @@ export default function ProfileSetupPage() {
     }
   }
 
-  // ============= INFLUENCER HELPERS (DON'T TOUCH) =============
   const addPlatformRow = () => {
     const id = String(Date.now()) + Math.random().toString(16).slice(2)
     setPlatformRows([...platformRows, { id, platform: "", followers: "", link: "" }])

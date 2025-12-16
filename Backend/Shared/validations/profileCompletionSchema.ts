@@ -88,5 +88,5 @@ export const influencerProfileSchema = z.object({
      previousSponsorships: z.array(z.string()).optional(),
      contentType: z.array(contentSchema).min(1, "At least one content type is required"),
      profileImage: z.string().optional(),
-     platforms: z.array(PlatformStatsSchema).min(1, "At least one platform is required"),
+     platforms: z.array(PlatformStatsSchema).optional().default([]),
 });
