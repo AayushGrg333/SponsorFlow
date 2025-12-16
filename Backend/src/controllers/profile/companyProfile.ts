@@ -1,5 +1,8 @@
 import { RequestHandler, Request, Response } from "express";
-import { companyProfileSchema,companyProfileUpdateSchema } from "../../../Shared/validations/profileCompletionSchema";
+import {
+     companyProfileSchema,
+     companyProfileUpdateSchema,
+} from "../../../Shared/validations/profileCompletionSchema";
 import CompanyModel from "../../models/Company";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
@@ -16,9 +19,8 @@ declare global {
 
 export const companyProfileSetupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-
           const user = req.user;
-          console.log(req.body)
+          console.log(req.body);
 
           if (!user) {
                return Apiresponse.error(res, "Unauthorized", 401);
@@ -26,9 +28,12 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
 
           const parsedData = companyProfileSchema.safeParse(req.body);
           if (!parsedData.success) {
+               const messages = parsedData.error.issues
+                    .map((issue) => issue.message)
+                    .join(", ");
                res.status(400).json({
                     status: "error",
-                    message: parsedData.error.issues,
+                    message: messages,
                });
                return;
           }
@@ -81,7 +86,6 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
      }
 );
 
-
 /**
  * @description Get public company profile by ID or slug
  * @route GET /api/companies/:companyId
@@ -89,23 +93,26 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
  */
 export const getCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const {companyId} = req.params;
+          const { companyId } = req.params;
           const cacheKey = `company:${companyId}`;
 
           //check Redis cache first
           const cachedProfile = await Redis.client.get(cacheKey);
-          if(cachedProfile){
-               return Apiresponse.success(res, "Company profile fetched successfully", JSON.parse(cachedProfile));
+          if (cachedProfile) {
+               return Apiresponse.success(
+                    res,
+                    "Company profile fetched successfully",
+                    JSON.parse(cachedProfile)
+               );
           }
 
           const company = await CompanyModel.findOne({
-            $or : [{_id: companyId},{slug: companyId}],
-            isverified: true,
-            isprofileComplete: true
-          })
-          .select(
-      "companyName email addressType address contactNumber contentType profileImage products establishedYear description socialLinks slug"
-     );
+               $or: [{ _id: companyId }, { slug: companyId }],
+               isverified: true,
+               isprofileComplete: true,
+          }).select(
+               "companyName email addressType address contactNumber contentType profileImage products establishedYear description socialLinks slug"
+          );
 
           if (!company) {
                return Apiresponse.error(res, "Company not found", 404);
@@ -113,10 +120,13 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
 
           // await Redis.client.set(cacheKey,JSON.stringify(company),{EX: 3600})
 
-          return Apiresponse.success(res, "Company profile fetched successfully", company);
+          return Apiresponse.success(
+               res,
+               "Company profile fetched successfully",
+               company
+          );
      }
 );
-
 
 /**
  * @description List or search verified companies
@@ -124,49 +134,53 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
  * @access Public or Authenticated
  */
 export const listCompaniesController: RequestHandler = asyncWrapper(
-	async (req: Request, res: Response) => {
-		const {search, contentType, page = 1, limit = 10} = req.query as {
-			search? : string;
-			contentType?: string;
-			page?: string;
-			limit?: string;
-		}
+     async (req: Request, res: Response) => {
+          const {
+               search,
+               contentType,
+               page = 1,
+               limit = 10,
+          } = req.query as {
+               search?: string;
+               contentType?: string;
+               page?: string;
+               limit?: string;
+          };
 
-		const query : any = {
+          const query: any = {
                isVerified: true,
                isProfileComplete: true,
+          };
+
+          if (search) {
+               query.companyName = { $regex: search, $options: "i" };
           }
 
-		if(search){
-			query.companyName = { $regex: search, $options: "i"}
-		}
+          if (contentType) {
+               query.contentType = { $elemMatch: { contentType: contentType } };
+          }
 
-		if(contentType){
-			query.contentType = {$elemMatch : {contentType: contentType}}
-		}
+          const skip = (Number(page) - 1) * Number(limit);
 
-		const skip = (Number(page) - 1) * Number(limit);
+          const companies = await CompanyModel.find(query)
+               .select(
+                    "companyName email addressType address contactNumber contentType profileImage products establishedYear description socialLinks slug"
+               )
+               .skip(skip)
+               .limit(Number(limit))
+               .sort({ createdAt: -1 });
 
-		const companies = await CompanyModel.find(query)
-		  	.select(
-				"companyName email addressType address contactNumber contentType profileImage products establishedYear description socialLinks slug"
-			)
-			.skip(skip)
-			.limit(Number(limit))
-			.sort({createdAt: -1});
+          const total = await CompanyModel.countDocuments(query);
 
-		const total = await CompanyModel.countDocuments(query);
-
-		return res.status(200).json({
-			success : true,
-			total,
-			currentPage: Number(page),
-			totalPages: Math.ceil(total / Number(limit)),
-			companies,
-		})
-		
-	})
-
+          return res.status(200).json({
+               success: true,
+               total,
+               currentPage: Number(page),
+               totalPages: Math.ceil(total / Number(limit)),
+               companies,
+          });
+     }
+);
 
 export const updateCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
@@ -177,7 +191,7 @@ export const updateCompanyProfileController: RequestHandler = asyncWrapper(
           }
           const parsedData = companyProfileUpdateSchema.safeParse(req.body);
 
-          if(!parsedData.success) {
+          if (!parsedData.success) {
                return res.status(400).json({
                     status: "error",
                     message: "Invalid data",
@@ -188,24 +202,24 @@ export const updateCompanyProfileController: RequestHandler = asyncWrapper(
           const updatedCompany = await CompanyModel.findByIdAndUpdate(
                companyId,
                {
-                    $set : parsedData.data
+                    $set: parsedData.data,
                },
                { new: true, runValidators: true }
-          )
+          );
 
           if (!updatedCompany) {
                return Apiresponse.error(res, "Company not found", 404);
           }
 
           return Apiresponse.success(res, "Company profile updated", {
-               company: updatedCompany
-          })
+               company: updatedCompany,
+          });
      }
-     );
+);
 
 // /**
 //  * Controller to list campaigns for a company.
-//  * 
+//  *
 //  * Access rules:
 //  * - Logged in as company or influencer: full campaign details
 //  * - Visitor (not logged in): limited campaign details
@@ -275,4 +289,3 @@ export const updateCompanyProfileController: RequestHandler = asyncWrapper(
 //     });
 //   }
 // );
-

@@ -17,10 +17,12 @@ export const influencerProfileSetupController: RequestHandler = asyncWrapper(
 
           const parsedData = influencerProfileSchema.safeParse(req.body);
           if (!parsedData.success) {
+               const messages = parsedData.error.issues
+                    .map((issue) => issue.message)
+                    .join(", ");
                res.status(400).json({
                     status: "error",
-                    message: parsedData.error.issues,
-                    
+                    message: messages,
                });
                return;
           }
