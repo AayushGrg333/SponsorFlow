@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { platform } from "os";
 const contentSchema = z.object({
      content: z.string(),
 });
@@ -16,15 +17,8 @@ export const SocialPlatformSchema = z.enum([
 ]);
 
 const socialLinkSchema = z.object({
-     type: z.enum([
-          "website",
-          "instagram",
-          "linkedin",
-          "twitter",
-          "youtube",
-          "facebook",
-     ]),
-     url: z.string(),
+     platform: SocialPlatformSchema,
+     link : z.string().min(1, "Link is required")
 });
 
 export const PlatformStatsSchema = z.object({

@@ -152,91 +152,57 @@ export const influencerAPI = {
       * Send influencer profile data to backend
       * Matches influencerProfileSchema exactly
       */
-     setupProfile: async (profileData: {
-          realName: {
-               givenName: string;
-               middleName?: string;
-               familyName: string;
-          };
-          displayName: string;
-          bio: string;
-          categories: string[];
-          instagram?: string;
-          youtube?: string;
-          twitter?: string;
-          facebook?: string;
-          followers?: number;
-          experience?: number;
-          avatar?: string;
-     }) => {
-          // Build social links array
-          const socialMediaProfileLinks = [
-               profileData.instagram && {
-                    platform: "instagram",
-                    url: profileData.instagram,
-               },
-               profileData.youtube && {
-                    platform: "youtube",
-                    url: profileData.youtube,
-               },
-               profileData.twitter && {
-                    platform: "twitter",
-                    url: profileData.twitter,
-               },
-               profileData.facebook && {
-                    platform: "facebook",
-                    url: profileData.facebook,
-               },
-          ].filter(Boolean) as { platform: string; url: string }[];
+setupProfile: async (profileData: {
+  realName: {
+    givenName: string;
+    middleName?: string;
+    familyName: string;
+  };
+  displayName: string;
+  bio?: string;
+  categories: string[];
+  instagram?: string;
+  youtube?: string;
+  twitter?: string;
+  facebook?: string;
+  followers?: number;
+  experience?: number;
+  avatar?: string;
+}) => {
+  // Build social links array
+const socialMediaProfileLinks = [
+  profileData.instagram?.trim() && { platform: "instagram", link: profileData.instagram },
+  profileData.youtube?.trim() && { platform: "youtube", link: profileData.youtube },
+  profileData.twitter?.trim() && { platform: "twitter", link: profileData.twitter },
+  profileData.facebook?.trim() && { platform: "facebook", link: profileData.facebook },
+].filter((p): p is { platform: string; link: string } => !!p);
 
-          // Build platforms array
-          const platforms = [
-               profileData.instagram && {
-                    platform: "instagram",
-                    count: profileData.followers ?? 0,
-               },
-               profileData.youtube && {
-                    platform: "youtube",
-                    count: profileData.followers ?? 0,
-               },
-               profileData.twitter && {
-                    platform: "twitter",
-                    count: profileData.followers ?? 0,
-               },
-               profileData.facebook && {
-                    platform: "facebook",
-                    count: profileData.followers ?? 0,
-               },
-          ].filter(Boolean) as {
-               platform: string;
-               count: number;
-          }[];
+  // Build platforms array
+  const platforms = [
+    profileData.instagram && { platform: "instagram", count: profileData.followers ?? 0 },
+    profileData.youtube && { platform: "youtube", count: profileData.followers ?? 0 },
+    profileData.twitter && { platform: "twitter", count: profileData.followers ?? 0 },
+    profileData.facebook && { platform: "facebook", count: profileData.followers ?? 0 },
+  ].filter((p): p is { platform: string; count: number } => !!p);
 
-          // Final backend payload
-          const backendPayload = {
-               realName: profileData.realName,
-               displayName: profileData.displayName,
-               bio: profileData.bio || "",
+  // Final backend payload
+  const backendPayload = {
+    realName: profileData.realName,
+    displayName: profileData.displayName,
+    bio: profileData.bio || "",
+    socialMediaProfileLinks, // required by Zod
+    experienceYears: profileData.experience ?? 0,
+    previousSponsorships: [],
+    contentType: profileData.categories.map((cat) => ({ content: cat })),
+    profileImage: profileData.avatar || "",
+    platforms, // optional, defaults to [] in schema
+  };
 
-               socialMediaProfileLinks,
-
-               experienceYears: profileData.experience ?? 0,
-
-               previousSponsorships: [],
-
-               contentType: profileData.categories.map((cat) => ({
-                    name: cat,
-               })),
-
-
-               platforms,
-          };
-
-          return fetchAPI("/influencer/setup/profile/", {
-               method: "POST",
-               body: JSON.stringify(backendPayload),
-          });
-     },
+  return fetchAPI("/influencer/setup/profile/", {
+    method: "POST",
+    body: JSON.stringify(backendPayload),
+  });
+},
      // Get profile
      getProfile: async (influencerId: string) => {
           return fetchAPI(`/influencer/profile/${influencerId}`);
