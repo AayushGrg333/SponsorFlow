@@ -71,7 +71,7 @@ export default function ProfileSetupPage() {
       return
     }
 
-    if (user.isProfileCompleted) {
+    if (user.isProfileComplete) {
       router.replace(
         user.role === "influencer"
           ? "/dashboard/influencer"

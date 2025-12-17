@@ -111,14 +111,12 @@ const companySchema = new Schema(
         addressType:{
             type : String,
             enum : ["Online","Physical"],
-            required : function (this: any){
-                return this.isProfileComplete;
-            }
+            required : true,
         },
         address: {
             type: String,
             required: function (this: any) {
-                return this.isProfileComplete;
+                return this.addressType === "Physical";
             },
         },
         contactNumber: {
