@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Zap, Mail, Lock, Eye, EyeOff, Users, Building2, Loader2 } from "lucide-react"
 import { authAPI, authHelpers } from "@/lib/api"
+import { authStorage } from "@/lib/authHelper"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,28 +24,41 @@ export default function LoginPage() {
     password: "",
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setIsLoading(true)
+  setError(null)
 
-const { data, error: apiError } = await authAPI.login(
-  formData.email,
-  formData.password,
-  activeTab
-)
+  const { data, error: apiError } = await authAPI.login(
+    formData.email,
+    formData.password,
+    activeTab
+  )
 
-if (apiError) {
-  setError(apiError)
   setIsLoading(false)
-  return
-}
 
-if (data?.accessToken) {
+  if (apiError || !data) {
+    setError(apiError || "Something went wrong")
+    return
+  }
+
+  // ✅ Save token
   authHelpers.setTokens(data.accessToken)
-  router.push(`/profile/setup/${activeTab}`)
-}}
 
+  // ✅ Save user in localStorage
+  authStorage.setUser(data.user)
+
+  // ✅ Redirect based on profile completion
+  if (data.user.isProfileCompleted) {
+    router.push(
+      data.user.role === "influencer"
+        ? "/dashboard/influencer"
+        : "/dashboard/company"
+    )
+  } else {
+    router.push(`/profile/setup/${data.user.role}`)
+  }
+}
   const handleGoogleLogin = () => {
     setIsLoading(true)
     window.location.href = authAPI.getGoogleAuthUrl(activeTab)

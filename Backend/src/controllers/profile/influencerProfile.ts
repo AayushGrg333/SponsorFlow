@@ -53,10 +53,17 @@ export const influencerProfileSetupController: RequestHandler = asyncWrapper(
           influencer.isProfileComplete = true;
           await influencer.save();
 
+          const toSend = {
+               _id: influencer._id,
+               email: influencer.email,
+               userType: influencer.userType,
+               isProfileComplete: influencer.isProfileComplete,
+
+          }
           return Apiresponse.success(
                res,
                "Influencer profile updated successfully",
-               influencer
+               toSend
           );
      }
 );

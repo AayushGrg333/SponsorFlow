@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { authStorage } from "../../../../lib/authHelper";
+
 import {
   Upload,
   X,
@@ -54,10 +56,29 @@ type PlatformRow = {
 }
 
 export default function ProfileSetupPage() {
+
   const router = useRouter()
   const params = useParams()
   const usertype = params.usertype as string
   const isInfluencer = usertype === "influencer"
+
+   // 🔒 BLOCK PROFILE SETUP IF ALREADY COMPLETED
+  useEffect(() => {
+    const user = authStorage.getUser()
+
+    if (!user) {
+      router.replace("/login")
+      return
+    }
+
+    if (user.isProfileCompleted) {
+      router.replace(
+        user.role === "influencer"
+          ? "/dashboard/influencer"
+          : "/dashboard/company"
+      )
+    }
+  }, [])
 
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -207,6 +228,8 @@ export default function ProfileSetupPage() {
         setIsLoading(false)
         return
       }
+
+      authStorage.updateUser({ isProfileComplete: true });
 
       router.push("/dashboard/influencer")
     } else {
