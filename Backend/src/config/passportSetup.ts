@@ -107,7 +107,7 @@ passport.use(
             clientID: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             callbackURL:
-                "http://localhost:8000/api/influencer/oauth2/google/callback",
+                "https://sponsorflow-v1.onrender.com/api/influencer/oauth2/google/callback",
         },
         async (
             accessToken: string,
@@ -159,8 +159,8 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            callbackURL:
-                "http://localhost:8000/api/company/oauth2/google/callback",
+callbackURL:
+    "https://sponsorflow-v1.onrender.com/api/company/oauth2/google/callback",
         },
         async (
             accessToken: string,
