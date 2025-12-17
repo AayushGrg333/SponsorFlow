@@ -39,6 +39,7 @@ export interface User extends Document {
      password: string;
      verifyCode: string;
      verifyCodeExpiry: Date;
+     isProfileComplete: boolean;
      googleId: string;
      isVerified: boolean;
      socialMediaProfileLinks: SocialMediaProfileLinks[];

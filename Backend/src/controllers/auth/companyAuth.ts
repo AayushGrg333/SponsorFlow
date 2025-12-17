@@ -100,55 +100,56 @@ export const companySignupController : RequestHandler = asyncWrapper(
       
   });
 
-
-export const CompanyCallbackController: RequestHandler = asyncWrapper(async (req : Request, res: Response) => {
+const IS_PROD = false;
+export const CompanyCallbackController: RequestHandler = asyncWrapper(
+  async (req: Request, res: Response) => {
     const companyData = req.user as Company;
 
-        if (!companyData) {
-            res.status(401).json({
-                success: false,
-                message: "Unable to signup with Google",
-            });
-            return; 
-        }
+    if (!companyData) {
+      return res.status(401).json({
+        success: false,
+        message: "Unable to signup with Google",
+      });
+    }
 
-        const accessTokenSecret = config.JWT_ACCESS_SECRET;
-        const refreshTokenSecret = config.JWT_REFRESH_SECRET;
+    const accessToken = Jwt.sign(
+      {
+        id: companyData._id,
+        usertype: companyData.usertype,
+      },
+      config.JWT_ACCESS_SECRET,
+      { expiresIn: "15m" }
+    );
 
-        const accessToken = Jwt.sign(
-            {
-                id: companyData._id,
-                usertype: companyData.usertype,
-            },
-            accessTokenSecret,
-            { expiresIn: "15m" }
-        );
+    const refreshToken = Jwt.sign(
+      {
+        id: companyData._id,
+        usertype: companyData.usertype,
+      },
+      config.JWT_REFRESH_SECRET,
+      { expiresIn: "30d" }
+    );
 
-        const refreshToken = Jwt.sign(
-            {
-                id: companyData._id,
-                usertype: companyData.usertype,
-            },
-            refreshTokenSecret,
-            { expiresIn: "30d" }
-        );
+    // 🔹 Cookies
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: IS_PROD,
+      sameSite: IS_PROD ? "none" : "lax",
+      maxAge: 15 * 60 * 1000,
+    });
 
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-               sameSite: "lax",
-               secure: false,
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: IS_PROD,
+      sameSite: IS_PROD ? "none" : "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
 
-        res.cookie("accessToken", accessToken, {
-            httpOnly: true,
-               sameSite: "lax",
-               secure: false,
-            maxAge: 15 * 60 * 1000, // 15 minutes
-        });
+    // 🔹 Redirect after login
+    const redirectUrl = companyData.isProfileComplete
+      ? "http://localhost:3000/dashboard/company"
+      : "http://localhost:3000/profile/setup/company";
 
-        res.status(200).json({
-            success: true,
-            message: "Logged in successfully with Google",
-        });
-});
+    return res.redirect(redirectUrl);
+  }
+)
