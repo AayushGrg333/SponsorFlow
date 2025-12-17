@@ -42,22 +42,19 @@ const handleSubmit = async (e: React.FormEvent) => {
     return
   }
 
-  // ✅ Save token
-  authHelpers.setTokens(data.accessToken)
+authHelpers.setTokens(data.accessToken)           // store token
+authStorage.setUser(data.user)                    // store user
+// Redirect based on profile completion
+if (data.user.isProfileComplete) {
+  router.push(
+    data.user.role === "influencer"
+      ? "/dashboard/influencer"
+      : "/dashboard/company"
+  );
+} else {
+  router.push(`/profile/setup/${data.user.role}`);
+}
 
-  // ✅ Save user in localStorage
-  authStorage.setUser(data.user)
-
-  // ✅ Redirect based on profile completion
-  if (data.user.isProfileCompleted) {
-    router.push(
-      data.user.role === "influencer"
-        ? "/dashboard/influencer"
-        : "/dashboard/company"
-    )
-  } else {
-    router.push(`/profile/setup/${data.user.role}`)
-  }
 }
   const handleGoogleLogin = () => {
     setIsLoading(true)
