@@ -103,6 +103,29 @@ export const authAPI = {
           return `${API_BASE_URL}/${userType}/auth/google`;
      },
 
+     getCurrentUser: async () => {
+          try {
+               const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                    credentials: "include", // Important: sends cookies
+                    headers: {
+                         "Content-Type": "application/json",
+                    },
+               });
+
+               if (!response.ok) {
+                    const error = await response.json();
+                    return {
+                         data: null,
+                         error: error.message || "Failed to get user data",
+                    };
+               }
+
+               const data = await response.json();
+               return { data, error: null };
+          } catch (error) {
+               return { data: null, error: "Network error" };
+          }
+     },
      // Forgot Password
      forgotPassword: async (email: string) => {
           return fetchAPI("/auth/forgot-password", {

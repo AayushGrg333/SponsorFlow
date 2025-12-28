@@ -3,6 +3,8 @@ import {verifySignupCode,resendVerifyCode} from '../../controllers/auth/signupVe
 import {loginController,logoutcontroller} from "../../controllers/auth/influencerAuth"
 import refreshTokenController from "../../controllers/refreshTokenController";
 import { rateLimiter } from "../../middlewares/ratelimiter";
+import verifyToken from "@/middlewares/verifytoken";
+import { getCurrentUserController } from "@/controllers/auth/authcontroller";
 
 const router = express.Router();
 
@@ -14,6 +16,7 @@ router.post(`/signup/resend-verify/:usertype/:username`,rateLimiter,resendVerify
 router.post('/login',rateLimiter,loginController);
 router.post('/logout',rateLimiter,logoutcontroller);
 router.post('/forgot-password',rateLimiter)
+router.get("/me",verifyToken,getCurrentUserController)
 
 //refresh token endpoint
 router.post('/refresh-token',refreshTokenController)

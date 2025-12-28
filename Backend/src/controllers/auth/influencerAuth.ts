@@ -174,10 +174,7 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
           });
 
           // ✅ Decide redirect destination
-          const redirectUrl = influencer.isProfileComplete
-               ? `http://localhost:3000/dashboard/influencer`
-               : `http://localhost:3000/profile/setup/influencer`;
-
+     const redirectUrl = `http://localhost:3000/auth/callback`;
           return res.redirect(redirectUrl);
      }
 );

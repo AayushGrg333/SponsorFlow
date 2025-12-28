@@ -17,6 +17,7 @@ import verifyToken from "../middlewares/verifytoken";
 const router = express.Router();
 
 router.post("/auth/sign-up", influencerSignupController);
+
 router.get(
      "/auth/google",
      passport.authenticate("influencer-google", {

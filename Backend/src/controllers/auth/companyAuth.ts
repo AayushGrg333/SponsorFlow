@@ -103,57 +103,59 @@ export const companySignupController : RequestHandler = asyncWrapper(
           }
       
   });
-
 const IS_PROD = false;
+const FRONTEND_URL = "http://localhost:3000";
+
 export const CompanyCallbackController: RequestHandler = asyncWrapper(
   async (req: Request, res: Response) => {
-    const companyData = req.user as Company;
+    const googleUser = req.user as Company;
 
-    if (!companyData) {
+    if (!googleUser) {
       return res.status(401).json({
         success: false,
-        message: "Unable to signup with Google",
+        message: "Google authentication failed",
       });
     }
 
-    const accessToken = Jwt.sign(
-      {
-        id: companyData._id,
-        usertype: companyData.usertype,
-      },
-      config.JWT_ACCESS_SECRET,
-      { expiresIn: "15m" }
-    );
-
-    const refreshToken = Jwt.sign(
-      {
-        id: companyData._id,
-        usertype: companyData.usertype,
-      },
-      config.JWT_REFRESH_SECRET,
-      { expiresIn: "30d" }
-    );
-
-    // 🔹 Cookies
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: IS_PROD,
-      sameSite: IS_PROD ? "none" : "lax",
-      maxAge: 15 * 60 * 1000,
+    // 🔍 Check if company already exists
+    const existingCompany = await CompanyModel.findOne({
+      googleId: googleUser.googleId,
     });
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: IS_PROD,
-      sameSite: IS_PROD ? "none" : "lax",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    if (existingCompany) {
+      const usertype = "company";
 
-    // 🔹 Redirect after login
-    const redirectUrl = companyData.isProfileComplete
-      ? "http://localhost:3000/dashboard/company"
-      : "http://localhost:3000/profile/setup/company";
+      const accessToken = Jwt.sign(
+        { id: existingCompany._id, usertype },
+        config.JWT_ACCESS_SECRET,
+        { expiresIn: "15m" }
+      );
 
-    return res.redirect(redirectUrl);
+      const refreshToken = Jwt.sign(
+        { id: existingCompany._id, usertype },
+        config.JWT_REFRESH_SECRET,
+        { expiresIn: "30d" }
+      );
+
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: IS_PROD,
+        sameSite: IS_PROD ? "none" : "lax",
+        maxAge: 15 * 60 * 1000,
+      });
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: IS_PROD,
+        sameSite: IS_PROD ? "none" : "lax",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      // ✅ Always redirect to callback page first
+      const redirectUrl = `http://localhost:3000/auth/callback`;
+      return res.redirect(redirectUrl);
+    }
+
+
   }
-)
+);

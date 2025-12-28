@@ -18,6 +18,8 @@ let options = {
     secretOrKey: process.env.JWT_SECRET_OR_KEY!,
 };
 
+
+
 passport.use(
     new JwtStrategy(options, async function name(payload, done) {
         try {
@@ -194,5 +196,7 @@ callbackURL:
         }
     )
 );
+
+
 
 export default passport;
