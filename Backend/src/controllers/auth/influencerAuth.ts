@@ -160,13 +160,17 @@ export const loginController: RequestHandler = asyncWrapper(
           });
 
           if (!parsedData.success) {
+               const message = parsedData.error.issues.
+                    map((issue) => issue.message)
+                    .join(", ");
                res.status(400).json({
                     success: false,
-                    message: "invalid login data",
-                    error: parsedData.error.issues,
+                    message: message,
+                    errors: parsedData.error.issues,
                });
                return;
           }
+
           const { usertype } = parsedData.data;
           const Strategy =
                parsedData.data.usertype === "company"
@@ -222,11 +226,17 @@ export const loginController: RequestHandler = asyncWrapper(
                          maxAge: 15 * 60 * 1000, // 15 min
                     });
 
+                    const safeUser = {
+                         id: user._id,
+                         email : user.email,
+                         role : usertype,
+                         isProfileComplete : user.isProfileComplete
+                    }
                     return res.status(200).json({
                          success: true,
                          message: "login successful",
-                         user,
                          accessToken,
+                         user : safeUser
                     });
                }
           )(req, res, next);
