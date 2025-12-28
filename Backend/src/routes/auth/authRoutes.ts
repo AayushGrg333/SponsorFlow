@@ -3,8 +3,8 @@ import {verifySignupCode,resendVerifyCode} from '../../controllers/auth/signupVe
 import {loginController,logoutcontroller} from "../../controllers/auth/influencerAuth"
 import refreshTokenController from "../../controllers/refreshTokenController";
 import { rateLimiter } from "../../middlewares/ratelimiter";
-import verifyToken from "@/middlewares/verifytoken";
-import { getCurrentUserController } from "@/controllers/auth/authcontroller";
+import verifyToken from "../../middlewares/verifytoken";
+import { getCurrentUserController } from "../../controllers/auth/authcontroller";
 
 const router = express.Router();
 
