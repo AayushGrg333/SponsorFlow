@@ -141,7 +141,7 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
 
           const accessToken = jwt.sign(
                {
-                    id: influencer._id, // ✅ FIXED
+                    id: influencer._id,
                     usertype: influencer.usertype,
                },
                process.env.JWT_ACCESS_SECRET!,
@@ -173,8 +173,9 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
                maxAge: 30 * 24 * 60 * 60 * 1000,
           });
 
-          // ✅ Decide redirect destination
-     const redirectUrl = `http://localhost:3000/auth/callback`;
+          const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}`;
+          
+          
           return res.redirect(redirectUrl);
      }
 );
