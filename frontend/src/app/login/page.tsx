@@ -175,6 +175,9 @@ if (data.user.isProfileComplete) {
             </svg>
             Continue with Google
           </Button>
+        <p className="text-gray-400 text-[13px] text-center mb-5">
+          Make sure to select the correct account type before logging in.
+        </p>
 
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
