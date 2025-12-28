@@ -52,17 +52,26 @@ export const influencerProfileSetupController: RequestHandler = asyncWrapper(
           influencer.displayName = displayName;
           influencer.isProfileComplete = true;
           await influencer.save();
-const toSend = {
-  _id: influencer._id,
+const publicUser = {
+  id: influencer._id,
   email: influencer.email,
-  userType: influencer.userType,
-  isProfileCompleted: influencer.isProfileComplete, // renamed
+  role: influencer.userType,
+  displayName: influencer.displayName,
+  profileImage: influencer.profileImage,
+  isProfileComplete: influencer.isProfileComplete,
+  bio: influencer.bio,
+  socialMediaProfileLinks: influencer.socialMediaProfileLinks, // links
+  platforms: influencer.platforms,                               // platforms
+  contentType: influencer.contentType,                          // optional, if UI uses it
+  experienceYears: influencer.experienceYears,                  // optional, if UI uses it
+  previousSponsorships: influencer.previousSponsorships,        // optional
 };
+
 
           return Apiresponse.success(
                res,
                "Influencer profile updated successfully",
-               toSend
+               publicUser
           );
      }
 );

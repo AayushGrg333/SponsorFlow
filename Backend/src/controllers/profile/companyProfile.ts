@@ -77,11 +77,26 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
           company.isProfileComplete = true;
 
           await company.save();
+          const publicCompany = {
+               id: company._id,
+               email: company.email,
+               role: "company",
+               profileImage: company.profileImage,
+               isProfileComplete: company.isProfileComplete,
+               addressType: company.addressType,
+               address: company.address,
+               contactNumber: company.contactNumber,
+               contentType: company.contentType,
+               products: company.products,
+               establishedYear: company.establishedYear,
+               description: company.description,
+               socialLinks: company.socialLinks,
+          };
 
           return res.status(200).json({
                status: "success",
                message: "Company profile updated",
-               company,
+               company: publicCompany,
           });
      }
 );

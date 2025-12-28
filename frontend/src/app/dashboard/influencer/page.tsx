@@ -1,3 +1,4 @@
+'use client'
 
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
@@ -6,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Eye, MessageSquare, DollarSign, Briefcase, ArrowRight, Building2, Calendar, Clock } from "lucide-react"
 import Link from "next/link"
+import { authStorage } from "@/lib/authHelper"
+import { useEffect, useState } from "react"
 
 const recentCampaigns = [
   {
@@ -71,13 +74,28 @@ const statusColors = {
 }
 
 export default function InfluencerDashboard() {
+    const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const storedUser = authStorage.getUser()
+    setUser(storedUser)
+  }, [])
+
+  console.log("Stored user:", authStorage.getUser())
+
+  if (!user) return null // or loader
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar userType="influencer" />
+      <Sidebar userType={user.role} />
+
 
       <main className="lg:pl-64">
         <div className="px-4 py-8 pt-24 lg:px-8 lg:pt-8">
-          <DashboardHeader title="Welcome back, Alex!" subtitle="Here's what's happening with your sponsorships" />
+         <DashboardHeader
+  title={`Welcome back, ${user.username}!`}
+  subtitle="Here's what's happening with your sponsorships"
+/>
+
 
           {/* Stats Grid */}
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
