@@ -81,7 +81,6 @@ export default function InfluencerDashboard() {
     setUser(storedUser)
   }, [])
 
-  console.log("Stored user:", authStorage.getUser())
 
   if (!user) return null // or loader
   return (
@@ -92,7 +91,7 @@ export default function InfluencerDashboard() {
       <main className="lg:pl-64">
         <div className="px-4 py-8 pt-24 lg:px-8 lg:pt-8">
          <DashboardHeader
-  title={`Welcome back, ${user.email}!`}
+  title={`Welcome back, ${user.displayName}!`}
   subtitle="Here's what's happening with your sponsorships"
 />
 

@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Users, Briefcase, MessageSquare, TrendingUp, ArrowRight, Calendar, DollarSign, Plus } from "lucide-react"
 import Link from "next/link"
+import { authStorage } from "@/lib/authHelper"
+import { useEffect, useState } from "react"
 
 const activeCampaigns = [
   {
@@ -121,6 +123,15 @@ const statusColors = {
 }
 
 export default function CompanyDashboard() {
+      const [user, setUser] = useState<any>(null)
+  
+    useEffect(() => {
+      const storedUser = authStorage.getUser()
+      setUser(storedUser)
+    }, [])
+  
+  
+    if (!user) return null
   return (
     <div className="min-h-screen bg-background">
       <Sidebar userType="company" />
@@ -128,7 +139,7 @@ export default function CompanyDashboard() {
       <main className="lg:pl-64">
         <div className="px-4 py-8 pt-24 lg:px-8 lg:pt-8">
           <DashboardHeader
-            title="Welcome back, TechGear Pro!"
+            title={`Welcome back, ${user.email}!`}
             subtitle="Manage your campaigns and find the perfect influencers"
           />
 

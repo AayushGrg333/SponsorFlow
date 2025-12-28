@@ -111,7 +111,7 @@ const companySchema = new Schema(
         addressType:{
             type : String,
             enum : ["Online","Physical"],
-            required : true,
+            required : false,
         },
         address: {
             type: String,
