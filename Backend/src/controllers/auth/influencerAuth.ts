@@ -19,9 +19,12 @@ export const influencerSignupController: RequestHandler = asyncWrapper(
           // Validate input data using Zod
           const parsedData = signupSchema.safeParse(req.body);
           if (!parsedData.success) {
+               const message = parsedData.error.issues.
+                    map((issue) => issue.message)
+                    .join(", ");
                res.status(400).json({
                     success: false,
-                    message: "Invalid signup data",
+                    message: message,
                     errors: parsedData.error.issues,
                });
                return;

@@ -13,13 +13,17 @@ export const companySignupController : RequestHandler = asyncWrapper(
      async (req: Request, res: Response) =>{
           const parsedData = companySignupSchema.safeParse(req.body);
           if (!parsedData.success) {
-              res.status(400).json({
-                  success: false,
-                  message: "Invalid signup data",
-                  errors: parsedData.error.issues,
-              });
-              return;
+               const message = parsedData.error.issues.
+                    map((issue) => issue.message)
+                    .join(", ");
+               res.status(400).json({
+                    success: false,
+                    message: message,
+                    errors: parsedData.error.issues,
+               });
+               return;
           }
+
   
           const { companyName, email, password } = parsedData.data;
           // Check if username already exists and is verified
