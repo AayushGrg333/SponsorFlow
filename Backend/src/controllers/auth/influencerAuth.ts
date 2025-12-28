@@ -13,14 +13,45 @@ import bcrypt from "bcrypt";
 import sendVerificationEmail from "../../utils/sendVerificationEmail";
 import { log } from "../../middlewares/errorHandler";
 
+type SafeInfluencer = {
+     id: string;
+     email: string;
+     role: "influencer";
+     isProfileComplete: boolean;
+     displayName: string;
+     profileImage: string;
+     bio?: any;
+     socialMediaProfileLinks: any[];
+     platforms: any[];
+     contentType: any[];
+     experienceYears: number;
+     previousSponsorships: any[];
+};
+
+type SafeCompany = {
+     id: string;
+     email: string;
+     role: "company";
+     isProfileComplete: boolean;
+     companyName: string;
+     profileImage: string;
+     description: string;
+     socialLinks: any[];
+     contentType: any[];
+     establishedYear: number;
+     address: string;
+     contactNumber: string;
+};
+
+type SafeUser = SafeInfluencer | SafeCompany;
 
 export const influencerSignupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           // Validate input data using Zod
           const parsedData = signupSchema.safeParse(req.body);
           if (!parsedData.success) {
-               const message = parsedData.error.issues.
-                    map((issue) => issue.message)
+               const message = parsedData.error.issues
+                    .map((issue) => issue.message)
                     .join(", ");
                res.status(400).json({
                     success: false,
@@ -130,7 +161,7 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
 
           res.cookie("accessToken", accessToken, {
                httpOnly: true,
-               secure: isProd, 
+               secure: isProd,
                sameSite: isProd ? "none" : "lax",
                maxAge: 15 * 60 * 1000,
           });
@@ -160,8 +191,8 @@ export const loginController: RequestHandler = asyncWrapper(
           });
 
           if (!parsedData.success) {
-               const message = parsedData.error.issues.
-                    map((issue) => issue.message)
+               const message = parsedData.error.issues
+                    .map((issue) => issue.message)
                     .join(", ");
                res.status(400).json({
                     success: false,
@@ -226,17 +257,49 @@ export const loginController: RequestHandler = asyncWrapper(
                          maxAge: 15 * 60 * 1000, // 15 min
                     });
 
-                    const safeUser = {
-                         id: user._id,
-                         email : user.email,
-                         role : usertype,
-                         isProfileComplete : user.isProfileComplete
+                    let safeUser: SafeUser;
+
+                    if (usertype === "influencer") {
+                         const influencer = user as User;
+                         safeUser = {
+                              id: influencer.id,
+                              email: influencer.email,
+                              role: "influencer",
+                              isProfileComplete: influencer.isProfileComplete,
+                              displayName: influencer.displayName,
+                              profileImage: influencer.profileImage,
+                              bio: influencer.realName,
+                              socialMediaProfileLinks:
+                                   influencer.socialMediaProfileLinks,
+                              platforms: influencer.platforms,
+                              contentType: influencer.contentType,
+                              experienceYears: influencer.experienceYears,
+                              previousSponsorships:
+                                   influencer.previousSponsorships,
+                         };
+                    } else {
+                         const company = user as Company;
+                         safeUser = {
+                              id: company._id.toString(),
+                              email: company.email,
+                              role: "company",
+                              isProfileComplete: company.isProfileComplete,
+                              companyName: company.companyName,
+                              profileImage: company.profileImage,
+                              description: company.description,
+                              socialLinks: company.socialLinks,
+                              contentType: company.contentType,
+                              establishedYear: company.establishedYear,
+                              address: company.address,
+                              contactNumber: company.contactNumber,
+                         };
                     }
+
                     return res.status(200).json({
                          success: true,
                          message: "login successful",
                          accessToken,
-                         user : safeUser
+                         user: safeUser,
                     });
                }
           )(req, res, next);

@@ -92,7 +92,7 @@ export default function InfluencerDashboard() {
       <main className="lg:pl-64">
         <div className="px-4 py-8 pt-24 lg:px-8 lg:pt-8">
          <DashboardHeader
-  title={`Welcome back, ${user.username}!`}
+  title={`Welcome back, ${user.email}!`}
   subtitle="Here's what's happening with your sponsorships"
 />
 

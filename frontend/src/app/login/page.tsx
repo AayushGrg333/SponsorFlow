@@ -43,7 +43,8 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 
 authHelpers.setTokens(data.accessToken)           // store token
-authStorage.setUser(data.user)                    // store user
+authStorage.setUser(data.user)      
+console.log(data.user)              // store user
 // Redirect based on profile completion
 if (data.user.isProfileComplete) {
   router.push(

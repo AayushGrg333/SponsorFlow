@@ -9,7 +9,6 @@ import Redis from "../../config/redis";
 
 export const influencerProfileSetupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          console.log(req.body)
           const user = req.user;
           if (!user) {
                return Apiresponse.error(res, "Unauthorized", 401);

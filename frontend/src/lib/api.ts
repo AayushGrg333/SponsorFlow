@@ -3,7 +3,6 @@
 const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api";
 // const API_BASE_URL = "http://localhost:8000/api";
 
-
 // Generic fetch wrapper with auth handling
 async function fetchAPI<T>(
      endpoint: string,
@@ -152,57 +151,83 @@ export const influencerAPI = {
       * Send influencer profile data to backend
       * Matches influencerProfileSchema exactly
       */
-setupProfile: async (profileData: {
-  realName: {
-    givenName: string;
-    middleName?: string;
-    familyName: string;
-  };
-  displayName: string;
-  bio?: string;
-  categories: string[];
-  instagram?: string;
-  youtube?: string;
-  twitter?: string;
-  facebook?: string;
-  followers?: number;
-  experience?: number;
-  avatar?: string;
-}) => {
-  // Build social links array
-const socialMediaProfileLinks = [
-  profileData.instagram?.trim() && { platform: "instagram", link: profileData.instagram },
-  profileData.youtube?.trim() && { platform: "youtube", link: profileData.youtube },
-  profileData.twitter?.trim() && { platform: "twitter", link: profileData.twitter },
-  profileData.facebook?.trim() && { platform: "facebook", link: profileData.facebook },
-].filter((p): p is { platform: string; link: string } => !!p);
+     setupProfile: async (profileData: {
+          realName: {
+               givenName: string;
+               middleName?: string;
+               familyName: string;
+          };
+          displayName: string;
+          bio?: string;
+          categories: string[];
+          instagram?: string;
+          youtube?: string;
+          twitter?: string;
+          facebook?: string;
+          followers?: number;
+          experience?: number;
+          avatar?: string;
+     }) => {
+          // Build social links array
+          const socialMediaProfileLinks = [
+               profileData.instagram?.trim() && {
+                    platform: "instagram",
+                    link: profileData.instagram,
+               },
+               profileData.youtube?.trim() && {
+                    platform: "youtube",
+                    link: profileData.youtube,
+               },
+               profileData.twitter?.trim() && {
+                    platform: "twitter",
+                    link: profileData.twitter,
+               },
+               profileData.facebook?.trim() && {
+                    platform: "facebook",
+                    link: profileData.facebook,
+               },
+          ].filter((p): p is { platform: string; link: string } => !!p);
 
-  // Build platforms array
-  const platforms = [
-    profileData.instagram && { platform: "instagram", count: profileData.followers ?? 0 },
-    profileData.youtube && { platform: "youtube", count: profileData.followers ?? 0 },
-    profileData.twitter && { platform: "twitter", count: profileData.followers ?? 0 },
-    profileData.facebook && { platform: "facebook", count: profileData.followers ?? 0 },
-  ].filter((p): p is { platform: string; count: number } => !!p);
+          // Build platforms array
+          const platforms = [
+               profileData.instagram && {
+                    platform: "instagram",
+                    count: profileData.followers ?? 0,
+               },
+               profileData.youtube && {
+                    platform: "youtube",
+                    count: profileData.followers ?? 0,
+               },
+               profileData.twitter && {
+                    platform: "twitter",
+                    count: profileData.followers ?? 0,
+               },
+               profileData.facebook && {
+                    platform: "facebook",
+                    count: profileData.followers ?? 0,
+               },
+          ].filter((p): p is { platform: string; count: number } => !!p);
 
-  // Final backend payload
-  const backendPayload = {
-    realName: profileData.realName,
-    displayName: profileData.displayName,
-    bio: profileData.bio || "",
-    socialMediaProfileLinks, // required by Zod
-    experienceYears: profileData.experience ?? 0,
-    previousSponsorships: [],
-    contentType: profileData.categories.map((cat) => ({ content: cat })),
-    profileImage: profileData.avatar || "",
-    platforms, // optional, defaults to [] in schema
-  };
+          // Final backend payload
+          const backendPayload = {
+               realName: profileData.realName,
+               displayName: profileData.displayName,
+               bio: profileData.bio || "",
+               socialMediaProfileLinks, // required by Zod
+               experienceYears: profileData.experience ?? 0,
+               previousSponsorships: [],
+               contentType: profileData.categories.map((cat) => ({
+                    content: cat,
+               })),
+               profileImage: profileData.avatar || "",
+               platforms, // optional, defaults to [] in schema
+          };
 
-  return fetchAPI("/influencer/setup/profile/", {
-    method: "POST",
-    body: JSON.stringify(backendPayload),
-  });
-},
+          return fetchAPI("/influencer/setup/profile/", {
+               method: "POST",
+               body: JSON.stringify(backendPayload),
+          });
+     },
      // Get profile
      getProfile: async (influencerId: string) => {
           return fetchAPI(`/influencer/profile/${influencerId}`);
@@ -269,59 +294,80 @@ export const companyAPI = {
           });
      },
 
+     setupProfile: async (profileData: {
+          email: string;
+          addressType: "Online" | "Physical";
+          address?: string;
+          contactNumber: string;
+          description?: string;
+          categories: string[];
+          logo?: string;
+          products: string[];
+          establishedYear: number;
+          website?: string;
+          instagram?: string;
+          linkedin?: string;
+          twitter?: string;
+          youtube?: string;
+          facebook?: string;
+     }) => {
+          // Build socialLinks array based on available URLs
+          const socialLinks = [
+               profileData.website?.trim() && {
+                    platform: "website",
+                    link: profileData.website,
+               },
+               profileData.instagram?.trim() && {
+                    platform: "instagram",
+                    link: profileData.instagram,
+               },
+               profileData.linkedin?.trim() && {
+                    platform: "linkedin",
+                    link: profileData.linkedin,
+               },
+               profileData.twitter?.trim() && {
+                    platform: "twitter",
+                    link: profileData.twitter,
+               },
+               profileData.youtube?.trim() && {
+                    platform: "youtube",
+                    link: profileData.youtube,
+               },
+               profileData.facebook?.trim() && {
+                    platform: "facebook",
+                    link: profileData.facebook,
+               },
+          ].filter((p): p is { platform: string; link: string } => !!p);
 
- setupProfile: async (profileData: {
-  email: string;
-  addressType: "Online" | "Physical";
-  address?: string;
-  contactNumber: string;
-  description?: string;
-  categories: string[];
-  logo?: string;
-  products: string[];
-  establishedYear: number;
-  website?: string;
-  instagram?: string;
-  linkedin?: string;
-  twitter?: string;
-  youtube?: string;
-  facebook?: string;
-}) => {
-  // Build socialLinks array based on available URLs
-  const socialLinks = [
-    profileData.website?.trim() && { platform: "website", link: profileData.website },
-    profileData.instagram?.trim() && { platform: "instagram", link: profileData.instagram },
-    profileData.linkedin?.trim() && { platform: "linkedin", link: profileData.linkedin },
-    profileData.twitter?.trim() && { platform: "twitter", link: profileData.twitter },
-    profileData.youtube?.trim() && { platform: "youtube", link: profileData.youtube },
-    profileData.facebook?.trim() && { platform: "facebook", link: profileData.facebook },
-  ].filter((p): p is { platform: string; link: string } => !!p);
+          // Build contentType array
+          const contentType = profileData.categories.map((cat) => ({
+               content: cat,
+          }));
 
-  // Build contentType array
-  const contentType = profileData.categories.map(cat => ({ content: cat }));
+          // Final payload for backend
+          const backendPayload = {
+               email: profileData.email,
+               addressType: profileData.addressType,
+               ...(profileData.addressType === "Physical" && profileData.address
+                    ? { address: profileData.address }
+                    : {}),
+               contactNumber: profileData.contactNumber,
+               categories: profileData.categories,
+               contentType, // { content: string } objects
+               ...(profileData.logo ? { profileImage: profileData.logo } : {}),
+               products: profileData.products,
+               establishedYear: profileData.establishedYear,
+               ...(profileData.description
+                    ? { description: profileData.description }
+                    : {}),
+               socialLinks, // { platform, link } objects
+          };
 
-  // Final payload for backend
-  const backendPayload = {
-    email: profileData.email,
-    addressType: profileData.addressType,
-    ...(profileData.addressType === "Physical" && profileData.address
-      ? { address: profileData.address }
-      : {}),
-    contactNumber: profileData.contactNumber,
-    categories: profileData.categories,
-    contentType, // { content: string } objects
-    ...(profileData.logo ? { profileImage: profileData.logo } : {}),
-    products: profileData.products,
-    establishedYear: profileData.establishedYear,
-    ...(profileData.description ? { description: profileData.description } : {}),
-    socialLinks, // { platform, link } objects
-  };
-
-  return fetchAPI("/company/profile", {
-    method: "POST",
-    body: JSON.stringify(backendPayload),
-  });
-},
+          return fetchAPI("/company/profile", {
+               method: "POST",
+               body: JSON.stringify(backendPayload),
+          });
+     },
 
      // Get profile
      getProfile: async (companyId: string) => {
