@@ -12,11 +12,11 @@ import {
 } from "../controllers/feature/campaignControllers";
 
 //routes
-router.get("/campaigns", listCampaignsController);
-router.get("/campaigns/ :campaignId", getCampaignController);
-router.post("/campaigns", verifyToken, createCampaignController);
-router.put("/campaigns/:campaignId", verifyToken, updateCampaignController);
-router.delete("/campaigns/:campaignId", verifyToken, deleteCampaignController);
+router.get("/", listCampaignsController);
+router.get("/:campaignId", getCampaignController);
+router.post("/", verifyToken, createCampaignController);
+router.put("/:campaignId", verifyToken, updateCampaignController);
+router.delete("/:campaignId", verifyToken, deleteCampaignController);
 router.get("/companies/:companyId/campaigns", getCampaignByCompanyController);
 
 

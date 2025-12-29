@@ -40,6 +40,12 @@ const statusColors = {
   rejected: "bg-red-500/10 text-red-500",
 }
 
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
 export default function InfluencerDashboard() {
   const [user, setUser] = useState<any>(null)
   const [applications, setApplications] = useState<Application[]>([])
@@ -54,13 +60,11 @@ export default function InfluencerDashboard() {
 
   useEffect(() => {
     const storedUser = authStorage.getUser()
-    console.log('Stored user object:', storedUser)
     setUser(storedUser)
     
     if (storedUser) {
       // Try different possible ID fields
       const userId = storedUser._id || storedUser.id || storedUser.userId || storedUser.influencerId
-      console.log('Using user ID:', userId)
       
       if (userId) {
         loadDashboardData(userId)
@@ -70,68 +74,74 @@ export default function InfluencerDashboard() {
     }
   }, [])
 
-  const loadDashboardData = async (influencerId: string) => {
-    try {
-      setLoading(true)
-      
-      console.log('Loading dashboard for influencer:', influencerId)
-      console.log('Access token:', localStorage.getItem('accessToken') ? 'Present' : 'Missing')
-      
-      // Fetch applications
-      const appsResponse = await applicationsAPI.getByInfluencer(influencerId)
-      console.log('Applications API Response:', appsResponse)
-      
-      if (appsResponse.error) {
-        console.error('Error fetching applications:', appsResponse.error)
-        // Continue anyway to show empty state
-        setApplications([])
-      } else if (appsResponse.data) {
-        const applicationsData = appsResponse.data as Application[]
-        console.log('Applications data:', applicationsData)
-        setApplications(applicationsData)
-        
-        // Calculate stats from applications
-        const acceptedApps = applicationsData.filter(app => app.status === 'accepted')
-        const totalEarnings = acceptedApps.reduce((sum, app) => 
-          sum + (app.proposedRate || app.campaignId?.budget || 0), 0
-        )
-        
-        setStats(prev => ({
-          ...prev,
-          activeApplications: applicationsData.filter(app => 
-            app.status === 'pending' || app.status === 'accepted'
-          ).length,
-          totalEarnings
-        }))
-        
-        // Fetch recommended campaigns (all active campaigns)
-        console.log('Fetching campaigns...')
-        const campaignsResponse = await campaignsAPI.list({ status: 'active' })
-        console.log('Campaigns API Response:', campaignsResponse)
-        
-        if (campaignsResponse.error) {
-          console.error('Error fetching campaigns:', campaignsResponse.error)
-          setRecommendedCampaigns([])
-        } else if (campaignsResponse.data) {
-          const campaignsData = campaignsResponse.data as Campaign[]
-          console.log('Campaigns data:', campaignsData)
-          // Filter out campaigns user has already applied to
-          const appliedCampaignIds = applicationsData.map(app => app.campaignId?._id).filter(Boolean)
-          const available = campaignsData.filter(
-            campaign => !appliedCampaignIds.includes(campaign._id)
-          )
-          setRecommendedCampaigns(available.slice(0, 3))
-        }
-      }
-      
-    } catch (error) {
-      console.error('Error loading dashboard data:', error)
-      setApplications([])
-      setRecommendedCampaigns([])
-    } finally {
-      setLoading(false)
-    }
+const loadDashboardData = async (influencerId: string) => {
+  try {
+    setLoading(true);
+
+    // ================== FETCH APPLICATIONS ==================
+    const appsResponse = await applicationsAPI.getByInfluencer(influencerId) as {
+      data: ApiResponse<Application[]> | null;
+      error: string | null;
+    };
+
+    const applicationsData: Application[] = Array.isArray(appsResponse.data?.data)
+      ? appsResponse.data!.data
+      : [];
+
+    setApplications(applicationsData);
+
+    // ================== CALCULATE STATS ==================
+    const acceptedApps = applicationsData.filter(
+      app => app.status === "accepted"
+    );
+
+    const totalEarnings = acceptedApps.reduce(
+      (sum, app) =>
+        sum + (app.proposedRate || app.campaignId?.budget || 0),
+      0
+    );
+
+    const activeApplications = applicationsData.filter(
+      app => app.status === "pending" || app.status === "accepted"
+    ).length;
+
+    setStats(prev => ({
+      ...prev,
+      activeApplications,
+      totalEarnings,
+    }));
+
+    // ================== FETCH CAMPAIGNS ==================
+    const campaignsResponse = await campaignsAPI.list({ status: "active" }) as {
+      data: ApiResponse<Campaign[]> | null;
+      error: string | null;
+    };
+
+    const campaignsData: Campaign[] = Array.isArray(
+      campaignsResponse.data?.data
+    )
+      ? campaignsResponse.data!.data
+      : [];
+
+    // ================== FILTER RECOMMENDED ==================
+    const appliedCampaignIds = applicationsData
+      .map(app => app.campaignId?._id)
+      .filter(Boolean) as string[];
+
+    const recommended = campaignsData.filter(
+      campaign => !appliedCampaignIds.includes(campaign._id)
+    );
+
+    setRecommendedCampaigns(recommended.slice(0, 3));
+  } catch (error) {
+    console.error("Error loading dashboard data:", error);
+    setApplications([]);
+    setRecommendedCampaigns([]);
+  } finally {
+    setLoading(false);
   }
+};
+
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

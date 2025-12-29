@@ -89,12 +89,17 @@ export const authAPI = {
                credentials: "include",
           });
      },
-     
+
      // Logout
      logout: async () => {
-          const result = await fetchAPI("/auth/logout", { method: "POST" });
+          await fetch(`${API_BASE_URL}/auth/logout`, {
+               method: "POST",
+               credentials: "include",
+          });
+
           localStorage.removeItem("accessToken");
-          return result;
+
+          window.location.href = "/login"; 
      },
 
      // Google OAuth URLs
@@ -131,7 +136,7 @@ export const authAPI = {
                return { data: null, error: "Network error" };
           }
      },
-     
+
      // Forgot Password
      forgotPassword: async (email: string) => {
           return fetchAPI("/auth/forgot-password", {
@@ -250,7 +255,7 @@ export const influencerAPI = {
                body: JSON.stringify(backendPayload),
           });
      },
-     
+
      // CORRECTED: GET /influencer/profile/:influencerId
      getProfile: async (influencerId: string) => {
           return fetchAPI(`/influencer/profile/${influencerId}`);
@@ -409,7 +414,9 @@ export const campaignsAPI = {
           if (filters?.status) params.append("status", filters.status);
           if (filters?.category) params.append("category", filters.category);
           if (filters?.search) params.append("search", filters.search);
-          return fetchAPI(`/campaigns${params.toString() ? '?' + params.toString() : ''}`);
+          return fetchAPI(
+               `/campaigns${params.toString() ? "?" + params.toString() : ""}`
+          );
      },
 
      // CORRECTED: GET /campaigns/:campaignId
@@ -465,13 +472,10 @@ export const applicationsAPI = {
                proposedRate?: number;
           }
      ) => {
-          return fetchAPI(
-               `/campaigns/${campaignId}/applications`,
-               {
-                    method: "POST",
-                    body: JSON.stringify(applicationData),
-               }
-          );
+          return fetchAPI(`/campaigns/${campaignId}/applications`, {
+               method: "POST",
+               body: JSON.stringify(applicationData),
+          });
      },
 
      // CORRECTED: GET /campaigns/:campaignId/applications
@@ -489,13 +493,10 @@ export const applicationsAPI = {
           applicationId: string,
           status: "accepted" | "rejected" | "pending"
      ) => {
-          return fetchAPI(
-               `/applications/${applicationId}/status`,
-               {
-                    method: "PATCH",
-                    body: JSON.stringify({ status }),
-               }
-          );
+          return fetchAPI(`/applications/${applicationId}/status`, {
+               method: "PATCH",
+               body: JSON.stringify({ status }),
+          });
      },
 
      // CORRECTED: DELETE /applications/:applicationId
@@ -507,9 +508,7 @@ export const applicationsAPI = {
 
      // CORRECTED: GET /influencers/:influencerId/applications
      getByInfluencer: async (influencerId: string) => {
-          return fetchAPI(
-               `/${influencerId}/applications`
-          );
+          return fetchAPI(`/influencer/${influencerId}/applications`);
      },
 };
 
