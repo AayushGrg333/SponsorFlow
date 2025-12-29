@@ -15,7 +15,7 @@ router.get("/campaigns/:campaignId/applications",verifyToken,getApplicationsByCa
 router.get("/applications/:applicationId",verifyToken,getApplicationDetails);
 router.patch("/applications/:applicationId/status",verifyToken,updateApplicationStatus);
 router.delete("/applications/:applicationId",verifyToken,deleteApplication);
-router.get("/influencers/:influencerId/applications",verifyToken,getApplicationsByInfluencer);
+router.get("/:influencerId/applications",verifyToken,getApplicationsByInfluencer);
 
 
 

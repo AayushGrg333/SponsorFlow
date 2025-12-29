@@ -448,9 +448,9 @@ export const campaignsAPI = {
           });
      },
 
-     // CORRECTED: GET /companies/:companyId/campaigns
+     // CORRECTED: GET /campaigns/companies/:companyId/campaigns
      getByCompany: async (companyId: string) => {
-          return fetchAPI(`/companies/${companyId}/campaigns`);
+          return fetchAPI(`/campaigns/companies/${companyId}/campaigns`);
      },
 };
 
@@ -508,7 +508,7 @@ export const applicationsAPI = {
      // CORRECTED: GET /influencers/:influencerId/applications
      getByInfluencer: async (influencerId: string) => {
           return fetchAPI(
-               `/influencers/${influencerId}/applications`
+               `/${influencerId}/applications`
           );
      },
 };
