@@ -1,5 +1,7 @@
 // lib/authHelper.ts
 
+import { setUserCookie, removeUserCookie } from "./cookiehelper"
+
 const USER_KEY = "sf_user";
 const TOKEN_KEY = "sf_token";
 
@@ -11,7 +13,11 @@ export const authStorage = {
   },
 
   setUser(user: any) {
+    // Store in localStorage
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    
+    // ✅ Also store in cookie for middleware access
+    setUserCookie(user);
   },
 
   updateUser(patch: Partial<any>) {
@@ -24,5 +30,8 @@ export const authStorage = {
   clear() {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    
+    // ✅ Also clear cookie
+    removeUserCookie();
   },
 };

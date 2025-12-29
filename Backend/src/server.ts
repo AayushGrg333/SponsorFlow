@@ -3,6 +3,8 @@ import express, { Request, Response } from "express";
 import influencerRoutes from "./routes/influencerRoutes";
 import companyRoutes from "./routes/companyRoutes";
 import authRoutes from "./routes/auth/authRoutes";
+import applicationRoutes from "./routes/applicationRoutes"
+import campaignRoutes from "./routes/campaignRoutes"
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -13,6 +15,7 @@ import { Server } from "socket.io";
 import { setupSocket } from "./socket/socket";
 import connectDB from "./config/connnectdb";
 import passport from "../src/config/passportSetup";
+
 
 const app = express();
 const server = http.createServer(app);
@@ -73,6 +76,8 @@ app.use(passport.session());
 app.use("/api/influencer", influencerRoutes);
 app.use("/api/company", companyRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/campaigns", campaignRoutes);  
+app.use("/api/applications", applicationRoutes);  
 app.use("/health", healthRoutes);
 
 app.get("/ping", (req: Request, res: Response) => {

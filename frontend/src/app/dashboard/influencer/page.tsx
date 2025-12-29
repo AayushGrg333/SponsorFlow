@@ -5,127 +5,193 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { StatsCard } from "@/components/dashboard/stats-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Eye, MessageSquare, DollarSign, Briefcase, ArrowRight, Building2, Calendar, Clock } from "lucide-react"
+import { Eye, MessageSquare, DollarSign, Briefcase, ArrowRight, Building2, Calendar } from "lucide-react"
 import Link from "next/link"
 import { authStorage } from "@/lib/authHelper"
 import { useEffect, useState } from "react"
+import { influencerAPI, applicationsAPI, campaignsAPI } from "@/lib/api"
 
-const recentCampaigns = [
-  {
-    id: 1,
-    company: "TechGear Pro",
-    title: "Product Review Campaign",
-    status: "active",
-    budget: "$2,500",
-    deadline: "Dec 15, 2024",
-    logo: "/placeholder.svg?key=gkqhj",
-  },
-  {
-    id: 2,
-    company: "StyleCo Fashion",
-    title: "Summer Collection Promo",
-    status: "pending",
-    budget: "$1,800",
-    deadline: "Dec 20, 2024",
-    logo: "/placeholder.svg?key=6t6qu",
-  },
-  {
-    id: 3,
-    company: "FitLife Supplements",
-    title: "Fitness Challenge Series",
-    status: "completed",
-    budget: "$3,200",
-    deadline: "Nov 30, 2024",
-    logo: "/placeholder.svg?key=q3zz4",
-  },
-]
+interface Campaign {
+  _id: string
+  title: string
+  description: string
+  budget: number
+  deadline: string
+  status: string
+  companyId: {
+    _id: string
+    companyName: string
+    profileImage?: string
+  }
+  categories: string[]
+}
 
-const recommendedBrands = [
-  {
-    id: 1,
-    name: "GameZone Studios",
-    category: "Gaming",
-    budget: "$5K - $10K",
-    logo: "/placeholder.svg?key=e2gj1",
-    match: 95,
-  },
-  {
-    id: 2,
-    name: "BeautyBlend",
-    category: "Skincare",
-    budget: "$2K - $5K",
-    logo: "/placeholder.svg?key=3cpfl",
-    match: 88,
-  },
-  {
-    id: 3,
-    name: "TravelEase",
-    category: "Travel",
-    budget: "$3K - $8K",
-    logo: "/placeholder.svg?key=h3xao",
-    match: 82,
-  },
-]
+interface Application {
+  _id: string
+  campaignId: Campaign
+  status: 'pending' | 'accepted' | 'rejected'
+  proposedRate?: number
+  createdAt: string
+}
 
 const statusColors = {
-  active: "bg-green-500/10 text-green-500",
   pending: "bg-yellow-500/10 text-yellow-500",
-  completed: "bg-primary/10 text-primary",
+  accepted: "bg-green-500/10 text-green-500",
+  rejected: "bg-red-500/10 text-red-500",
 }
 
 export default function InfluencerDashboard() {
-    const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<any>(null)
+  const [applications, setApplications] = useState<Application[]>([])
+  const [recommendedCampaigns, setRecommendedCampaigns] = useState<Campaign[]>([])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    profileViews: 0,
+    activeApplications: 0,
+    messages: 0,
+    totalEarnings: 0
+  })
 
   useEffect(() => {
     const storedUser = authStorage.getUser()
+    console.log('Stored user object:', storedUser)
     setUser(storedUser)
+    
+    if (storedUser) {
+      // Try different possible ID fields
+      const userId = storedUser._id || storedUser.id || storedUser.userId || storedUser.influencerId
+      console.log('Using user ID:', userId)
+      
+      if (userId) {
+        loadDashboardData(userId)
+      } else {
+        console.error('No valid user ID found in user object')
+      }
+    }
   }, [])
 
+  const loadDashboardData = async (influencerId: string) => {
+    try {
+      setLoading(true)
+      
+      console.log('Loading dashboard for influencer:', influencerId)
+      console.log('Access token:', localStorage.getItem('accessToken') ? 'Present' : 'Missing')
+      
+      // Fetch applications
+      const appsResponse = await applicationsAPI.getByInfluencer(influencerId)
+      console.log('Applications API Response:', appsResponse)
+      
+      if (appsResponse.error) {
+        console.error('Error fetching applications:', appsResponse.error)
+        // Continue anyway to show empty state
+        setApplications([])
+      } else if (appsResponse.data) {
+        const applicationsData = appsResponse.data as Application[]
+        console.log('Applications data:', applicationsData)
+        setApplications(applicationsData)
+        
+        // Calculate stats from applications
+        const acceptedApps = applicationsData.filter(app => app.status === 'accepted')
+        const totalEarnings = acceptedApps.reduce((sum, app) => 
+          sum + (app.proposedRate || app.campaignId?.budget || 0), 0
+        )
+        
+        setStats(prev => ({
+          ...prev,
+          activeApplications: applicationsData.filter(app => 
+            app.status === 'pending' || app.status === 'accepted'
+          ).length,
+          totalEarnings
+        }))
+        
+        // Fetch recommended campaigns (all active campaigns)
+        console.log('Fetching campaigns...')
+        const campaignsResponse = await campaignsAPI.list({ status: 'active' })
+        console.log('Campaigns API Response:', campaignsResponse)
+        
+        if (campaignsResponse.error) {
+          console.error('Error fetching campaigns:', campaignsResponse.error)
+          setRecommendedCampaigns([])
+        } else if (campaignsResponse.data) {
+          const campaignsData = campaignsResponse.data as Campaign[]
+          console.log('Campaigns data:', campaignsData)
+          // Filter out campaigns user has already applied to
+          const appliedCampaignIds = applicationsData.map(app => app.campaignId?._id).filter(Boolean)
+          const available = campaignsData.filter(
+            campaign => !appliedCampaignIds.includes(campaign._id)
+          )
+          setRecommendedCampaigns(available.slice(0, 3))
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error loading dashboard data:', error)
+      setApplications([])
+      setRecommendedCampaigns([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  if (!user) return null // or loader
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+
+  if (!user) return null
+
   return (
     <div className="min-h-screen bg-background">
       <Sidebar userType={user.role} />
 
-
       <main className="lg:pl-64">
         <div className="px-4 py-8 pt-24 lg:px-8 lg:pt-8">
-         <DashboardHeader
-  title={`Welcome back, ${user.displayName}!`}
-  subtitle="Here's what's happening with your sponsorships"
-/>
-
+          <DashboardHeader
+            title={`Welcome back, ${user.displayName}!`}
+            subtitle="Here's what's happening with your sponsorships"
+          />
 
           {/* Stats Grid */}
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatsCard
               title="Profile Views"
-              value="1,284"
+              value={stats.profileViews.toString()}
               change="+12.5%"
               changeType="positive"
               icon={Eye}
               iconColor="text-primary"
             />
             <StatsCard
-              title="Active Campaigns"
-              value="3"
-              change="+1"
-              changeType="positive"
+              title="Active Applications"
+              value={stats.activeApplications.toString()}
+              change={`${applications.filter(app => app.status === 'pending').length} pending`}
+              changeType="neutral"
               icon={Briefcase}
               iconColor="text-accent"
             />
             <StatsCard
               title="Messages"
-              value="18"
-              change="5 unread"
+              value={stats.messages.toString()}
+              change="0 unread"
               changeType="neutral"
               icon={MessageSquare}
               iconColor="text-chart-3"
             />
             <StatsCard
               title="Total Earnings"
-              value="$12,450"
-              change="+$2,500"
+              value={formatCurrency(stats.totalEarnings)}
+              change={`${applications.filter(app => app.status === 'accepted').length} accepted`}
               changeType="positive"
               icon={DollarSign}
               iconColor="text-green-500"
@@ -133,66 +199,78 @@ export default function InfluencerDashboard() {
           </div>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-            {/* Recent Campaigns */}
+            {/* Recent Applications */}
             <div className="lg:col-span-2">
               <div className="glass-card rounded-xl p-6">
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-foreground">Recent Campaigns</h2>
+                  <h2 className="text-lg font-semibold text-foreground">Recent Applications</h2>
                   <Button variant="ghost" size="sm" asChild>
-                    <Link href="/dashboard/influencer/campaigns" className="gap-1">
+                    <Link href="/dashboard/influencer/applications" className="gap-1">
                       View All
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
 
-                <div className="space-y-4">
-                  {recentCampaigns.map((campaign) => (
-                    <div
-                      key={campaign.id}
-                      className="flex items-center gap-4 rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:bg-secondary/50"
-                    >
-                      <img
-                        src={campaign.logo || "/placeholder.svg"}
-                        alt={campaign.company}
-                        className="h-12 w-12 rounded-lg object-cover"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-foreground truncate">{campaign.title}</h3>
-                          <Badge className={statusColors[campaign.status as keyof typeof statusColors]}>
-                            {campaign.status}
-                          </Badge>
+                {loading ? (
+                  <div className="text-center text-muted-foreground py-8">Loading...</div>
+                ) : applications.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    No applications yet. Start applying to campaigns!
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {applications.slice(0, 3).map((application) => (
+                      <div
+                        key={application._id}
+                        className="flex items-center gap-4 rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:bg-secondary/50"
+                      >
+                        <img
+                          src={application.campaignId?.companyId?.profileImage || "/placeholder.svg"}
+                          alt={application.campaignId?.companyId?.companyName}
+                          className="h-12 w-12 rounded-lg object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-foreground truncate">
+                              {application.campaignId?.title}
+                            </h3>
+                            <Badge className={statusColors[application.status]}>
+                              {application.status}
+                            </Badge>
+                          </div>
+                          <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Building2 className="h-3 w-3" />
+                              {application.campaignId?.companyId?.companyName}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <DollarSign className="h-3 w-3" />
+                              {formatCurrency(application.proposedRate || application.campaignId?.budget || 0)}
+                            </span>
+                            <span className="hidden items-center gap-1 sm:flex">
+                              <Calendar className="h-3 w-3" />
+                              {formatDate(application.campaignId?.deadline)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Building2 className="h-3 w-3" />
-                            {campaign.company}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <DollarSign className="h-3 w-3" />
-                            {campaign.budget}
-                          </span>
-                          <span className="hidden items-center gap-1 sm:flex">
-                            <Calendar className="h-3 w-3" />
-                            {campaign.deadline}
-                          </span>
-                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/dashboard/influencer/applications/${application._id}`}>
+                            View
+                          </Link>
+                        </Button>
                       </div>
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Recommended Brands */}
+            {/* Recommended Campaigns */}
             <div>
               <div className="glass-card rounded-xl p-6">
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-foreground">Recommended</h2>
+                  <h2 className="text-lg font-semibold text-foreground">Available Campaigns</h2>
                   <Button variant="ghost" size="sm" asChild>
                     <Link href="/dashboard/influencer/discover" className="gap-1">
                       See More
@@ -201,32 +279,44 @@ export default function InfluencerDashboard() {
                   </Button>
                 </div>
 
-                <div className="space-y-4">
-                  {recommendedBrands.map((brand) => (
-                    <div
-                      key={brand.id}
-                      className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-colors hover:bg-secondary/50"
-                    >
-                      <img
-                        src={brand.logo || "/placeholder.svg"}
-                        alt={brand.name}
-                        className="h-10 w-10 rounded-lg object-cover"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-foreground text-sm truncate">{brand.name}</h3>
-                        <p className="text-xs text-muted-foreground">
-                          {brand.category} • {brand.budget}
-                        </p>
+                {loading ? (
+                  <div className="text-center text-muted-foreground py-8">Loading...</div>
+                ) : recommendedCampaigns.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8 text-sm">
+                    No new campaigns available
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recommendedCampaigns.map((campaign) => (
+                      <div
+                        key={campaign._id}
+                        className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 transition-colors hover:bg-secondary/50"
+                      >
+                        <img
+                          src={campaign.companyId?.profileImage || "/placeholder.svg"}
+                          alt={campaign.companyId?.companyName}
+                          className="h-10 w-10 rounded-lg object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-foreground text-sm truncate">
+                            {campaign.title}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            {campaign.categories[0]} • {formatCurrency(campaign.budget)}
+                          </p>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/dashboard/influencer/campaigns/${campaign._id}`}>
+                            View
+                          </Link>
+                        </Button>
                       </div>
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                        {brand.match}%
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 <Button className="mt-4 w-full bg-transparent" variant="outline" asChild>
-                  <Link href="/dashboard/influencer/discover">Discover More Brands</Link>
+                  <Link href="/dashboard/influencer/discover">Discover More Campaigns</Link>
                 </Button>
               </div>
 
@@ -234,21 +324,49 @@ export default function InfluencerDashboard() {
               <div className="glass-card mt-4 rounded-xl p-6">
                 <h2 className="mb-4 text-lg font-semibold text-foreground">Quick Actions</h2>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button variant="outline" size="sm" className="h-auto flex-col gap-1 py-3 bg-transparent">
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="text-xs">Messages</span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-auto flex-col gap-1 py-3 bg-transparent"
+                    asChild
+                  >
+                    <Link href="/dashboard/influencer/messages">
+                      <MessageSquare className="h-4 w-4" />
+                      <span className="text-xs">Messages</span>
+                    </Link>
                   </Button>
-                  <Button variant="outline" size="sm" className="h-auto flex-col gap-1 py-3 bg-transparent">
-                    <Briefcase className="h-4 w-4" />
-                    <span className="text-xs">Campaigns</span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-auto flex-col gap-1 py-3 bg-transparent"
+                    asChild
+                  >
+                    <Link href="/dashboard/influencer/applications">
+                      <Briefcase className="h-4 w-4" />
+                      <span className="text-xs">Applications</span>
+                    </Link>
                   </Button>
-                  <Button variant="outline" size="sm" className="h-auto flex-col gap-1 py-3 bg-transparent">
-                    <Building2 className="h-4 w-4" />
-                    <span className="text-xs">Find Brands</span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-auto flex-col gap-1 py-3 bg-transparent"
+                    asChild
+                  >
+                    <Link href="/dashboard/influencer/discover">
+                      <Building2 className="h-4 w-4" />
+                      <span className="text-xs">Discover</span>
+                    </Link>
                   </Button>
-                  <Button variant="outline" size="sm" className="h-auto flex-col gap-1 py-3 bg-transparent">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-xs">Schedule</span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-auto flex-col gap-1 py-3 bg-transparent"
+                    asChild
+                  >
+                    <Link href="/dashboard/influencer/profile">
+                      <Eye className="h-4 w-4" />
+                      <span className="text-xs">Profile</span>
+                    </Link>
                   </Button>
                 </div>
               </div>

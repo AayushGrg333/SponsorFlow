@@ -23,15 +23,17 @@ async function fetchAPI<T>(
           const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                ...options,
                headers,
-               credentials: "include" as RequestCredentials,
+               credentials: "include" as RequestCredentials, // For cookies (refresh tokens)
           });
 
           const data = await response.json();
 
           if (!response.ok) {
+               // Handle token refresh
                if (response.status === 401 && token) {
                     const refreshed = await refreshToken();
                     if (refreshed) {
+                         // Retry the original request
                          return fetchAPI(endpoint, options);
                     }
                }
@@ -89,7 +91,6 @@ export const authAPI = {
                credentials: "include",
           });
      },
-     
      // Logout
      logout: async () => {
           const result = await fetchAPI("/auth/logout", { method: "POST" });
@@ -102,36 +103,38 @@ export const authAPI = {
           return `${API_BASE_URL}/${userType}/auth/google`;
      },
 
-     getCurrentUser: async (token?: string) => {
-          try {
-               const headers: Record<string, string> = {
-                    "Content-Type": "application/json",
-               };
+  getCurrentUser: async (token?: string) => {
+     try {
+          const headers: Record<string, string> = {
+               "Content-Type": "application/json",
+          };
 
-               if (token) {
-                    headers["Authorization"] = `Bearer ${token}`;
-               }
-
-               const response = await fetch(`${API_BASE_URL}/auth/me`, {
-                    credentials: "include",
-                    headers,
-               });
-
-               if (!response.ok) {
-                    const error = await response.json();
-                    return {
-                         data: null,
-                         error: error.message || "Failed to get user data",
-                    };
-               }
-
-               const data = await response.json();
-               return { data, error: null };
-          } catch (error) {
-               return { data: null, error: "Network error" };
+          if (token) {
+               headers["Authorization"] = `Bearer ${token}`;
+          } else {
           }
-     },
-     
+
+
+          const response = await fetch(`${API_BASE_URL}/auth/me`, {
+               credentials: "include",
+               headers,
+          });
+
+
+          if (!response.ok) {
+               const error = await response.json();
+               return {
+                    data: null,
+                    error: error.message || "Failed to get user data",
+               };
+          }
+
+          const data = await response.json();
+          return { data, error: null };
+     } catch (error) {
+          return { data: null, error: "Network error" };
+     }
+},
      // Forgot Password
      forgotPassword: async (email: string) => {
           return fetchAPI("/auth/forgot-password", {
@@ -175,7 +178,11 @@ export const influencerAPI = {
           });
      },
 
-     // Profile setup - CORRECTED: POST /influencer/setup/profile
+     // Profile setup
+     /**
+      * Send influencer profile data to backend
+      * Matches influencerProfileSchema exactly
+      */
      setupProfile: async (profileData: {
           realName: {
                givenName: string;
@@ -193,6 +200,7 @@ export const influencerAPI = {
           experience?: number;
           avatar?: string;
      }) => {
+          // Build social links array
           const socialMediaProfileLinks = [
                profileData.instagram?.trim() && {
                     platform: "instagram",
@@ -212,6 +220,7 @@ export const influencerAPI = {
                },
           ].filter((p): p is { platform: string; link: string } => !!p);
 
+          // Build platforms array
           const platforms = [
                profileData.instagram && {
                     platform: "instagram",
@@ -231,32 +240,32 @@ export const influencerAPI = {
                },
           ].filter((p): p is { platform: string; count: number } => !!p);
 
+          // Final backend payload
           const backendPayload = {
                realName: profileData.realName,
                displayName: profileData.displayName,
                bio: profileData.bio || "",
-               socialMediaProfileLinks,
+               socialMediaProfileLinks, // required by Zod
                experienceYears: profileData.experience ?? 0,
                previousSponsorships: [],
                contentType: profileData.categories.map((cat) => ({
                     content: cat,
                })),
                profileImage: profileData.avatar || "",
-               platforms,
+               platforms, // optional, defaults to [] in schema
           };
 
-          return fetchAPI("/influencer/setup/profile", {
+          return fetchAPI("/influencer/setup/profile/", {
                method: "POST",
                body: JSON.stringify(backendPayload),
           });
      },
-     
-     // CORRECTED: GET /influencer/profile/:influencerId
+     // Get profile
      getProfile: async (influencerId: string) => {
           return fetchAPI(`/influencer/profile/${influencerId}`);
      },
 
-     // CORRECTED: PUT /influencer/profile/:influencerId
+     // Update profile
      updateProfile: async (influencerId: string, profileData: any) => {
           return fetchAPI(`/influencer/profile/${influencerId}`, {
                method: "PUT",
@@ -264,14 +273,27 @@ export const influencerAPI = {
           });
      },
 
-     // CORRECTED: GET /influencer/profile/me (for current user's profile)
-     getMyProfile: async () => {
-          return fetchAPI(`/influencer/profile/me`);
+     // List influencers (for companies to discover)
+     listInfluencers: async (filters?: {
+          category?: string;
+          search?: string;
+     }) => {
+          const params = new URLSearchParams();
+          if (filters?.category) params.append("category", filters.category);
+          if (filters?.search) params.append("search", filters.search);
+          return fetchAPI(`/influencer/profile/me?${params}`);
      },
 
-     // CORRECTED: GET /influencer/profile/:influencerId/campaigns
+     // Get influencer campaigns
      getCampaigns: async (influencerId: string) => {
           return fetchAPI(`/influencer/profile/${influencerId}/campaigns`);
+     },
+
+     // Get applications by influencer
+     getApplications: async (influencerId: string) => {
+          return fetchAPI(
+               `/applications/influencers/${influencerId}/applications`
+          );
      },
 };
 
@@ -304,7 +326,6 @@ export const companyAPI = {
           });
      },
 
-     // CORRECTED: POST /company/profile
      setupProfile: async (profileData: {
           email: string;
           addressType: "Online" | "Physical";
@@ -322,6 +343,7 @@ export const companyAPI = {
           youtube?: string;
           facebook?: string;
      }) => {
+          // Build socialLinks array based on available URLs
           const socialLinks = [
                profileData.website?.trim() && {
                     platform: "website",
@@ -349,10 +371,12 @@ export const companyAPI = {
                },
           ].filter((p): p is { platform: string; link: string } => !!p);
 
+          // Build contentType array
           const contentType = profileData.categories.map((cat) => ({
                content: cat,
           }));
 
+          // Final payload for backend
           const backendPayload = {
                email: profileData.email,
                addressType: profileData.addressType,
@@ -361,14 +385,14 @@ export const companyAPI = {
                     : {}),
                contactNumber: profileData.contactNumber,
                categories: profileData.categories,
-               contentType,
+               contentType, // { content: string } objects
                ...(profileData.logo ? { profileImage: profileData.logo } : {}),
                products: profileData.products,
                establishedYear: profileData.establishedYear,
                ...(profileData.description
                     ? { description: profileData.description }
                     : {}),
-               socialLinks,
+               socialLinks, // { platform, link } objects
           };
 
           return fetchAPI("/company/profile", {
@@ -377,29 +401,32 @@ export const companyAPI = {
           });
      },
 
-     // CORRECTED: GET /company/profile/:companyId
+     // Get profile
      getProfile: async (companyId: string) => {
           return fetchAPI(`/company/profile/${companyId}`);
      },
 
-     // CORRECTED: GET /company/profile/update-profile/:companyId (should be PUT but keeping as per your route)
+     // Update profile
      updateProfile: async (companyId: string, profileData: any) => {
-          return fetchAPI(`/company/profile/update-profile/${companyId}`, {
-               method: "PUT",
-               body: JSON.stringify(profileData),
-          });
+          return fetchAPI(`/company/profile/update-profile/${companyId}`);
      },
 
-     // CORRECTED: GET /company/profile/me
-     getMyProfile: async () => {
-          return fetchAPI(`/company/profile/me`);
+     // List companies (for influencers to discover)
+     listCompanies: async (filters?: {
+          category?: string;
+          search?: string;
+     }) => {
+          const params = new URLSearchParams();
+          if (filters?.category) params.append("category", filters.category);
+          if (filters?.search) params.append("search", filters.search);
+          return fetchAPI(`/company/profile/me?${params}`);
      },
 };
 
 // ==================== CAMPAIGNS API ====================
 
 export const campaignsAPI = {
-     // CORRECTED: GET /campaigns
+     // List all campaigns
      list: async (filters?: {
           status?: string;
           category?: string;
@@ -409,15 +436,15 @@ export const campaignsAPI = {
           if (filters?.status) params.append("status", filters.status);
           if (filters?.category) params.append("category", filters.category);
           if (filters?.search) params.append("search", filters.search);
-          return fetchAPI(`/campaigns${params.toString() ? '?' + params.toString() : ''}`);
+          return fetchAPI(`/campaigns?${params}`);
      },
 
-     // CORRECTED: GET /campaigns/:campaignId
+     // Get single campaign
      get: async (campaignId: string) => {
           return fetchAPI(`/campaigns/${campaignId}`);
      },
 
-     // CORRECTED: POST /campaigns
+     // Create campaign
      create: async (campaignData: {
           title: string;
           description: string;
@@ -433,7 +460,7 @@ export const campaignsAPI = {
           });
      },
 
-     // CORRECTED: PUT /campaigns/:campaignId
+     // Update campaign
      update: async (campaignId: string, campaignData: any) => {
           return fetchAPI(`/campaigns/${campaignId}`, {
                method: "PUT",
@@ -441,23 +468,23 @@ export const campaignsAPI = {
           });
      },
 
-     // CORRECTED: DELETE /campaigns/:campaignId
+     // Delete campaign
      delete: async (campaignId: string) => {
           return fetchAPI(`/campaigns/${campaignId}`, {
                method: "DELETE",
           });
      },
 
-     // CORRECTED: GET /companies/:companyId/campaigns
+     // Get campaigns by company
      getByCompany: async (companyId: string) => {
-          return fetchAPI(`/companies/${companyId}/campaigns`);
+          return fetchAPI(`/campaigns/companies/${companyId}/campaigns`);
      },
 };
 
 // ==================== APPLICATIONS API ====================
 
 export const applicationsAPI = {
-     // CORRECTED: POST /campaigns/:campaignId/applications
+     // Create application
      create: async (
           campaignId: string,
           applicationData: {
@@ -466,7 +493,7 @@ export const applicationsAPI = {
           }
      ) => {
           return fetchAPI(
-               `/campaigns/${campaignId}/applications`,
+               `/applications/campaigns/${campaignId}/applications`,
                {
                     method: "POST",
                     body: JSON.stringify(applicationData),
@@ -474,23 +501,23 @@ export const applicationsAPI = {
           );
      },
 
-     // CORRECTED: GET /campaigns/:campaignId/applications
+     // Get applications for a campaign
      getByCampaign: async (campaignId: string) => {
-          return fetchAPI(`/campaigns/${campaignId}/applications`);
+          return fetchAPI(`/applications/campaigns/${campaignId}/applications`);
      },
 
-     // CORRECTED: GET /applications/:applicationId
+     // Get application details
      getDetails: async (applicationId: string) => {
-          return fetchAPI(`/applications/${applicationId}`);
+          return fetchAPI(`/applications/applications/${applicationId}`);
      },
 
-     // CORRECTED: PATCH /applications/:applicationId/status
+     // Update application status (accept/reject)
      updateStatus: async (
           applicationId: string,
           status: "accepted" | "rejected" | "pending"
      ) => {
           return fetchAPI(
-               `/applications/${applicationId}/status`,
+               `/applications/applications/${applicationId}/status`,
                {
                     method: "PATCH",
                     body: JSON.stringify({ status }),
@@ -498,17 +525,17 @@ export const applicationsAPI = {
           );
      },
 
-     // CORRECTED: DELETE /applications/:applicationId
+     // Delete application
      delete: async (applicationId: string) => {
-          return fetchAPI(`/applications/${applicationId}`, {
+          return fetchAPI(`/applications/applications/${applicationId}`, {
                method: "DELETE",
           });
      },
 
-     // CORRECTED: GET /influencers/:influencerId/applications
+     // Get applications by influencer
      getByInfluencer: async (influencerId: string) => {
           return fetchAPI(
-               `/influencers/${influencerId}/applications`
+               `/applications/influencers/${influencerId}/applications`
           );
      },
 };
