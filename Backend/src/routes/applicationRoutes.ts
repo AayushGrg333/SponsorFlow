@@ -5,7 +5,7 @@ import {createApplication
      getApplicationDetails,
      updateApplicationStatus,
 deleteApplication,
-getApplicationsByInfluencer
+
 } from "../controllers/feature/applicationControllers"
 const router = Express.Router()
 
@@ -15,7 +15,6 @@ router.get("/campaigns/:campaignId/applications",verifyToken,getApplicationsByCa
 router.get("/applications/:applicationId",verifyToken,getApplicationDetails);
 router.patch("/applications/:applicationId/status",verifyToken,updateApplicationStatus);
 router.delete("/applications/:applicationId",verifyToken,deleteApplication);
-router.get("/:influencerId/applications",verifyToken,getApplicationsByInfluencer);
 
 
 

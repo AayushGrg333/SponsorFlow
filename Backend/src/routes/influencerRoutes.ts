@@ -13,6 +13,7 @@ import {
 import passport from "passport";
 import { User } from "../models/user"
 import verifyToken from "../middlewares/verifytoken";
+import { getApplicationsByInfluencer } from "../controllers/feature/applicationControllers";
 
 const router = express.Router();
 
@@ -65,5 +66,7 @@ router.get(
      verifyToken,
      listInfluencerCampaignsController
 );
+router.get("/:influencerId/applications",verifyToken,getApplicationsByInfluencer);
+
 
 export default router;
