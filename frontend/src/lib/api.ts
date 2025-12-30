@@ -270,7 +270,7 @@ export const influencerAPI = {
      },
 
      // CORRECTED: GET /influencer/profile/me (for current user's profile)
-     getMyProfile: async () => {
+     listInfluencers: async () => {
           return fetchAPI(`/influencer/profile/me`);
      },
 
@@ -457,7 +457,7 @@ export const campaignsAPI = {
 
      // CORRECTED: GET /campaigns/companies/:companyId/campaigns
      getByCompany: async (companyId: string) => {
-          return fetchAPI(`/campaigns/companies/${companyId}/campaigns`);
+          return fetchAPI(`/company/${companyId}/campaigns`);
      },
 };
 
@@ -478,7 +478,7 @@ export const applicationsAPI = {
           });
      },
 
-     // CORRECTED: GET /campaigns/:campaignId/applications
+     //get applicaionts by campaingn
      getByCampaign: async (campaignId: string) => {
           return fetchAPI(`/campaigns/${campaignId}/applications`);
      },
