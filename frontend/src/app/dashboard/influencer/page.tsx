@@ -95,11 +95,7 @@ const loadDashboardData = async (influencerId: string) => {
       app => app.status === "accepted"
     );
 
-    const totalEarnings = acceptedApps.reduce(
-      (sum, app) =>
-        sum + (app.proposedRate || app.campaignId?.budget || 0),
-      0
-    );
+
 
     const activeApplications = applicationsData.filter(
       app => app.status === "pending" || app.status === "accepted"
@@ -108,7 +104,6 @@ const loadDashboardData = async (influencerId: string) => {
     setStats(prev => ({
       ...prev,
       activeApplications,
-      totalEarnings,
     }));
 
     // ================== FETCH CAMPAIGNS ==================
@@ -173,7 +168,7 @@ const loadDashboardData = async (influencerId: string) => {
           />
 
           {/* Stats Grid */}
-          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatsCard
               title="Profile Views"
               value={stats.profileViews.toString()}
@@ -198,20 +193,13 @@ const loadDashboardData = async (influencerId: string) => {
               icon={MessageSquare}
               iconColor="text-chart-3"
             />
-            <StatsCard
-              title="Total Earnings"
-              value={formatCurrency(stats.totalEarnings)}
-              change={`${applications.filter(app => app.status === 'accepted').length} accepted`}
-              changeType="positive"
-              icon={DollarSign}
-              iconColor="text-green-500"
-            />
+
           </div>
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="grid  grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Recent Applications */}
             <div className="lg:col-span-2">
-              <div className="glass-card rounded-xl p-6">
+              <div className="glass-card  rounded-xl min-h-[400px] p-6">
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-foreground">Recent Applications</h2>
                   <Button variant="ghost" size="sm" asChild>
@@ -223,9 +211,9 @@ const loadDashboardData = async (influencerId: string) => {
                 </div>
 
                 {loading ? (
-                  <div className="text-center text-muted-foreground py-8">Loading...</div>
+                  <div className="text-center flex justify-center items-center  text-muted-foreground py-8">Loading...</div>
                 ) : applications.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">
+                  <div className="text-center flex justify-center items-center  text-muted-foreground py-8">
                     No applications yet. Start applying to campaigns!
                   </div>
                 ) : (
@@ -278,7 +266,7 @@ const loadDashboardData = async (influencerId: string) => {
 
             {/* Recommended Campaigns */}
             <div>
-              <div className="glass-card rounded-xl p-6">
+              <div className="glass-card rounded-xl p-6 min-h-[400px]">
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-foreground">Available Campaigns</h2>
                   <Button variant="ghost" size="sm" asChild>
@@ -330,56 +318,7 @@ const loadDashboardData = async (influencerId: string) => {
                 </Button>
               </div>
 
-              {/* Quick Actions */}
-              <div className="glass-card mt-4 rounded-xl p-6">
-                <h2 className="mb-4 text-lg font-semibold text-foreground">Quick Actions</h2>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-auto flex-col gap-1 py-3 bg-transparent"
-                    asChild
-                  >
-                    <Link href="/dashboard/influencer/messages">
-                      <MessageSquare className="h-4 w-4" />
-                      <span className="text-xs">Messages</span>
-                    </Link>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-auto flex-col gap-1 py-3 bg-transparent"
-                    asChild
-                  >
-                    <Link href="/dashboard/influencer/applications">
-                      <Briefcase className="h-4 w-4" />
-                      <span className="text-xs">Applications</span>
-                    </Link>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-auto flex-col gap-1 py-3 bg-transparent"
-                    asChild
-                  >
-                    <Link href="/dashboard/influencer/discover">
-                      <Building2 className="h-4 w-4" />
-                      <span className="text-xs">Discover</span>
-                    </Link>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-auto flex-col gap-1 py-3 bg-transparent"
-                    asChild
-                  >
-                    <Link href="/dashboard/influencer/profile">
-                      <Eye className="h-4 w-4" />
-                      <span className="text-xs">Profile</span>
-                    </Link>
-                  </Button>
-                </div>
-              </div>
+
             </div>
           </div>
         </div>

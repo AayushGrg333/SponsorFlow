@@ -60,7 +60,7 @@ router.put(
      verifyToken,
      updateInfluencerProfileController
 );
-router.get("/profile/me", verifyToken, listInfluencersController);
+router.get("/profile/me", listInfluencersController);
 router.get(
      "/profile/:influencerId/campaigns",
      verifyToken,

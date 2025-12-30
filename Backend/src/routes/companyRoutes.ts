@@ -4,6 +4,7 @@ import passport from "passport";
 import { Company } from "../models/Company";
 import verifyToken from "../middlewares/verifytoken";
 import {companyProfileSetupController,listCompaniesController,getCompanyProfileController ,updateCompanyProfileController} from "../controllers/profile/companyProfile";
+import { getCampaignByCompanyController } from "../controllers/feature/campaignControllers";
 
 
 const router = express.Router(); 
@@ -36,6 +37,8 @@ router.post('/profile',verifyToken,companyProfileSetupController);
 router.get('/profile/:companyId',verifyToken, getCompanyProfileController);
 router.get('/profile/me',verifyToken,listCompaniesController );
 router.get('/profile/update-profile/:companyId',verifyToken, updateCompanyProfileController);
+router.get("/:companyId/campaigns", getCampaignByCompanyController);
+
 
 export default router;
 

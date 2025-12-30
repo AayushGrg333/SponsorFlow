@@ -17,7 +17,6 @@ router.get("/:campaignId", getCampaignController);
 router.post("/", verifyToken, createCampaignController);
 router.put("/:campaignId", verifyToken, updateCampaignController);
 router.delete("/:campaignId", verifyToken, deleteCampaignController);
-router.get("/companies/:companyId/campaigns", getCampaignByCompanyController);
 
 
 export default router;
