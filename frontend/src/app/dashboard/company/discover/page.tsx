@@ -1,12 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Search,
@@ -14,134 +13,117 @@ import {
   Instagram,
   Youtube,
   Twitter,
+  Facebook,
   Heart,
   MessageSquare,
   ExternalLink,
   SlidersHorizontal,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { influencerAPI } from "@/lib/api"
+import Link from "next/link"
 
-const influencers = [
-  {
-    id: 1,
-    name: "Alex Johnson",
-    username: "@alexjtech",
-    avatar: "/placeholder.svg?key=qg8p9",
-    category: "Technology",
-    followers: "520K",
-    engagement: "4.8%",
-    platforms: ["instagram", "youtube", "twitter"],
-    bio: "Tech reviewer and gadget enthusiast. Making complex tech simple for everyone.",
-    tags: ["Tech", "Reviews", "Gaming"],
-    location: "San Francisco, CA",
-    rate: "$1,500 - $3,000",
-    match: 96,
-  },
-  {
-    id: 2,
-    name: "Sarah Chen",
-    username: "@sarahlifestyle",
-    avatar: "/placeholder.svg?key=e38f9",
-    category: "Lifestyle",
-    followers: "380K",
-    engagement: "5.2%",
-    platforms: ["instagram", "youtube"],
-    bio: "Lifestyle and wellness creator. Sharing my journey to a balanced, beautiful life.",
-    tags: ["Lifestyle", "Wellness", "Fashion"],
-    location: "Los Angeles, CA",
-    rate: "$1,200 - $2,500",
-    match: 92,
-  },
-  {
-    id: 3,
-    name: "Mike Rodriguez",
-    username: "@mikegaming",
-    avatar: "/placeholder.svg?key=liqf3",
-    category: "Gaming",
-    followers: "1.2M",
-    engagement: "3.9%",
-    platforms: ["youtube", "twitter"],
-    bio: "Pro gamer and streamer. Bringing you the best gaming content daily.",
-    tags: ["Gaming", "Streaming", "Esports"],
-    location: "Austin, TX",
-    rate: "$3,000 - $6,000",
-    match: 88,
-  },
-  {
-    id: 4,
-    name: "Emma Wilson",
-    username: "@emmabeauty",
-    avatar: "/placeholder.svg?key=6oq89",
-    category: "Beauty",
-    followers: "890K",
-    engagement: "4.5%",
-    platforms: ["instagram", "youtube", "twitter"],
-    bio: "Beauty guru and skincare expert. Honest reviews and tutorials for all skin types.",
-    tags: ["Beauty", "Skincare", "Makeup"],
-    location: "New York, NY",
-    rate: "$2,000 - $4,000",
-    match: 85,
-  },
-  {
-    id: 5,
-    name: "David Kim",
-    username: "@davidfitness",
-    avatar: "/placeholder.svg?key=8x7dz",
-    category: "Fitness",
-    followers: "650K",
-    engagement: "5.8%",
-    platforms: ["instagram", "youtube"],
-    bio: "Certified trainer and nutrition coach. Helping you achieve your fitness goals.",
-    tags: ["Fitness", "Health", "Nutrition"],
-    location: "Miami, FL",
-    rate: "$1,800 - $3,500",
-    match: 82,
-  },
-  {
-    id: 6,
-    name: "Lisa Park",
-    username: "@lisatravels",
-    avatar: "/placeholder.svg?key=2ks9d",
-    category: "Travel",
-    followers: "450K",
-    engagement: "4.2%",
-    platforms: ["instagram", "youtube", "twitter"],
-    bio: "Full-time traveler and content creator. Exploring the world one destination at a time.",
-    tags: ["Travel", "Adventure", "Photography"],
-    location: "Seattle, WA",
-    rate: "$1,500 - $3,000",
-    match: 78,
-  },
-]
+interface Influencer {
+  _id: string
+  username: string
+  displayName: string
+  realName: {
+    givenName: string
+    familyName: string
+  }
+  email: string
+  bio?: string
+  profileImage?: string
+  contentType: { content: string }[]
+  socialMediaProfileLinks: { platform: string; link: string }[]
+  platforms: { platform: string; count: number }[]
+  experienceYears: number
+}
+
+interface InfluencerResponse {
+  success: boolean
+  total: number
+  currentPage: number
+  totalPages: number
+  influencers: Influencer[]
+}
 
 const categories = ["All", "Technology", "Lifestyle", "Gaming", "Beauty", "Fitness", "Travel", "Food", "Fashion"]
-const platforms = ["All", "Instagram", "YouTube", "Twitter"]
 
 const platformIcons = {
   instagram: Instagram,
   youtube: Youtube,
   twitter: Twitter,
+  facebook: Facebook,
 }
 
 export default function DiscoverInfluencers() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
-  const [selectedPlatform, setSelectedPlatform] = useState("All")
-  const [minFollowers, setMinFollowers] = useState([0])
-  const [savedInfluencers, setSavedInfluencers] = useState<number[]>([])
+  const [savedInfluencers, setSavedInfluencers] = useState<string[]>([])
+  const [influencers, setInfluencers] = useState<Influencer[]>([])
+  const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
-  const toggleSave = (id: number) => {
+  useEffect(() => {
+    loadInfluencers()
+  }, [currentPage, selectedCategory, searchQuery])
+
+  const loadInfluencers = async () => {
+    try {
+      setLoading(true)
+      const filters: any = {
+        page: currentPage,
+        limit: 9,
+      }
+
+      if (searchQuery) {
+        filters.search = searchQuery
+      }
+
+      if (selectedCategory !== "All") {
+        filters.contentType = selectedCategory
+      }
+
+      const response = await influencerAPI.listInfluencers(filters)
+      console.log('Influencers response:', response)
+
+      if (response.data && !response.error) {
+        const data = response.data as InfluencerResponse
+        setInfluencers(data.influencers)
+        setTotalPages(data.totalPages)
+      } else {
+        console.error('Error fetching influencers:', response.error)
+        setInfluencers([])
+      }
+    } catch (error) {
+      console.error('Error loading influencers:', error)
+      setInfluencers([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const toggleSave = (id: string) => {
     setSavedInfluencers((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
   }
 
-  const filteredInfluencers = influencers.filter((influencer) => {
-    const matchesSearch =
-      influencer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      influencer.bio.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === "All" || influencer.category === selectedCategory
-    const matchesPlatform = selectedPlatform === "All" || influencer.platforms.includes(selectedPlatform.toLowerCase())
-    return matchesSearch && matchesCategory && matchesPlatform
-  })
+  const getCategories = (influencer: Influencer) => {
+    return influencer.contentType.map(ct => ct.content).slice(0, 3)
+  }
+
+  const getTotalFollowers = (influencer: Influencer) => {
+    const total = influencer.platforms.reduce((sum, p) => sum + p.count, 0)
+    if (total >= 1000000) return `${(total / 1000000).toFixed(1)}M`
+    if (total >= 1000) return `${(total / 1000).toFixed(0)}K`
+    return total.toString()
+  }
+
+  const getPlatformIcon = (platform: string) => {
+    const Icon = platformIcons[platform.toLowerCase() as keyof typeof platformIcons]
+    return Icon || Users
+  }
 
   const FiltersContent = () => (
     <div className="space-y-6">
@@ -161,34 +143,12 @@ export default function DiscoverInfluencers() {
         </Select>
       </div>
 
-      <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">Platform</label>
-        <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {platforms.map((platform) => (
-              <SelectItem key={platform} value={platform}>
-                {platform}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">Minimum Followers: {minFollowers[0]}K+</label>
-        <Slider value={minFollowers} onValueChange={setMinFollowers} max={1000} step={50} className="mt-3" />
-      </div>
-
       <Button
         variant="outline"
         className="w-full bg-transparent"
         onClick={() => {
           setSelectedCategory("All")
-          setSelectedPlatform("All")
-          setMinFollowers([0])
+          setSearchQuery("")
         }}
       >
         Reset Filters
@@ -230,18 +190,6 @@ export default function DiscoverInfluencers() {
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Platform" />
-                </SelectTrigger>
-                <SelectContent>
-                  {platforms.map((platform) => (
-                    <SelectItem key={platform} value={platform}>
-                      {platform}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             {/* Mobile Filters */}
@@ -264,108 +212,154 @@ export default function DiscoverInfluencers() {
           </div>
 
           {/* Results Count */}
-          <div className="mb-4">
-            <p className="text-sm text-muted-foreground">Showing {filteredInfluencers.length} influencers</p>
-          </div>
+          {!loading && (
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">Showing {influencers.length} influencers</p>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-muted-foreground">Loading influencers...</div>
+            </div>
+          )}
 
           {/* Influencers Grid */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {filteredInfluencers.map((influencer) => (
-              <div
-                key={influencer.id}
-                className="glass-card group overflow-hidden rounded-xl transition-all duration-300 hover:scale-[1.02]"
-              >
-                {/* Header */}
-                <div className="relative border-b border-border p-4">
-                  <div className="flex items-start gap-4">
-                    <img
-                      src={influencer.avatar || "/placeholder.svg"}
-                      alt={influencer.name}
-                      className="h-16 w-16 rounded-full object-cover ring-2 ring-border"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-foreground truncate">{influencer.name}</h3>
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent">
-                          {influencer.match}%
+          {!loading && influencers.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {influencers.map((influencer) => (
+                  <div
+                    key={influencer._id}
+                    className="glass-card group overflow-hidden rounded-xl transition-all duration-300 hover:scale-[1.02]"
+                  >
+                    {/* Header */}
+                    <div className="relative border-b border-border p-4">
+                      <div className="flex items-start gap-4">
+                        <img
+                          src={influencer.profileImage || "/placeholder.svg"}
+                          alt={influencer.displayName}
+                          className="h-16 w-16 rounded-full object-cover ring-2 ring-border"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-foreground truncate">{influencer.displayName}</h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground">@{influencer.username}</p>
+                          <p className="text-xs text-muted-foreground">{influencer.experienceYears} years exp</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={savedInfluencers.includes(influencer._id) ? "text-red-500" : "text-muted-foreground"}
+                          onClick={() => toggleSave(influencer._id)}
+                        >
+                          <Heart className={`h-5 w-5 ${savedInfluencers.includes(influencer._id) ? "fill-current" : ""}`} />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4">
+                      <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
+                        {influencer.bio || "No bio available"}
+                      </p>
+
+                      {/* Stats */}
+                      <div className="mb-4 grid grid-cols-2 gap-2 text-center">
+                        <div className="rounded-lg bg-secondary p-2">
+                          <p className="text-lg font-bold text-foreground">{getTotalFollowers(influencer)}</p>
+                          <p className="text-xs text-muted-foreground">Followers</p>
+                        </div>
+                        <div className="rounded-lg bg-secondary p-2">
+                          <p className="text-lg font-bold text-foreground">{influencer.platforms.length}</p>
+                          <p className="text-xs text-muted-foreground">Platforms</p>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">{influencer.username}</p>
-                      <p className="text-xs text-muted-foreground">{influencer.location}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={savedInfluencers.includes(influencer.id) ? "text-red-500" : "text-muted-foreground"}
-                      onClick={() => toggleSave(influencer.id)}
-                    >
-                      <Heart className={`h-5 w-5 ${savedInfluencers.includes(influencer.id) ? "fill-current" : ""}`} />
-                    </Button>
-                  </div>
-                </div>
 
-                {/* Content */}
-                <div className="p-4">
-                  <p className="mb-4 text-sm text-muted-foreground line-clamp-2">{influencer.bio}</p>
-
-                  {/* Stats */}
-                  <div className="mb-4 grid grid-cols-3 gap-2 text-center">
-                    <div className="rounded-lg bg-secondary p-2">
-                      <p className="text-lg font-bold text-foreground">{influencer.followers}</p>
-                      <p className="text-xs text-muted-foreground">Followers</p>
-                    </div>
-                    <div className="rounded-lg bg-secondary p-2">
-                      <p className="text-lg font-bold text-foreground">{influencer.engagement}</p>
-                      <p className="text-xs text-muted-foreground">Engagement</p>
-                    </div>
-                    <div className="rounded-lg bg-secondary p-2">
-                      <p className="text-sm font-bold text-foreground">{influencer.rate.split(" - ")[0]}</p>
-                      <p className="text-xs text-muted-foreground">Starting</p>
-                    </div>
-                  </div>
-
-                  {/* Platforms */}
-                  <div className="mb-4 flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">Platforms:</span>
-                    <div className="flex gap-2">
-                      {influencer.platforms.map((platform) => {
-                        const Icon = platformIcons[platform as keyof typeof platformIcons]
-                        return (
-                          <div key={platform} className="rounded-full bg-secondary p-1.5">
-                            <Icon className="h-4 w-4 text-muted-foreground" />
+                      {/* Platforms */}
+                      {influencer.platforms.length > 0 && (
+                        <div className="mb-4 flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Platforms:</span>
+                          <div className="flex gap-2">
+                            {influencer.platforms.map((platform) => {
+                              const Icon = getPlatformIcon(platform.platform)
+                              return (
+                                <div key={platform.platform} className="rounded-full bg-secondary p-1.5">
+                                  <Icon className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                              )
+                            })}
                           </div>
-                        )
-                      })}
+                        </div>
+                      )}
+
+                      {/* Tags */}
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        {getCategories(influencer).map((category) => (
+                          <Badge key={category} variant="secondary" className="text-xs">
+                            {category}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <Button className="flex-1" size="sm" asChild>
+                          <Link href={`/dashboard/company/influencers/${influencer._id}`}>
+                            View Profile
+                          </Link>
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                        {influencer.socialMediaProfileLinks.length > 0 && (
+                          <Button variant="outline" size="sm" asChild>
+                            <a
+                              href={influencer.socialMediaProfileLinks[0].link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  {/* Tags */}
-                  <div className="mb-4 flex flex-wrap gap-2">
-                    {influencer.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <Button className="flex-1" size="sm">
-                      View Profile
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <MessageSquare className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {filteredInfluencers.length === 0 && (
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-8 flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Empty State */}
+          {!loading && influencers.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Users className="mb-4 h-12 w-12 text-muted-foreground" />
               <h3 className="text-lg font-medium text-foreground">No influencers found</h3>

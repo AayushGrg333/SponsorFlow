@@ -99,7 +99,7 @@ export const authAPI = {
 
           localStorage.removeItem("accessToken");
 
-          window.location.href = "/login"; 
+          window.location.href = "/login";
      },
 
      // Google OAuth URLs
@@ -269,11 +269,23 @@ export const influencerAPI = {
           });
      },
 
-     // CORRECTED: GET /influencer/profile/me (for current user's profile)
-     listInfluencers: async () => {
-          return fetchAPI(`/influencer/profile/me`);
+     //list influencers
+     listInfluencers: async (filters?: {
+          search?: string;
+          contentType?: string;
+          page?: number;
+          limit?: number;
+     }) => {
+          const params = new URLSearchParams();
+          if (filters?.search) params.append("search", filters.search);
+          if (filters?.contentType)
+               params.append("contentType", filters.contentType);
+          if (filters?.page) params.append("page", filters.page.toString());
+          if (filters?.limit) params.append("limit", filters.limit.toString());
+          return fetchAPI(
+               `/influencer/profile/me${params.toString() ? "?" + params.toString() : ""}`
+          );
      },
-
      // CORRECTED: GET /influencer/profile/:influencerId/campaigns
      getCampaigns: async (influencerId: string) => {
           return fetchAPI(`/influencer/profile/${influencerId}/campaigns`);
@@ -395,9 +407,22 @@ export const companyAPI = {
           });
      },
 
-     // CORRECTED: GET /company/profile/me
-     getMyProfile: async () => {
-          return fetchAPI(`/company/profile/me`);
+     // show company list
+     listCompanies: async (filters?: {
+          search?: string;
+          contentType?: string;
+          page?: number;
+          limit?: number;
+     }) => {
+          const params = new URLSearchParams();
+          if (filters?.search) params.append("search", filters.search);
+          if (filters?.contentType)
+               params.append("contentType", filters.contentType);
+          if (filters?.page) params.append("page", filters.page.toString());
+          if (filters?.limit) params.append("limit", filters.limit.toString());
+          return fetchAPI(
+               `/company/profile/me${params.toString() ? "?" + params.toString() : ""}`
+          );
      },
 };
 
