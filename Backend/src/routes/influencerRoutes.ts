@@ -49,6 +49,7 @@ router.get("/oauth2/google/callback", (req, res, next) => {
 
 //profile
 router.post("/setup/profile", verifyToken, influencerProfileSetupController);
+router.get("/profile/me", listInfluencersController);
 router.get(
      "/profile/:influencerId",
      verifyToken,
@@ -60,7 +61,6 @@ router.put(
      verifyToken,
      updateInfluencerProfileController
 );
-router.get("/profile/me", listInfluencersController);
 router.get(
      "/profile/:influencerId/campaigns",
      verifyToken,

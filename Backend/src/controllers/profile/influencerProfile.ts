@@ -5,7 +5,6 @@ import { influencerProfileSchema } from "../../../Shared/validations/profileComp
 import UserModel from "../../models/user";
 import ApplicationModel from "../../models/Application";
 import CampaignModel from "../../models/Campaign";
-import Redis from "../../config/redis";
 
 export const influencerProfileSetupController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
@@ -80,12 +79,6 @@ export const getInfluencerProfileController: RequestHandler = asyncWrapper(
           const { influencerId } = req.params;
 
           const influencerKey = `influencer:${influencerId}`;
-
-          //check Redis cache first
-          const cachedProfile = await Redis.client.get(influencerKey);
-          if (cachedProfile) {
-               return Apiresponse.success(res, "Influencer profile fetched successfully", JSON.parse(cachedProfile));
-          }
 
           const influencer = await UserModel.findOne({
                $or: [{ _id: influencerId }, { slug: influencerId }],
