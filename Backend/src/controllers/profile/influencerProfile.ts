@@ -78,7 +78,6 @@ export const getInfluencerProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           const { influencerId } = req.params;
 
-          const influencerKey = `influencer:${influencerId}`;
 
           const influencer = await UserModel.findOne({
                $or: [{ _id: influencerId }, { slug: influencerId }],
@@ -154,7 +153,7 @@ export const listInfluencersController: RequestHandler = asyncWrapper(
           }
 
           const skip = (Number(page) - 1) * Number(limit);
-          const companies = await UserModel.find(query)
+          const influencers = await UserModel.find(query)
                .select("-password -__v -email -createdAt -updatedAt")
                .skip(skip)
                .limit(Number(limit))
@@ -164,7 +163,7 @@ export const listInfluencersController: RequestHandler = asyncWrapper(
 
           return res.status(200).json({
                succsess: true,
-               companies,
+               influencers,
                total,
                currentPage: Number(page),
                totalPages: Math.ceil(total / Number(limit)),

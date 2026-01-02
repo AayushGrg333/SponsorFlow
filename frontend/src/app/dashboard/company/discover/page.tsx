@@ -110,14 +110,16 @@ export default function DiscoverInfluencers() {
   }
 
   const getCategories = (influencer: Influencer) => {
-    return influencer.contentType.map(ct => ct.content).slice(0, 3)
+ return influencer.contentType?.map(ct => ct.content).slice(0, 3) || []
   }
 
   const getTotalFollowers = (influencer: Influencer) => {
-    const total = influencer.platforms.reduce((sum, p) => sum + p.count, 0)
-    if (total >= 1000000) return `${(total / 1000000).toFixed(1)}M`
-    if (total >= 1000) return `${(total / 1000).toFixed(0)}K`
-    return total.toString()
+    if (!influencer.platforms || influencer.platforms.length === 0) return '0'
+  
+  const total = influencer.platforms.reduce((sum, p) => sum + p.count, 0)
+  if (total >= 1000000) return `${(total / 1000000).toFixed(1)}M`
+  if (total >= 1000) return `${(total / 1000).toFixed(0)}K`
+  return total.toString()
   }
 
   const getPlatformIcon = (platform: string) => {
