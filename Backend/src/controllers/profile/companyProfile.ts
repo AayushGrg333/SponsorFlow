@@ -7,7 +7,6 @@ import CompanyModel from "../../models/Company";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { ObjectId } from "mongoose";
-import Redis from "../../config/redis";
 
 declare global {
      namespace Express {
@@ -111,15 +110,6 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
           const { companyId } = req.params;
           const cacheKey = `company:${companyId}`;
 
-          //check Redis cache first
-          const cachedProfile = await Redis.client.get(cacheKey);
-          if (cachedProfile) {
-               return Apiresponse.success(
-                    res,
-                    "Company profile fetched successfully",
-                    JSON.parse(cachedProfile)
-               );
-          }
 
           const company = await CompanyModel.findOne({
                $or: [{ _id: companyId }, { slug: companyId }],

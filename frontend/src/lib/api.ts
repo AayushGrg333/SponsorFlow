@@ -408,22 +408,23 @@ export const companyAPI = {
      },
 
      // show company list
-     listCompanies: async (filters?: {
-          search?: string;
-          contentType?: string;
-          page?: number;
-          limit?: number;
-     }) => {
-          const params = new URLSearchParams();
-          if (filters?.search) params.append("search", filters.search);
-          if (filters?.contentType)
-               params.append("contentType", filters.contentType);
-          if (filters?.page) params.append("page", filters.page.toString());
-          if (filters?.limit) params.append("limit", filters.limit.toString());
-          return fetchAPI(
-               `/company/profile/me${params.toString() ? "?" + params.toString() : ""}`
-          );
-     },
+listCompanies: async (filters?: {
+     search?: string;
+     contentType?: string;
+     page?: number;
+     limit?: number;
+}) => {
+     const params = new URLSearchParams();
+     if (filters?.search) params.append("search", filters.search);
+     if (filters?.contentType) params.append("contentType", filters.contentType);
+     if (filters?.page) params.append("page", filters.page.toString());
+     if (filters?.limit) params.append("limit", filters.limit.toString());
+     
+     const url = `/company/profile/me${params.toString() ? "?" + params.toString() : ""}`;
+     
+     const response = await fetchAPI(url);
+     return response;
+},
 };
 
 // ==================== CAMPAIGNS API ====================
