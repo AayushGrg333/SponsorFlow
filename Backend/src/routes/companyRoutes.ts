@@ -34,9 +34,9 @@ router.get('/oauth2/google/callback',(req,res,next) => {
 
 //profile
 router.post('/profile',verifyToken,companyProfileSetupController);
-router.get('/profile/:companyId',verifyToken, getCompanyProfileController);
 router.get('/profile/me',verifyToken,listCompaniesController );
 router.get('/profile/update-profile/:companyId',verifyToken, updateCompanyProfileController);
+router.get('/profile/:companyId',verifyToken, getCompanyProfileController);
 router.get("/:companyId/campaigns", getCampaignByCompanyController);
 
 
