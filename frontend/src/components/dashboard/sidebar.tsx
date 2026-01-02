@@ -41,7 +41,7 @@ const influencerNavItems = [
      },
      {
           href: "/dashboard/influencer/campaigns",
-          label: "My Campaigns",
+          label: "Campaigns",
           icon: Briefcase,
      },
      {

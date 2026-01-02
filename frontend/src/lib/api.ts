@@ -3,6 +3,11 @@
 const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api";
 // const API_BASE_URL = "http://localhost:8000/api";
 
+export interface BackendSuccessResponse<T> {
+  status: "success"
+  message: string
+  data: T
+}
 // Generic fetch wrapper with auth handling
 async function fetchAPI<T>(
      endpoint: string,
@@ -430,7 +435,6 @@ listCompanies: async (filters?: {
 // ==================== CAMPAIGNS API ====================
 
 export const campaignsAPI = {
-     // CORRECTED: GET /campaigns
      list: async (filters?: {
           status?: string;
           category?: string;
@@ -440,9 +444,11 @@ export const campaignsAPI = {
           if (filters?.status) params.append("status", filters.status);
           if (filters?.category) params.append("category", filters.category);
           if (filters?.search) params.append("search", filters.search);
-          return fetchAPI(
+          const response = await fetchAPI(
                `/campaigns${params.toString() ? "?" + params.toString() : ""}`
           );
+          return response;
+
      },
 
      // CORRECTED: GET /campaigns/:campaignId

@@ -9,7 +9,7 @@ import { Eye, MessageSquare, DollarSign, Briefcase, ArrowRight, Building2, Calen
 import Link from "next/link"
 import { authStorage } from "@/lib/authHelper"
 import { useEffect, useState } from "react"
-import { influencerAPI, applicationsAPI, campaignsAPI } from "@/lib/api"
+import { applicationsAPI, campaignsAPI } from "@/lib/api"
 
 interface Campaign {
   _id: string
@@ -40,7 +40,7 @@ const statusColors = {
   rejected: "bg-red-500/10 text-red-500",
 }
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
