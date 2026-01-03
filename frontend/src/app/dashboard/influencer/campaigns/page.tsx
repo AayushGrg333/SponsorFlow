@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, DollarSign, MoreVertical, Eye } from "lucide-react";
+import { Calendar, DollarSign, Eye } from "lucide-react";
 
 import { campaignsAPI } from "@/lib/api";
 

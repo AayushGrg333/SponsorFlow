@@ -296,8 +296,8 @@ export const influencerAPI = {
           return fetchAPI(`/influencer/profile/${influencerId}/campaigns`);
      },
 
-     getApplications: async () => {
-          return fetchAPI(`/influencer/applications`);
+     getApplications: async (influencerId:string) => {
+          return fetchAPI(`/influencer/${influencerId}/applications`);
      }
 };
 
