@@ -69,13 +69,11 @@ export const getApplicationsByCampaign: RequestHandler = asyncWrapper(
           const applications = await ApplicationModel.find({
                campaign: campaignId,
                company: user._id,
-          });
-          if (applications.length == 0) {
-               return Apiresponse.error(
-                    res,
-                    "No applications found for this campaign"
-               );
-          }
+          })
+               .populate('influencer', 'username displayName profileImage bio platforms experienceYears')
+               .populate('campaign', 'campaignName budget')
+               .sort({ appliedAt: -1 });
+
           return Apiresponse.success(
                res,
                "Applications fetched successfully",
@@ -150,12 +148,12 @@ export const updateApplicationStatus: RequestHandler = asyncWrapper(
           }
           const application = await ApplicationModel.findOneAndUpdate(
                { _id: applicationId, company: user._id },
-               { status },
-               { new: true }
           );
           if (!application) {
                return Apiresponse.error(res, "Application not found or you do not have permission to update it", 404);
           }
+          application.status = status;
+          await application.save();
           return Apiresponse.success(res, "Application status updated successfully", application);
 
      }

@@ -525,12 +525,9 @@ export const applicationsAPI = {
      },
 
      // CORRECTED: PATCH /applications/:applicationId/status
-     updateStatus: async (
-          applicationId: string,
-          status: "accepted" | "rejected" | "pending"
-     ) => {
-          return fetchAPI(`/applications/${applicationId}/status`, {
-               method: "PATCH",
+updateApplicationStatus: async (applicationId: string, status: string) => {
+          return fetchAPI(`/campaigns/applications/${applicationId}/status`, {
+               method: 'PATCH',
                body: JSON.stringify({ status }),
           });
      },
