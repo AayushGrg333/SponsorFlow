@@ -3,7 +3,7 @@ import {
      companyProfileSchema,
      companyProfileUpdateSchema,
 } from "../../../Shared/validations/profileCompletionSchema";
-import CompanyModel from "../../models/Company";
+import CompanyModel, { Company } from "../../models/Company";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { ObjectId } from "mongoose";
@@ -108,7 +108,7 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
 export const getCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           const { companyId } = req.params;
-          const cacheKey = `company:${companyId}`;
+     
 
 
           const company = await CompanyModel.findOne({
@@ -132,6 +132,36 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
           );
      }
 );
+
+/**
+ * @description Get own company profile (no verification required)
+ * @route GET /api/company/profile/me
+ * @access Private (Company only)
+ */
+export const getMyCompanyProfileController: RequestHandler = asyncWrapper(
+     async (req: Request, res: Response) => {
+          const user = req.user as Company;
+          
+          if (!user || user.usertype !== "company") {
+               return Apiresponse.error(res, "Unauthorized", 401);
+          }
+
+          const company = await CompanyModel.findById(user._id).select(
+               "companyName email addressType address contactNumber contentType profileImage products establishedYear description socialLinks slug isVerified isProfileComplete"
+          );
+
+          if (!company) {
+               return Apiresponse.error(res, "Company not found", 404);
+          }
+
+          return Apiresponse.success(
+               res,
+               "Company profile fetched successfully",
+               company
+          );
+     }
+);
+
 
 /**
  * @description List or search verified companies
@@ -186,41 +216,64 @@ export const listCompaniesController: RequestHandler = asyncWrapper(
           });
      }
 );
-
+/**
+ * @description Update company profile
+ * @route PUT /api/company/profile/:companyId
+ * @access Private (Company only)
+ */
 export const updateCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const companyId = req.params.companyId;
-          const authCompanyId = (req.user as { _id?: string })?._id?.toString();
-          if (!authCompanyId || authCompanyId !== companyId) {
-               return Apiresponse.error(res, "Unauthorized", 401);
+          const user = req.user as Company;
+          const { companyId } = req.params;
+          
+          if (!user || user.usertype !== "company") {
+               return Apiresponse.error(res, "Only companies can update profiles");
           }
-          const parsedData = companyProfileUpdateSchema.safeParse(req.body);
-
-          if (!parsedData.success) {
-               return res.status(400).json({
-                    status: "error",
-                    message: "Invalid data",
-                    errors: parsedData.error.issues,
-               });
+          
+          if (user._id.toString() !== companyId) {
+               return Apiresponse.error(res, "You can only update your own profile");
           }
-
-          const updatedCompany = await CompanyModel.findByIdAndUpdate(
+          
+          const {
+               companyName,
+               description,
+               addressType,
+               address,
+               contactNumber,
+               contentType,
+               products,
+               establishedYear,
+               socialLinks,
+          } = req.body;
+          
+          const updateData: any = {};
+          
+          if (companyName) updateData.companyName = companyName;
+          if (description) updateData.description = description;
+          if (addressType) updateData.addressType = addressType;
+          if (address) updateData.address = address;
+          if (contactNumber) updateData.contactNumber = contactNumber;
+          if (contentType) updateData.contentType = contentType;
+          if (products) updateData.products = products;
+          if (establishedYear) updateData.establishedYear = establishedYear;
+          if (socialLinks) updateData.socialLinks = socialLinks;
+          
+          const company = await CompanyModel.findByIdAndUpdate(
                companyId,
-               {
-                    $set: parsedData.data,
-               },
+               updateData,
                { new: true, runValidators: true }
+          ).select(
+               "companyName email addressType address contactNumber contentType profileImage products establishedYear description socialLinks slug"
           );
-
-          if (!updatedCompany) {
+          
+          if (!company) {
                return Apiresponse.error(res, "Company not found", 404);
           }
-
-          return Apiresponse.success(res, "Company profile updated", {
-               company: updatedCompany,
-          });
+          
+          return Apiresponse.success(res, "Profile updated successfully", company);
      }
 );
+
 
 // /**
 //  * Controller to list campaigns for a company.

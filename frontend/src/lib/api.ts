@@ -403,9 +403,12 @@ export const companyAPI = {
           });
      },
 
+     getprivateProfile: async () => {
+          return fetchAPI(`/company/profile/myprofile`);
+     },
      // CORRECTED: GET /company/profile/:companyId
-     getProfile: async (companyId: string) => {
-          return fetchAPI(`/company/profile/${companyId}`);
+     getPublicProfile: async (companyId: string) => {
+          return fetchAPI(`/company/profile/${companyId}/public`);
      },
 
      // CORRECTED: GET /company/profile/update-profile/:companyId (should be PUT but keeping as per your route)

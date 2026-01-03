@@ -3,7 +3,7 @@ import {companySignupController,CompanyCallbackController} from "../controllers/
 import passport from "passport";
 import { Company } from "../models/Company";
 import verifyToken from "../middlewares/verifytoken";
-import {companyProfileSetupController,listCompaniesController,getCompanyProfileController ,updateCompanyProfileController} from "../controllers/profile/companyProfile";
+import {companyProfileSetupController,getMyCompanyProfileController,listCompaniesController,getCompanyProfileController ,updateCompanyProfileController} from "../controllers/profile/companyProfile";
 import { getCampaignByCompanyController } from "../controllers/feature/campaignControllers";
 
 
@@ -35,8 +35,9 @@ router.get('/oauth2/google/callback',(req,res,next) => {
 //profile
 router.post('/profile',verifyToken,companyProfileSetupController);
 router.get('/profile/me',verifyToken,listCompaniesController );
-router.get('/profile/update-profile/:companyId',verifyToken, updateCompanyProfileController);
-router.get('/profile/:companyId',verifyToken, getCompanyProfileController);
+router.put('/profile/:companyId',verifyToken, updateCompanyProfileController);
+router.get('/profile/:companyId/public',verifyToken, getCompanyProfileController);
+router.get('/profile/myprofile', verifyToken, getMyCompanyProfileController);
 router.get("/:companyId/campaigns", getCampaignByCompanyController);
 
 
