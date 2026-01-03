@@ -295,6 +295,10 @@ export const influencerAPI = {
      getCampaigns: async (influencerId: string) => {
           return fetchAPI(`/influencer/profile/${influencerId}/campaigns`);
      },
+
+     getApplications: async () => {
+          return fetchAPI(`/influencer/applications`);
+     }
 };
 
 // ==================== COMPANY API ====================

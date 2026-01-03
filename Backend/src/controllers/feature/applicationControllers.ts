@@ -190,6 +190,11 @@ export const getApplicationsByInfluencer: RequestHandler = asyncWrapper(
           if (!user || user.usertype !== "influencer") {
                return Apiresponse.error(res, "Only influencers can view their applications");
           }
-          const applications = await ApplicationModel.find({ influencer: user.id });
+          
+          const applications = await ApplicationModel.find({ influencer: user.id })
+               .populate('campaign', 'campaignName description budget startDate endDate status')
+               .populate('company', 'companyName profileImage')
+               .sort({ appliedAt: -1 }); // Most recent first
+          
           return Apiresponse.success(res, "Applications fetched successfully", applications);
      })
