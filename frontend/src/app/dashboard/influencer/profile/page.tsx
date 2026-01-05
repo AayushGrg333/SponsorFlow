@@ -104,7 +104,7 @@ export default function InfluencerProfilePage() {
       console.log('Profile response:', response)
 
       if (response.data && !response.error) {
-        const profileData = response.data as InfluencerProfile
+        const profileData = (response.data as { data: InfluencerProfile }).data;
         setProfile(profileData)
         setSelectedCategories(profileData.contentType.map(ct => ct.content))
         
@@ -131,7 +131,7 @@ export default function InfluencerProfilePage() {
     try {
       const response = await applicationsAPI.getByInfluencer(userId)
       if (response.data && !response.error) {
-        setApplications(response.data as any[])
+        setApplications((response.data as { data: any[] }).data)
       }
     } catch (error) {
       console.error('Error loading applications:', error)
