@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
@@ -15,20 +15,21 @@ import {
   Instagram,
   Youtube,
   Twitter,
+  Facebook,
   Globe,
   MapPin,
-  Calendar,
   Users,
   Eye,
   TrendingUp,
   Briefcase,
-  Star,
   Check,
   Loader2,
 } from "lucide-react"
+import { influencerAPI, applicationsAPI } from "@/lib/api"
+import { authStorage } from "@/lib/authHelper"
 
 const categories = [
-  "Tech",
+  "Technology",
   "Gaming",
   "Lifestyle",
   "Fashion",
@@ -42,51 +43,100 @@ const categories = [
   "Entertainment",
 ]
 
-const pastCollaborations = [
-  {
-    id: 1,
-    company: "TechGear Pro",
-    logo: "/placeholder.svg?key=80k1l",
-    campaign: "Product Review Series",
-    date: "Nov 2024",
-    earnings: "$3,500",
-    rating: 5,
-  },
-  {
-    id: 2,
-    company: "StyleCo Fashion",
-    logo: "/placeholder.svg?key=x28dw",
-    campaign: "Winter Collection",
-    date: "Oct 2024",
-    earnings: "$2,800",
-    rating: 5,
-  },
-  {
-    id: 3,
-    company: "FitLife Supplements",
-    logo: "/placeholder.svg?key=wvxz1",
-    campaign: "Fitness Challenge",
-    date: "Sep 2024",
-    earnings: "$4,200",
-    rating: 4,
-  },
-]
+const platformIcons = {
+  instagram: Instagram,
+  youtube: Youtube,
+  twitter: Twitter,
+  facebook: Facebook,
+}
+
+interface InfluencerProfile {
+  _id: string
+  username: string
+  displayName: string
+  realName: {
+    givenName: string
+    middleName?: string
+    familyName: string
+  }
+  email: string
+  bio?: string
+  profileImage?: string
+  contentType: { content: string }[]
+  socialMediaProfileLinks: { platform: string; link: string }[]
+  platforms: { platform: string; count: number }[]
+  experienceYears: number
+}
 
 export default function InfluencerProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedCategories, setSelectedCategories] = useState(["Tech", "Gaming", "Lifestyle"])
+  const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState<InfluencerProfile | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [applications, setApplications] = useState<any[]>([])
 
-  const [profile, setProfile] = useState({
-    name: "Alex Johnson",
-    username: "@alexjtech",
-    bio: "Tech reviewer and gadget enthusiast. Making complex tech simple for everyone. 5+ years of experience in creating engaging content for top brands.",
-    location: "San Francisco, CA",
-    instagram: "@alexjtech",
-    youtube: "AlexJTech",
-    twitter: "@alexjtech",
-    website: "alexjtech.com",
+  // Edit form state
+  const [formData, setFormData] = useState({
+    displayName: "",
+    bio: "",
+    instagram: "",
+    youtube: "",
+    twitter: "",
+    facebook: "",
+    website: "",
   })
+
+  useEffect(() => {
+    const storedUser = authStorage.getUser()
+    setUser(storedUser)
+    if (storedUser) {
+      loadProfile()
+      loadApplications(storedUser.id)
+    }
+  }, [])
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true)
+      const response = await influencerAPI.getPrivateProfile()
+      console.log('Profile response:', response)
+
+      if (response.data && !response.error) {
+        const profileData = response.data as InfluencerProfile
+        setProfile(profileData)
+        setSelectedCategories(profileData.contentType.map(ct => ct.content))
+        
+        // Set form data
+        const socialLinks = profileData.socialMediaProfileLinks
+        setFormData({
+          displayName: profileData.displayName,
+          bio: profileData.bio || "",
+          instagram: socialLinks.find(s => s.platform === 'instagram')?.link || "",
+          youtube: socialLinks.find(s => s.platform === 'youtube')?.link || "",
+          twitter: socialLinks.find(s => s.platform === 'twitter')?.link || "",
+          facebook: socialLinks.find(s => s.platform === 'facebook')?.link || "",
+          website: socialLinks.find(s => s.platform === 'website')?.link || "",
+        })
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadApplications = async (userId: string) => {
+    try {
+      const response = await applicationsAPI.getByInfluencer(userId)
+      if (response.data && !response.error) {
+        setApplications(response.data as any[])
+      }
+    } catch (error) {
+      console.error('Error loading applications:', error)
+    }
+  }
 
   const toggleCategory = (category: string) => {
     if (selectedCategories.includes(category)) {
@@ -97,10 +147,78 @@ export default function InfluencerProfilePage() {
   }
 
   const handleSave = async () => {
+    if (!profile || !user) return
+
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsLoading(false)
-    setIsEditing(false)
+    try {
+      const updateData = {
+        displayName: formData.displayName,
+        bio: formData.bio,
+        contentType: selectedCategories.map(cat => ({ content: cat })),
+        socialMediaProfileLinks: [
+          formData.instagram && { platform: "instagram", link: formData.instagram },
+          formData.youtube && { platform: "youtube", link: formData.youtube },
+          formData.twitter && { platform: "twitter", link: formData.twitter },
+          formData.facebook && { platform: "facebook", link: formData.facebook },
+          formData.website && { platform: "website", link: formData.website },
+        ].filter(Boolean),
+      }
+
+      const response = await influencerAPI.updateProfile(user.id, updateData)
+      
+      if (response.data && !response.error) {
+        await loadProfile()
+        setIsEditing(false)
+      } else {
+        console.error('Error updating profile:', response.error)
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const getTotalFollowers = () => {
+    if (!profile) return "0"
+    const total = profile.platforms.reduce((sum, p) => sum + p.count, 0)
+    if (total >= 1000000) return `${(total / 1000000).toFixed(1)}M`
+    if (total >= 1000) return `${(total / 1000).toFixed(0)}K`
+    return total.toString()
+  }
+
+  const getSocialLink = (platform: string) => {
+    return profile?.socialMediaProfileLinks.find(s => s.platform === platform)?.link || ""
+  }
+
+  const getPlatformIcon = (platform: string) => {
+    return platformIcons[platform.toLowerCase() as keyof typeof platformIcons] || Globe
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Sidebar userType="influencer" />
+        <main className="lg:pl-64">
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-muted-foreground">Loading profile...</div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Sidebar userType="influencer" />
+        <main className="lg:pl-64">
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-muted-foreground">Profile not found</div>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -114,7 +232,6 @@ export default function InfluencerProfilePage() {
           <Tabs defaultValue="profile" className="space-y-6">
             <TabsList className="bg-secondary">
               <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="collaborations">Past Collaborations</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
 
@@ -125,7 +242,7 @@ export default function InfluencerProfilePage() {
                   <div className="relative mb-6">
                     <div className="relative mx-auto w-fit">
                       <img
-                        src="/placeholder.svg?key=nwmq5"
+                        src={profile.profileImage || "/placeholder.svg"}
                         alt="Profile"
                         className="h-32 w-32 rounded-full object-cover ring-4 ring-primary/20"
                       />
@@ -136,57 +253,57 @@ export default function InfluencerProfilePage() {
                   </div>
 
                   <div className="text-center">
-                    <h2 className="text-xl font-bold text-foreground">{profile.name}</h2>
-                    <p className="text-muted-foreground">{profile.username}</p>
+                    <h2 className="text-xl font-bold text-foreground">{profile.displayName}</h2>
+                    <p className="text-muted-foreground">@{profile.username}</p>
                     <div className="mt-2 flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      {profile.location}
+                      <Users className="h-4 w-4" />
+                      {profile.experienceYears} years experience
                     </div>
                   </div>
 
                   {/* Stats */}
                   <div className="mt-6 grid grid-cols-3 gap-4 text-center">
                     <div className="rounded-lg bg-secondary p-3">
-                      <p className="text-xl font-bold text-foreground">520K</p>
+                      <p className="text-xl font-bold text-foreground">{getTotalFollowers()}</p>
                       <p className="text-xs text-muted-foreground">Followers</p>
                     </div>
                     <div className="rounded-lg bg-secondary p-3">
-                      <p className="text-xl font-bold text-foreground">4.8%</p>
-                      <p className="text-xs text-muted-foreground">Engagement</p>
+                      <p className="text-xl font-bold text-foreground">{profile.platforms.length}</p>
+                      <p className="text-xs text-muted-foreground">Platforms</p>
                     </div>
                     <div className="rounded-lg bg-secondary p-3">
-                      <p className="text-xl font-bold text-foreground">15</p>
-                      <p className="text-xs text-muted-foreground">Collabs</p>
+                      <p className="text-xl font-bold text-foreground">{applications.length}</p>
+                      <p className="text-xs text-muted-foreground">Apps</p>
                     </div>
                   </div>
 
                   {/* Social Links */}
                   <div className="mt-6 space-y-3">
-                    <div className="flex items-center gap-3 text-sm">
-                      <Instagram className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{profile.instagram}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <Youtube className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{profile.youtube}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <Twitter className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{profile.twitter}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{profile.website}</span>
-                    </div>
+                    {profile.socialMediaProfileLinks.map((link) => {
+                      const Icon = getPlatformIcon(link.platform)
+                      return (
+                        <div key={link.platform} className="flex items-center gap-3 text-sm">
+                          <Icon className="h-4 w-4 text-muted-foreground" />
+                          <a 
+                            href={link.link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-primary truncate"
+                          >
+                            {link.link}
+                          </a>
+                        </div>
+                      )
+                    })}
                   </div>
 
                   {/* Categories */}
                   <div className="mt-6">
                     <p className="mb-2 text-sm font-medium text-foreground">Categories</p>
                     <div className="flex flex-wrap gap-2">
-                      {selectedCategories.map((cat) => (
-                        <Badge key={cat} variant="secondary">
-                          {cat}
+                      {profile.contentType.map((ct) => (
+                        <Badge key={ct.content} variant="secondary">
+                          {ct.content}
                         </Badge>
                       ))}
                     </div>
@@ -211,39 +328,26 @@ export default function InfluencerProfilePage() {
                     <div className="space-y-4">
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
-                          <Label>Full Name</Label>
+                          <Label>Display Name</Label>
                           <Input
-                            value={profile.name}
-                            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                            value={formData.displayName}
+                            onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                             disabled={!isEditing}
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>Username</Label>
-                          <Input
-                            value={profile.username}
-                            onChange={(e) => setProfile({ ...profile, username: e.target.value })}
-                            disabled={!isEditing}
-                          />
+                          <Input value={profile.username} disabled />
                         </div>
                       </div>
 
                       <div className="space-y-2">
                         <Label>Bio</Label>
                         <Textarea
-                          value={profile.bio}
-                          onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                          value={formData.bio}
+                          onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                           disabled={!isEditing}
                           className="min-h-[100px]"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Location</Label>
-                        <Input
-                          value={profile.location}
-                          onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                          disabled={!isEditing}
                         />
                       </div>
 
@@ -251,33 +355,37 @@ export default function InfluencerProfilePage() {
                         <div className="space-y-2">
                           <Label>Instagram</Label>
                           <Input
-                            value={profile.instagram}
-                            onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
+                            value={formData.instagram}
+                            onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                             disabled={!isEditing}
+                            placeholder="https://instagram.com/..."
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>YouTube</Label>
                           <Input
-                            value={profile.youtube}
-                            onChange={(e) => setProfile({ ...profile, youtube: e.target.value })}
+                            value={formData.youtube}
+                            onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
                             disabled={!isEditing}
+                            placeholder="https://youtube.com/..."
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>Twitter</Label>
                           <Input
-                            value={profile.twitter}
-                            onChange={(e) => setProfile({ ...profile, twitter: e.target.value })}
+                            value={formData.twitter}
+                            onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
                             disabled={!isEditing}
+                            placeholder="https://twitter.com/..."
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Website</Label>
+                          <Label>Facebook</Label>
                           <Input
-                            value={profile.website}
-                            onChange={(e) => setProfile({ ...profile, website: e.target.value })}
+                            value={formData.facebook}
+                            onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
                             disabled={!isEditing}
+                            placeholder="https://facebook.com/..."
                           />
                         </div>
                       </div>
@@ -301,66 +409,30 @@ export default function InfluencerProfilePage() {
                   </div>
 
                   {/* Categories */}
-                  <div className="glass-card rounded-xl p-6">
-                    <h3 className="mb-4 text-lg font-semibold text-foreground">Categories</h3>
-                    <p className="mb-4 text-sm text-muted-foreground">
-                      Select up to 5 categories that best describe your content
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {categories.map((category) => (
-                        <Badge
-                          key={category}
-                          variant={selectedCategories.includes(category) ? "default" : "outline"}
-                          className={`cursor-pointer transition-all ${
-                            selectedCategories.includes(category)
-                              ? "bg-primary text-primary-foreground"
-                              : "hover:border-primary hover:text-primary"
-                          }`}
-                          onClick={() => toggleCategory(category)}
-                        >
-                          {category}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="collaborations">
-              <div className="glass-card rounded-xl p-6">
-                <h3 className="mb-6 text-lg font-semibold text-foreground">Past Collaborations</h3>
-                <div className="space-y-4">
-                  {pastCollaborations.map((collab) => (
-                    <div
-                      key={collab.id}
-                      className="flex items-center gap-4 rounded-lg border border-border bg-secondary/30 p-4"
-                    >
-                      <img
-                        src={collab.logo || "/placeholder.svg"}
-                        alt={collab.company}
-                        className="h-14 w-14 rounded-xl object-cover"
-                      />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-foreground">{collab.campaign}</h4>
-                        <p className="text-sm text-muted-foreground">{collab.company}</p>
-                        <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {collab.date}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                            {collab.rating}/5
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-foreground">{collab.earnings}</p>
-                        <p className="text-xs text-muted-foreground">earned</p>
+                  {isEditing && (
+                    <div className="glass-card rounded-xl p-6">
+                      <h3 className="mb-4 text-lg font-semibold text-foreground">Categories</h3>
+                      <p className="mb-4 text-sm text-muted-foreground">
+                        Select up to 5 categories that best describe your content
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {categories.map((category) => (
+                          <Badge
+                            key={category}
+                            variant={selectedCategories.includes(category) ? "default" : "outline"}
+                            className={`cursor-pointer transition-all ${
+                              selectedCategories.includes(category)
+                                ? "bg-primary text-primary-foreground"
+                                : "hover:border-primary hover:text-primary"
+                            }`}
+                            onClick={() => isEditing && toggleCategory(category)}
+                          >
+                            {category}
+                          </Badge>
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </TabsContent>
@@ -373,7 +445,7 @@ export default function InfluencerProfilePage() {
                       <Eye className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-foreground">1,284</p>
+                      <p className="text-2xl font-bold text-foreground">-</p>
                       <p className="text-sm text-muted-foreground">Profile Views</p>
                     </div>
                   </div>
@@ -384,7 +456,7 @@ export default function InfluencerProfilePage() {
                       <Users className="h-5 w-5 text-accent" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-foreground">520K</p>
+                      <p className="text-2xl font-bold text-foreground">{getTotalFollowers()}</p>
                       <p className="text-sm text-muted-foreground">Total Followers</p>
                     </div>
                   </div>
@@ -395,7 +467,7 @@ export default function InfluencerProfilePage() {
                       <TrendingUp className="h-5 w-5 text-chart-3" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-foreground">4.8%</p>
+                      <p className="text-2xl font-bold text-foreground">-</p>
                       <p className="text-sm text-muted-foreground">Engagement Rate</p>
                     </div>
                   </div>
@@ -406,8 +478,8 @@ export default function InfluencerProfilePage() {
                       <Briefcase className="h-5 w-5 text-green-500" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-foreground">15</p>
-                      <p className="text-sm text-muted-foreground">Collaborations</p>
+                      <p className="text-2xl font-bold text-foreground">{applications.length}</p>
+                      <p className="text-sm text-muted-foreground">Applications</p>
                     </div>
                   </div>
                 </div>
@@ -416,7 +488,7 @@ export default function InfluencerProfilePage() {
               <div className="glass-card mt-6 rounded-xl p-6">
                 <h3 className="mb-4 text-lg font-semibold text-foreground">Performance Overview</h3>
                 <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-border">
-                  <p className="text-muted-foreground">Analytics chart coming soon</p>
+                  <p className="text-muted-foreground">Analytics coming soon</p>
                 </div>
               </div>
             </TabsContent>

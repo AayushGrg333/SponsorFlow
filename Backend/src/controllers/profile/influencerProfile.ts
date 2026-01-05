@@ -2,7 +2,7 @@ import { RequestHandler, Request, Response } from "express";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { influencerProfileSchema } from "../../../Shared/validations/profileCompletionSchema";
-import UserModel from "../../models/user";
+import UserModel, { User } from "../../models/user";
 import ApplicationModel from "../../models/Application";
 import CampaignModel from "../../models/Campaign";
 
@@ -99,35 +99,76 @@ export const getInfluencerProfileController: RequestHandler = asyncWrapper(
      }
 );
 
-export const updateInfluencerProfileController: RequestHandler = asyncWrapper(
+export const getMyInfluencerProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const influencerId = req.params.influencerId;
-          const authCompanyId = req.user?._id.toString();
-          if (!authCompanyId || authCompanyId !== influencerId) {
-               return Apiresponse.error(res, "Unauthorized", 401);
+          const user = req.user as User;
+          if (!user) {
+               return Apiresponse.error(res, "Unauthorized", 401);    
           }
 
-          const parsedData = influencerProfileSchema.safeParse(req.body);
-          if (!parsedData.success) {
-               res.status(400).json({
-                    status: "error",
-                    message: "Invalid data",
-                    errors: parsedData.error.issues,
-               });
-               return;
-          }
-
-          const influencer = await UserModel.findByIdAndUpdate(
-               influencerId,
-               {
-                    $set: parsedData.data,
-               },
-               { new: true, runValidators: true }
+          const influencer = await UserModel.findById(user._id).select(
+               "-password -createdAt -updatedAt"
           );
-
           if (!influencer) {
                return Apiresponse.error(res, "Influencer not found", 404);
           }
+
+          return Apiresponse.success(
+               res,
+               "Influencer profile fetched successfully",
+               influencer
+          );
+     }
+)
+
+export const updateInfluencerProfileController: RequestHandler = asyncWrapper(
+     async (req: Request, res: Response) => {
+          const user = req.user as User;
+          const { influencerId } = req.params;
+          
+          if( !user || user.usertype !== 'influencer') {
+               return Apiresponse.error(res, "Only influencers can update profiles");
+          }
+
+          if (!user || user._id.toString() !== influencerId) {
+               return Apiresponse.error(res, "you can update your own profile",);
+          }
+
+          const {
+               username,
+               displayName,
+               bio,
+               email,
+               password,
+               socialMediaProfileLinks,
+               experienceYears,
+               previousSponsorships,
+               contentType,
+               realName,
+               platforms
+          } = req.body;
+
+          const updatedata : any = {};
+
+          if(username) updatedata.username = username;
+          if(displayName) updatedata.displayName = displayName;
+          if(bio) updatedata.bio = bio;
+          if(email) updatedata.email = email;
+          if(password) updatedata.password = password;
+          if(socialMediaProfileLinks) updatedata.socialMediaProfileLinks = socialMediaProfileLinks;
+          if(experienceYears) updatedata.experienceYears = experienceYears;
+          if(previousSponsorships) updatedata.previousSponsorships = previousSponsorships;
+          if(contentType) updatedata.contentType = contentType;
+          if(realName) updatedata.realName = realName;
+          if(platforms) updatedata.platforms = platforms;
+
+          const influencer = await UserModel.findByIdAndUpdate(
+               influencerId,
+               { $set: updatedata },
+               { new: true }
+          ).select("-password -createdAt -updatedAt");
+
+          if (!influencer) return Apiresponse.error(res, "Influencer not found", 404);
 
           return Apiresponse.success(
                res,

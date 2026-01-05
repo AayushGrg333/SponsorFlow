@@ -9,9 +9,10 @@ import {
      influencerProfileSetupController,
      listInfluencersController,
      listInfluencerCampaignsController,
+     getMyInfluencerProfileController,
 } from "../controllers/profile/influencerProfile";
 import passport from "passport";
-import { User } from "../models/user"
+import { User } from "../models/user";
 import verifyToken from "../middlewares/verifytoken";
 import { getApplicationsByInfluencer } from "../controllers/feature/applicationControllers";
 
@@ -50,23 +51,13 @@ router.get("/oauth2/google/callback", (req, res, next) => {
 //profile
 router.post("/setup/profile", verifyToken, influencerProfileSetupController);
 router.get("/profile/me", listInfluencersController);
-router.get(
-     "/profile/:influencerId",
-     verifyToken,
-     getInfluencerProfileController
-);
 
-router.put(
-     "/profile/:influencerId",
-     verifyToken,
-     updateInfluencerProfileController
-);
-router.get(
-     "/profile/:influencerId/campaigns",
-     verifyToken,
-     listInfluencerCampaignsController
-);
+router.put("/profile/:influencerId", verifyToken,updateInfluencerProfileController);
+router.get("/profile/:influencerId/pubic", verifyToken, getInfluencerProfileController);
+router.get("/profile/myprofile", verifyToken,getMyInfluencerProfileController);
+
+
+router.get("/profile/:influencerId/campaigns",verifyToken,listInfluencerCampaignsController);
 router.get("/:influencerId/applications",verifyToken,getApplicationsByInfluencer);
-
 
 export default router;

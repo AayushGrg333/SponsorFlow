@@ -261,11 +261,16 @@ export const influencerAPI = {
           });
      },
 
-     // CORRECTED: GET /influencer/profile/:influencerId
-     getProfile: async (influencerId: string) => {
-          return fetchAPI(`/influencer/profile/${influencerId}`);
+
+          // Get my private profile
+     getPrivateProfile: async () => {
+          return fetchAPI(`/influencer/profile/myprofile`);
      },
 
+     // Get public profile of an influencer
+     getPublicProfile: async (influencerId: string) => {
+          return fetchAPI(`/influencer/profile/${influencerId}/public`);
+     },
      // CORRECTED: PUT /influencer/profile/:influencerId
      updateProfile: async (influencerId: string, profileData: any) => {
           return fetchAPI(`/influencer/profile/${influencerId}`, {

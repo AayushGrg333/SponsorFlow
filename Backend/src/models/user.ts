@@ -1,4 +1,4 @@
-import mongoose, { model, Schema, Document } from "mongoose";
+import mongoose, { model, Schema, Document, ObjectId } from "mongoose";
 import {
      ContentType,
      PreviousSponsorships,
@@ -32,6 +32,7 @@ export interface PlatformStats {
 }
 //make this globa
 export interface User extends Document {
+     _id: string | ObjectId;
      usertype: string;
      username: string;
      displayName: string;
