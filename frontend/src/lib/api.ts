@@ -511,8 +511,7 @@ export const applicationsAPI = {
      create: async (
           campaignId: string,
           applicationData: {
-               coverLetter?: string;
-               proposedRate?: number;
+               message: string;
           }
      ) => {
           return fetchAPI(`/campaigns/${campaignId}/applications`, {
@@ -532,7 +531,7 @@ export const applicationsAPI = {
      },
 
      // CORRECTED: PATCH /applications/:applicationId/status
-updateApplicationStatus: async (applicationId: string, status: string) => {
+     updateApplicationStatus: async (applicationId: string, status: string) => {
           return fetchAPI(`/campaigns/applications/${applicationId}/status`, {
                method: 'PATCH',
                body: JSON.stringify({ status }),

@@ -300,7 +300,8 @@ const loadDashboardData = async (influencerId: string) => {
                             {campaign.title}
                           </h3>
                           <p className="text-xs text-muted-foreground">
-                            {campaign.categories[0]} • {formatCurrency(campaign.budget)}
+                           {campaign.categories?.[0] ?? "General"} • {formatCurrency(campaign.budget)}
+
                           </p>
                         </div>
                         <Button variant="outline" size="sm" asChild>

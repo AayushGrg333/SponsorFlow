@@ -29,10 +29,10 @@ export const createCampaignController: RequestHandler = asyncWrapper(
 
 export const getCampaignController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const { id } = req.params;
+          const { campaignId } = req.params;
           const user = req.user;
           if (!user) {
-                    const guestCampaign = await CampaignModel.findById(id).select(
+                    const guestCampaign = await CampaignModel.findById(campaignId).select(
                          "title description platforms startDate endDate status createdAt"
                     );
 

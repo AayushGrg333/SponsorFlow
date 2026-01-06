@@ -7,7 +7,6 @@ import {
      listCampaignsController,
      updateCampaignController,
      deleteCampaignController,
-     getCampaignByCompanyController
 
 } from "../controllers/feature/campaignControllers";
 
