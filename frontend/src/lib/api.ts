@@ -456,9 +456,7 @@ export const campaignsAPI = {
           if (filters?.status) params.append("status", filters.status);
           if (filters?.category) params.append("category", filters.category);
           if (filters?.search) params.append("search", filters.search);
-          const response = await fetchAPI(
-               `/campaigns${params.toString() ? "?" + params.toString() : ""}`
-          );
+          const response = await fetchAPI(`/campaigns${params.toString() ? "?" + params.toString() : ""}`);
           return response;
 
      },
@@ -468,7 +466,7 @@ export const campaignsAPI = {
           return fetchAPI(`/campaigns/${campaignId}`);
      },
 
-     // CORRECTED: POST /campaigns
+      // CORRECTED: POST /campaigns
      create: async (campaignData: {
           title: string;
           description: string;
@@ -483,6 +481,7 @@ export const campaignsAPI = {
                body: JSON.stringify(campaignData),
           });
      },
+
 
      // CORRECTED: PUT /campaigns/:campaignId
      update: async (campaignId: string, campaignData: any) => {

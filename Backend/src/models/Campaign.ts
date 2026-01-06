@@ -53,8 +53,9 @@ const campaignSchema = new Schema<Campaign>(
     },
     budget: {
       type: Number,
-      required: [true, "Campaign budget is required"],
+      required: false,
       min: [0, "Budget cannot be negative"],
+      default: 0,
     },
     budgetVisibility: {
       type: String,

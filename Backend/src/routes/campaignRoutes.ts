@@ -14,7 +14,7 @@ import {
 //routes
 router.get("/", listCampaignsController);
 router.get("/:campaignId", getCampaignController);
-router.post("/", verifyToken, createCampaignController);
+router.post("/create", verifyToken, createCampaignController);
 router.put("/:campaignId", verifyToken, updateCampaignController);
 router.delete("/:campaignId", verifyToken, deleteCampaignController);
 
