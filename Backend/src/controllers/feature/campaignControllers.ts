@@ -42,7 +42,7 @@ export const getCampaignController: RequestHandler = asyncWrapper(
                     return Apiresponse.success(res, "Campaign fetched successfully", guestCampaign);
 
           }
-          const campaign = await CampaignModel.findById(id).select(
+          const campaign = await CampaignModel.findById(campaignId).select(
                "company title description budget budgetRange platforms startDate endDate status createdAt"
           )
           if (!campaign) {
