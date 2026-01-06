@@ -128,7 +128,7 @@ export const getCampaignByCompanyController: RequestHandler = asyncWrapper(
     // Guest user
     if (!user) {
       const guestCampaigns = await CampaignModel.find({ company: companyId }).select(
-        "title description platforms startDate endDate status createdAt"
+        "title description platforms startDate endDate status createdAt budget budgetRange"
       );
 
       if (guestCampaigns.length === 0) {

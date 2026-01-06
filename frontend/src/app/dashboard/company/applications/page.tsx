@@ -53,7 +53,7 @@ interface Application {
 
 interface Campaign {
      _id: string;
-     campaignName: string;
+     title: string;
      description: string;
      budget: number;
      startDate: string;
@@ -111,7 +111,7 @@ export default function CompanyApplicationsPage() {
                
                if (campaignsResponse.data && !campaignsResponse.error) {
                     const campaignsData = (campaignsResponse.data as { data: Campaign[] }).data;
-                    
+                    console.log("Fetched campaigns:", campaignsData);
                     // Fetch applications for each campaign
                     const campaignsWithApplications = await Promise.all(
                          campaignsData.map(async (campaign: Campaign) => {
@@ -300,7 +300,7 @@ export default function CompanyApplicationsPage() {
                                                                                      </div>
                                                                                      <div>
                                                                                           <CardTitle className="text-xl">
-                                                                                               {campaign.campaignName}
+                                                                                               {campaign.title}
                                                                                           </CardTitle>
                                                                                           <CardDescription className="mt-1 flex items-center gap-4">
                                                                                                <span className="flex items-center gap-1">

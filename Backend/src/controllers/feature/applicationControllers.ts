@@ -71,7 +71,7 @@ export const getApplicationsByCampaign: RequestHandler = asyncWrapper(
                company: user._id,
           })
                .populate('influencer', 'username displayName profileImage bio platforms experienceYears')
-               .populate('campaign', 'campaignName budget')
+               .populate('campaign', 'title budget budgetRange status startDate endDate')
                .sort({ appliedAt: -1 });
 
           return Apiresponse.success(

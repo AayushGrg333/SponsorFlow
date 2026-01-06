@@ -476,7 +476,7 @@ export const campaignsAPI = {
           contentTypes: string[];
           requirements?: string;
      }) => {
-          return fetchAPI("/campaigns", {
+          return fetchAPI("/campaigns/create", {
                method: "POST",
                body: JSON.stringify(campaignData),
           });
@@ -523,7 +523,7 @@ export const applicationsAPI = {
 
      //get applicaionts by campaingn
      getByCampaign: async (campaignId: string) => {
-          return fetchAPI(`/campaigns/${campaignId}/applications`);
+          return fetchAPI(`/applications/campaigns/${campaignId}/applications`);
      },
 
      // CORRECTED: GET /applications/:applicationId
