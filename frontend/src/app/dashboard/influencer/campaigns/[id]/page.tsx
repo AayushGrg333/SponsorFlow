@@ -48,9 +48,10 @@ export default function CampaignDetailPage() {
     try {
       setLoading(true)
       const response = await campaignsAPI.get(campaignId)
+      console.log('Application response:', response)
       
       if (response.data && !response.error) {
-        setCampaign(response.data as Campaign)
+        setCampaign((response.data as { data: Campaign }).data)
       } else {
         setError(response.error || "Campaign not found")
       }
@@ -73,7 +74,6 @@ export default function CampaignDetailPage() {
 
     try {
       const response = await applicationsAPI.create(campaignId, { message })
-      
       if (response.data && !response.error) {
         router.push("/dashboard/influencer/applications")
       } else {

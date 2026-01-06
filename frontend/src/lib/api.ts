@@ -514,7 +514,7 @@ export const applicationsAPI = {
                message: string;
           }
      ) => {
-          return fetchAPI(`/campaigns/${campaignId}/applications`, {
+          return fetchAPI(`/applications/campaigns/${campaignId}/applications`, {
                method: "POST",
                body: JSON.stringify(applicationData),
           });
