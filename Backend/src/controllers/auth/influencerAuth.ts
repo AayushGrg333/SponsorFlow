@@ -145,7 +145,7 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
                     usertype: influencer.usertype,
                },
                process.env.JWT_ACCESS_SECRET!,
-               { expiresIn: "15m" }
+               { expiresIn: "1h" }
           );
 
           const refreshToken = jwt.sign(
@@ -163,7 +163,7 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
                httpOnly: true,
                secure: isProd,
                sameSite: isProd ? "none" : "lax",
-               maxAge: 15 * 60 * 1000,
+               maxAge: 60 * 60 * 1000,
           });
 
           res.cookie("refreshToken", refreshToken, {
@@ -230,7 +230,7 @@ export const loginController: RequestHandler = asyncWrapper(
                               usertype,
                          },
                          accessTokenSecret,
-                         { expiresIn: "15m" }
+                         { expiresIn: "1h" }
                     );
 
                     const refreshToken = jwt.sign(
@@ -252,7 +252,7 @@ export const loginController: RequestHandler = asyncWrapper(
                          httpOnly: true,
                          sameSite: "strict",
                          secure: false,
-                         maxAge: 15 * 60 * 1000, // 15 min
+                         maxAge: 60 * 60 * 1000, // 1 hour
                     });
 
                     let safeUser: SafeUser;

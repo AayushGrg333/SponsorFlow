@@ -68,6 +68,7 @@ export default function CampaignApplicationsPage() {
       // Load campaign details
       const campaignResponse = await campaignsAPI.get(params.id)
       const campaignData = (campaignResponse.data as { data: any }).data
+      console.log(campaignData)
       if (campaignData && !campaignResponse.error) {
         setCampaign(campaignData)
       }

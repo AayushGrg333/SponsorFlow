@@ -63,9 +63,9 @@ export default function ApplicationDetailPage() {
     try {
       setLoading(true)
       const response = await applicationsAPI.getDetails(params.id)
-      console.log('Application details response:', response)
-      if (response.data && !response.error) {
-        setApplication(response.data as Application)
+      const  data = (response.data as { data: Application }).data
+      if (data&& !response.error) {
+        setApplication(data)
       } else {
         setError(response.error || "Application not found")
       }

@@ -137,7 +137,7 @@ export const CompanyCallbackController: RequestHandler = asyncWrapper(
                const accessToken = Jwt.sign(
                     { id: existingCompany._id, usertype },
                     config.JWT_ACCESS_SECRET,
-                    { expiresIn: "15m" }
+                    { expiresIn: "1h" }
                );
 
                const refreshToken = Jwt.sign(
@@ -150,7 +150,7 @@ export const CompanyCallbackController: RequestHandler = asyncWrapper(
                     httpOnly: true,
                     secure: IS_PROD,
                     sameSite: IS_PROD ? "none" : "lax",
-                    maxAge: 15 * 60 * 1000,
+                    maxAge: 60 * 60 * 1000,
                });
 
                res.cookie("refreshToken", refreshToken, {
