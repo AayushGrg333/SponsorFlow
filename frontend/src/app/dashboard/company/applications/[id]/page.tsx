@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -44,7 +44,8 @@ const statusConfig = {
   rejected: { color: "bg-red-500/10 text-red-500", label: "Rejected" },
 }
 
-export default function ApplicationDetailPage({ params }: { params: { id: string } }) {
+export default function ApplicationDetailPage() {
+  const params = useParams<{ id: string }>()
   const router = useRouter()
   const [application, setApplication] = useState<Application | null>(null)
   const [loading, setLoading] = useState(true)

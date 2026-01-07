@@ -532,7 +532,7 @@ export const applicationsAPI = {
 
      // CORRECTED: PATCH /applications/:applicationId/status
      updateApplicationStatus: async (applicationId: string, status: string) => {
-          return fetchAPI(`/campaigns/applications/${applicationId}/status`, {
+          return fetchAPI(`/applications/status/${applicationId}`, {
                method: 'PATCH',
                body: JSON.stringify({ status }),
           });
@@ -540,7 +540,7 @@ export const applicationsAPI = {
 
      // CORRECTED: DELETE /applications/:applicationId
      delete: async (applicationId: string) => {
-          return fetchAPI(`/applications/${applicationId}`, {
+          return fetchAPI(`/applications/delete/${applicationId}`, {
                method: "DELETE",
           });
      },
