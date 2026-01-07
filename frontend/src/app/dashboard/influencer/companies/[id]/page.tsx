@@ -54,19 +54,15 @@ export default function CompanyPublicProfile({ params }: { params: Promise<{ id:
   const loadProfile = async () => {
     try {
       setLoading(true)
-      // ✅ FIX 3: Add better error handling for 404
       const response = await companyAPI.getPublicProfile(id)
+     const data =  (response.data as { data: CompanyProfile }).data
       
-      console.log('Profile response:', response) // Debug log
-      
-      if (response.data && !response.error) {
-        setProfile(response.data as CompanyProfile)
+      if (data && !response.error) {
+        setProfile(data as CompanyProfile)
       } else {
         setError(response.error || "Profile not found")
       }
     } catch (error: any) {
-      console.error('Error loading profile:', error)
-      // ✅ Handle 404 specifically
       if (error.response?.status === 404) {
         setError("Company profile not found")
       } else {
@@ -80,26 +76,22 @@ export default function CompanyPublicProfile({ params }: { params: Promise<{ id:
   const loadCampaigns = async () => {
     try {
       const response = await campaignsAPI.getByCompany(id)
-      
-      // ✅ FIX 2: Add debug log and safe array handling
-      console.log('Campaigns response:', response)
-      
+      const data = (response.data as { data: any[] }).data
+    
       if (response.data && !response.error) {
-        // ✅ FIX 2: Handle different response structures
         let campaignsData: any[] = []
         
-        if (Array.isArray(response.data)) {
-          campaignsData = response.data
-        } else if (response.data.campaigns && Array.isArray(response.data.campaigns)) {
-          campaignsData = response.data.campaigns
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          campaignsData = response.data.data
+        if (Array.isArray(data)) {
+          campaignsData = data
+        } else if (data && Array.isArray(data)) {
+          campaignsData = data
+        } else if (data && Array.isArray(data)) {
+          campaignsData = data
         } else {
           console.warn('Unexpected campaigns response structure:', response.data)
           campaignsData = []
         }
         
-        // ✅ Now safely filter the array
         const activeCampaigns = campaignsData.filter((c: any) => c.status === 'active')
         setCampaigns(activeCampaigns)
       } else {
@@ -107,7 +99,7 @@ export default function CompanyPublicProfile({ params }: { params: Promise<{ id:
       }
     } catch (error) {
       console.error('Error loading campaigns:', error)
-      setCampaigns([]) // ✅ Set empty array on error
+      setCampaigns([]) 
     }
   }
 
