@@ -25,7 +25,6 @@ export const createApplication: RequestHandler = asyncWrapper(
           if (!campaign) {
                return Apiresponse.error(res, "Campaign not found");
           }
-          const company = campaign.company;
           const parsedData = applicationSchema.parse(req.body);
 
           //dublication check
@@ -40,7 +39,7 @@ export const createApplication: RequestHandler = asyncWrapper(
           const result = await ApplicationModel.create({
                influencer: user._id,
                campaign: campaignId,
-               company: company.id,
+               company: campaign.company,
                status: "pending",
                message: parsedData.message,
           });
