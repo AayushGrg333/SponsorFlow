@@ -1,7 +1,6 @@
 import { RequestHandler, Request, Response } from "express";
 import {
      companyProfileSchema,
-     companyProfileUpdateSchema,
 } from "../../../Shared/validations/profileCompletionSchema";
 import CompanyModel, { Company } from "../../models/Company";
 import { asyncWrapper } from "../../utils/asyncHandler";
@@ -107,14 +106,14 @@ export const companyProfileSetupController: RequestHandler = asyncWrapper(
  */
 export const getCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const { companyId } = req.params;
+          const { id } = req.params;
      
 
 
           const company = await CompanyModel.findOne({
-               $or: [{ _id: companyId }, { slug: companyId }],
-               isverified: true,
-               isprofileComplete: true,
+               $or: [{ _id: id }, { slug: id }],
+               isVerified: true,
+               isProfileComplete: true,
           }).select(
                "companyName email addressType address contactNumber contentType profileImage products establishedYear description socialLinks slug"
           );
@@ -123,7 +122,6 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
                return Apiresponse.error(res, "Company not found", 404);
           }
 
-          // await Redis.client.set(cacheKey,JSON.stringify(company),{EX: 3600})
 
           return Apiresponse.success(
                res,

@@ -252,11 +252,6 @@ const loadDashboardData = async (influencerId: string) => {
                             </span>
                           </div>
                         </div>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/dashboard/influencer/applications/${application._id}`}>
-                            View
-                          </Link>
-                        </Button>
                       </div>
                     ))}
                   </div>

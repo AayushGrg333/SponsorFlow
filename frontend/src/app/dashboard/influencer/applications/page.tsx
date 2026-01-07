@@ -31,7 +31,7 @@ interface Application {
      _id: string;
      campaign: {
           _id: string;
-          campaignName: string;
+          title: string;
           description: string;
           budget: number;
           startDate: string;
@@ -107,9 +107,14 @@ export default function ApplicationsPage() {
                const response = await influencerAPI.getApplications(
                     influencerId
                );
-               console.log("Applications response:", (response.data as { data: Application[] }).data);
+               console.log(
+                    "Applications response:",
+                    (response.data as { data: Application[] }).data
+               );
                if (response.data && !response.error) {
-                    setApplications((response.data as { data: Application[] }).data);
+                    setApplications(
+                         (response.data as { data: Application[] }).data
+                    );
                } else {
                     console.error(
                          "Error fetching applications:",
@@ -280,7 +285,7 @@ export default function ApplicationsPage() {
                                                                                                {
                                                                                                     application
                                                                                                          .campaign
-                                                                                                         .campaignName
+                                                                                                         .title
                                                                                                }
                                                                                           </CardTitle>
                                                                                           <CardDescription className="mt-1 flex items-center gap-2">
