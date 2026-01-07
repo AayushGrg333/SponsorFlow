@@ -99,10 +99,7 @@ export const getApplicationDetails: RequestHandler = asyncWrapper(
                return Apiresponse.error(res, "Application ID is required");
           }
 
-          const application = await ApplicationModel.findOne({
-               campaign: applicationId,
-               user : user._id,
-          })
+          const application = await ApplicationModel.findById(applicationId)
                .populate("influencer", "-password")
                .populate(
                     "campaign",

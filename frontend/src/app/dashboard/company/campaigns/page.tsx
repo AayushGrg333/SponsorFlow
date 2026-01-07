@@ -304,7 +304,7 @@ export default function CampaignsPage() {
                                                             </DropdownMenuContent>
                                                        </DropdownMenu>
 
-                                                       <Link href={`/dashboard/company/applications/${campaign._id}`}>
+                                                       <Link href={`/dashboard/company/campaigns/${campaign._id}`}>
                                                        <Button size="sm">
                                                             View Applications
                                                        </Button>
