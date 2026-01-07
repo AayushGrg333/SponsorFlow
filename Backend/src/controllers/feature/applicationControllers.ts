@@ -69,7 +69,7 @@ export const getApplicationsByCampaign: RequestHandler = asyncWrapper(
                campaign: campaignId,
                company: user._id,
           })
-               .populate('influencer', 'username displayName profileImage bio platforms experienceYears')
+               .populate('User', 'username displayName profileImage bio platforms experienceYears')
                .populate('campaign', 'title budget budgetRange status startDate endDate')
                .sort({ appliedAt: -1 });
 
@@ -95,7 +95,7 @@ export const getApplicationDetails: RequestHandler = asyncWrapper(
 
           const application = await ApplicationModel.findById(applicationId)
                .populate(
-                    "influencer",
+                    "User",
                     "username displayName email contentType platforms socialMediaProfileLinks experienceYears"
                )
                .populate(
