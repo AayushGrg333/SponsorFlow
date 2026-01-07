@@ -37,7 +37,7 @@ router.post('/profile',verifyToken,companyProfileSetupController);
 router.get('/profile/me',verifyToken,listCompaniesController );
 
 router.put('/profile/:companyId',verifyToken, updateCompanyProfileController);
-router.get('/profile/:companyId/public',verifyToken, getCompanyProfileController);
+router.get('/profile/:companyId/public', getCompanyProfileController);
 router.get('/profile/myprofile', verifyToken, getMyCompanyProfileController);
 router.get("/:companyId/campaigns", getCampaignByCompanyController);
 

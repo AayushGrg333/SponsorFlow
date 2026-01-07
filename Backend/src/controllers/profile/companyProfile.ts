@@ -108,8 +108,6 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
           const { id } = req.params;
      
-
-
           const company = await CompanyModel.findOne({
                $or: [{ _id: id }, { slug: id }],
                isVerified: true,

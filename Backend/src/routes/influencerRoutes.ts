@@ -53,7 +53,7 @@ router.post("/setup/profile", verifyToken, influencerProfileSetupController);
 router.get("/profile/me", listInfluencersController);
 
 router.put("/profile/:influencerId", verifyToken,updateInfluencerProfileController);
-router.get("/profile/:influencerId/pubic", verifyToken, getInfluencerProfileController);
+router.get("/profile/:influencerId/pubic", getInfluencerProfileController);
 router.get("/profile/myprofile", verifyToken,getMyInfluencerProfileController);
 
 
