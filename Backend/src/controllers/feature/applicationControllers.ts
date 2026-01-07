@@ -95,12 +95,12 @@ export const getApplicationDetails: RequestHandler = asyncWrapper(
 
           const application = await ApplicationModel.findById(applicationId)
                .populate(
-                    "User",
-                    "username displayName email contentType platforms socialMediaProfileLinks experienceYears"
+                    "influencer",
+                    "-password"
                )
                .populate(
                     "campaign",
-                    "title description budget status startDate endDate"
+                    "title description budget budgetRange status startDate endDate"
                )
                .populate("company", "companyName email");
 
