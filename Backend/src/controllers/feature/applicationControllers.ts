@@ -69,7 +69,7 @@ export const getApplicationsByCampaign: RequestHandler = asyncWrapper(
                campaign: campaignId,
                company: user._id,
           })
-               .populate('User', 'username displayName profileImage bio platforms experienceYears')
+               .populate('influencer', 'username displayName profileImage bio platforms experienceYears')
                .populate('campaign', 'title budget budgetRange status startDate endDate')
                .sort({ appliedAt: -1 });
 

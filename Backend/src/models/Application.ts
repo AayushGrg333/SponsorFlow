@@ -21,7 +21,7 @@ const applicationSchema = new Schema<Application>(
   {
     influencer: {
       type: Schema.Types.ObjectId,
-      ref: "Influencer",
+      ref: "User",
       required: [true, "Application must be associated with an influencer"],
     },
     campaign: {
