@@ -20,17 +20,17 @@ export const setupSocket = (io: Server) => {
       return next(new Error("Authentication error"));
     }
 
-    const { token } = cookie.parse(cookieHeader);
-    if (!token) {
+    const { accessToken } = cookie.parse(cookieHeader);
+    if (!accessToken) {
       return next(new Error("Authentication error"));
     }
 
     // store token on the socket for later use
     (socket as any).data = (socket as any).data || {};
-    (socket as any).data.token = token;
+    (socket as any).data.token = accessToken;
 
     try {
-      const decodeToken = jwt.verify(token, config.JWT_ACCESS_SECRET) as JwtPayload;
+      const decodeToken = jwt.verify(accessToken, config.JWT_ACCESS_SECRET) as JwtPayload;
       (socket as any).data.userId = decodeToken.id;
       (socket as any).data.usertype = decodeToken.usertype;
     } catch (err) {

@@ -1,7 +1,7 @@
 // lib/socket.ts
 import { io, Socket } from "socket.io-client"
 
-const SOCKET_URL = "https://sponsorflow-v1.onrender.com/api" // or "http://localhost:8000"
+const SOCKET_URL = "https://sponsorflow-v1.onrender.com" // or "http://localhost:8000"
 
 let socket: Socket | null = null
 
