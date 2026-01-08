@@ -113,7 +113,6 @@ export const companySignupController: RequestHandler = asyncWrapper(
           }
      }
 );
-const IS_PROD = false;
 
 export const CompanyCallbackController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
@@ -148,15 +147,15 @@ export const CompanyCallbackController: RequestHandler = asyncWrapper(
 
                res.cookie("accessToken", accessToken, {
                     httpOnly: true,
-                    secure: IS_PROD,
-                    sameSite: IS_PROD ? "none" : "lax",
+                    secure: false,
+                    sameSite: "lax",
                     maxAge: 60 * 60 * 1000,
                });
 
                res.cookie("refreshToken", refreshToken, {
                     httpOnly: true,
-                    secure: IS_PROD,
-                    sameSite: IS_PROD ? "none" : "lax",
+                    secure: false,
+                    sameSite: "lax",
                     maxAge: 30 * 24 * 60 * 60 * 1000,
                });
 

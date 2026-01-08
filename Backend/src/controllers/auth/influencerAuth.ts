@@ -157,19 +157,18 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
                { expiresIn: "30d" }
           );
 
-          const isProd = false;
 
           res.cookie("accessToken", accessToken, {
                httpOnly: true,
-               secure: isProd,
-               sameSite: isProd ? "none" : "lax",
+               secure: false,
+               sameSite: "lax",
                maxAge: 60 * 60 * 1000,
           });
 
           res.cookie("refreshToken", refreshToken, {
                httpOnly: true,
-               secure: isProd,
-               sameSite: isProd ? "none" : "lax",
+               secure: false,
+               sameSite: "lax",
                maxAge: 30 * 24 * 60 * 60 * 1000,
           });
 
