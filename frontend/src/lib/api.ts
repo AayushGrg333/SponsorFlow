@@ -572,3 +572,23 @@ export const authHelpers = {
           return !!authHelpers.getAccessToken();
      },
 };
+
+// ==================== CHAT SYSTEM  ====================
+export const messagesAPI = {
+     // Get all conversations for the current user
+     getConversations: async () => {
+          return fetchAPI("/messages/conversations");
+     },
+
+     // Get messages for a specific conversation
+     getMessages: async (conversationId: string) => {
+          return fetchAPI(`/messages/${conversationId}`);
+     },
+
+     // Mark message as read
+     markAsRead: async (messageId: string) => {
+          return fetchAPI(`/messages/${messageId}/read`, {
+               method: "PATCH",
+          });
+     },
+};

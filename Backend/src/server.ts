@@ -9,6 +9,7 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/errorHandler";
 import healthRoutes from "./routes/healthRoutes";
+import messageRoutes from "./routes/messageRoutes";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
@@ -78,6 +79,7 @@ app.use("/api/company", companyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/campaigns", campaignRoutes);  
 app.use("/api/applications", applicationRoutes);  
+app.use("/api/messages", messageRoutes);
 app.use("/health", healthRoutes);
 
 app.get("/ping", (req: Request, res: Response) => {

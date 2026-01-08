@@ -1,49 +1,174 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { Search, Send, Paperclip, MoreVertical, Phone, Video, ImageIcon, Smile, Check, CheckCheck } from "lucide-react"
-import useSWR from "swr"
+import { Search, Send, Paperclip, MoreVertical, ImageIcon, Smile, Check, CheckCheck } from "lucide-react"
+import { messagesAPI } from "@/lib/api"
+import { authStorage } from "@/lib/authHelper"
+import { initSocket, sendMessage, onReceiveMessage, markAsRead } from "@/lib/socket"
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+interface Message {
+  _id: string
+  senderId: string
+  receiverId: string
+  senderType: string
+  receiverType: string
+  content: string
+  isRead: boolean
+  createdAt: string
+  conversationId: string
+}
 
-export default function CompanyMessagesPage() {
-  const { data: conversations } = useSWR("/api/messages/conversations", fetcher)
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
-  const { data: messages, mutate: mutateMessages } = useSWR(
-    selectedConversationId ? `/api/messages/${selectedConversationId}` : null,
-    fetcher,
-  )
+interface Conversation {
+  _id: string
+  participants: Array<{
+    id: string
+    model: string
+    name?: string
+    avatar?: string
+  }>
+  lastMessage?: {
+    content: string
+    createdAt: string
+  }
+  unreadCount?: number
+}
 
+export default function MessagesPage() {
+  const [user, setUser] = useState<any>(null)
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [newMessage, setNewMessage] = useState("")
   const [showConversations, setShowConversations] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const handleSend = async () => {
-    if (!newMessage.trim() || !selectedConversationId) return
-
-    try {
-      await fetch(`/api/messages/${selectedConversationId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newMessage }),
+  useEffect(() => {
+    const storedUser = authStorage.getUser()
+    setUser(storedUser)
+    
+    if (storedUser) {
+      // Initialize socket
+      initSocket(storedUser.id, storedUser.role)
+      
+      // Load conversations
+      loadConversations()
+      
+      // Listen for new messages
+      const cleanup = onReceiveMessage((newMsg: any) => {
+        handleNewMessage(newMsg)
       })
-      mutateMessages()
-      setNewMessage("")
+      
+      return cleanup
+    }
+  }, [])
+
+  useEffect(() => {
+    if (selectedConversation) {
+      loadMessages(selectedConversation._id)
+    }
+  }, [selectedConversation])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const loadConversations = async () => {
+    try {
+      const response = await messagesAPI.getConversations()
+      const data =(response.data as { data: Conversation[] }).data
+      if (data && !response.error) {
+        setConversations(data)
+        if (data.length > 0 && !selectedConversation) {
+          setSelectedConversation(data[0])
+        }
+      }
     } catch (error) {
-      console.error("[v0] Error sending message:", error)
+      console.error('Error loading conversations:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const selectedConversation = conversations?.find((c: any) => c.id === selectedConversationId) || conversations?.[0]
+  const loadMessages = async (conversationId: string) => {
+    try {
+      const response = await messagesAPI.getMessages(conversationId)
+      if (response.data && !response.error) {
+        const msgs = response.data as Message[]
+        setMessages(msgs)
+        
+        // Mark unread messages as read
+        msgs
+          .filter(msg => msg.receiverId === user?.id && !msg.isRead)
+          .forEach(msg => markAsRead(msg._id))
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error)
+    }
+  }
+
+  const handleNewMessage = (newMsg: any) => {
+    if (Array.isArray(newMsg)) {
+      // Handle array of messages (unread messages on connect)
+      setMessages(prev => [...prev, ...newMsg])
+    } else {
+      // Handle single message
+      setMessages(prev => [...prev, newMsg])
+      
+      // Mark as read if conversation is selected
+      if (selectedConversation?._id === newMsg.conversationId && newMsg.receiverId === user?.id) {
+        markAsRead(newMsg._id)
+      }
+    }
+  }
+
+  const handleSend = () => {
+    if (!newMessage.trim() || !selectedConversation || !user) return
+
+    const receiver = selectedConversation.participants.find(p => p.id !== user.id)
+    if (!receiver) return
+
+    sendMessage({
+      senderId: user.id,
+      senderType: user.role,
+      receiverId: receiver.id,
+      receiverType: receiver.model as "influencer" | "company",
+      content: newMessage,
+    })
+
+    setNewMessage("")
+  }
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  const getOtherParticipant = (conv: Conversation) => {
+    return conv.participants.find(p => p.id !== user?.id)
+  }
+
+  const formatTime = (date: string) => {
+    const d = new Date(date)
+    const now = new Date()
+    const diff = now.getTime() - d.getTime()
+    
+    if (diff < 86400000) { // Less than 24 hours
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    }
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+
+  const otherUser = selectedConversation ? getOtherParticipant(selectedConversation) : null
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar userType="company" />
+      <Sidebar userType={user?.role || "company"} />
 
       <main className="lg:pl-64">
         <div className="flex h-[calc(100vh-0px)] flex-col pt-16 lg:pt-0">
@@ -67,135 +192,164 @@ export default function CompanyMessagesPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto">
-                {conversations?.map((conversation: any) => (
-                  <button
-                    key={conversation.id}
-                    onClick={() => {
-                      setSelectedConversationId(conversation.id)
-                      setShowConversations(false)
-                    }}
-                    className={cn(
-                      "flex w-full items-center gap-3 border-b border-border p-4 text-left transition-colors hover:bg-secondary/50",
-                      selectedConversationId === conversation.id && "bg-secondary",
-                    )}
-                  >
-                    <div className="relative">
-                      <img
-                        src={conversation.avatar || "/placeholder.svg"}
-                        alt={conversation.name}
-                        className="h-12 w-12 rounded-full object-cover"
-                      />
-                      {conversation.online && (
-                        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-foreground truncate">{conversation.name}</h3>
-                        <span className="text-xs text-muted-foreground">{conversation.time}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground truncate">{conversation.lastMessage}</p>
-                    </div>
-                    {conversation.unread > 0 && (
-                      <Badge className="h-5 w-5 rounded-full bg-accent p-0 text-xs text-accent-foreground">
-                        {conversation.unread}
-                      </Badge>
-                    )}
-                  </button>
-                ))}
+                {loading ? (
+                  <div className="flex items-center justify-center p-8">
+                    <p className="text-muted-foreground">Loading conversations...</p>
+                  </div>
+                ) : conversations.length === 0 ? (
+                  <div className="flex items-center justify-center p-8">
+                    <p className="text-muted-foreground">No conversations yet</p>
+                  </div>
+                ) : (
+                  conversations.map((conversation) => {
+                    const other = getOtherParticipant(conversation)
+                    return (
+                      <button
+                        key={conversation._id}
+                        onClick={() => {
+                          setSelectedConversation(conversation)
+                          setShowConversations(false)
+                        }}
+                        className={cn(
+                          "flex w-full items-center gap-3 border-b border-border p-4 text-left transition-colors hover:bg-secondary/50",
+                          selectedConversation?._id === conversation._id && "bg-secondary",
+                        )}
+                      >
+                        <div className="relative">
+                          <img
+                            src={other?.avatar || "/placeholder.svg"}
+                            alt={other?.name || "User"}
+                            className="h-12 w-12 rounded-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium text-foreground truncate">{other?.name || "Unknown"}</h3>
+                            {conversation.lastMessage && (
+                              <span className="text-xs text-muted-foreground">
+                                {formatTime(conversation.lastMessage.createdAt)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {conversation.lastMessage?.content || "No messages yet"}
+                          </p>
+                        </div>
+                        {conversation.unreadCount && conversation.unreadCount > 0 && (
+                          <Badge className="h-5 w-5 rounded-full bg-accent p-0 text-xs text-accent-foreground">
+                            {conversation.unreadCount}
+                          </Badge>
+                        )}
+                      </button>
+                    )
+                  })
+                )}
               </div>
             </div>
 
             {/* Chat Area */}
             <div className={cn("flex flex-1 flex-col", showConversations ? "hidden lg:flex" : "flex")}>
-              <div className="flex items-center justify-between border-b border-border p-4">
-                <div className="flex items-center gap-3">
-                  <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setShowConversations(true)}>
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </Button>
-                  <div className="relative">
-                    <img
-                      src={selectedConversation?.avatar || "/placeholder.svg"}
-                      alt={selectedConversation?.name}
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                    {selectedConversation?.online && (
-                      <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-background bg-green-500" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-foreground">{selectedConversation?.name}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedConversation?.online ? "Online" : "Offline"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon">
-                    <Phone className="h-5 w-5" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Video className="h-5 w-5" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages?.map((message: any) => (
-                  <div
-                    key={message.id}
-                    className={cn("flex", message.sender === "me" ? "justify-end" : "justify-start")}
-                  >
-                    <div
-                      className={cn(
-                        "max-w-[80%] rounded-2xl px-4 py-2",
-                        message.sender === "me" ? "bg-accent text-accent-foreground" : "bg-secondary text-foreground",
-                      )}
-                    >
-                      <p className="text-sm">{message.content}</p>
-                      <div
-                        className={cn(
-                          "mt-1 flex items-center justify-end gap-1 text-xs",
-                          message.sender === "me" ? "text-accent-foreground/70" : "text-muted-foreground",
-                        )}
+              {selectedConversation ? (
+                <>
+                  <div className="flex items-center justify-between border-b border-border p-4">
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="lg:hidden"
+                        onClick={() => setShowConversations(true)}
                       >
-                        <span>{message.time}</span>
-                        {message.sender === "me" &&
-                          (message.read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </Button>
+                      <div className="relative">
+                        <img
+                          src={otherUser?.avatar || "/placeholder.svg"}
+                          alt={otherUser?.name || "User"}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-foreground">{otherUser?.name || "Unknown"}</h3>
+                        <p className="text-xs text-muted-foreground capitalize">{otherUser?.model || "User"}</p>
                       </div>
                     </div>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-5 w-5" />
+                      </Button>
+                    </div>
                   </div>
-                ))}
-              </div>
 
-              <div className="border-t border-border p-4">
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
-                    <Paperclip className="h-5 w-5" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <ImageIcon className="h-5 w-5" />
-                  </Button>
-                  <Input
-                    placeholder="Type a message..."
-                    className="flex-1"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  />
-                  <Button variant="ghost" size="icon">
-                    <Smile className="h-5 w-5" />
-                  </Button>
-                  <Button size="icon" className="bg-accent hover:bg-accent/90" onClick={handleSend}>
-                    <Send className="h-5 w-5" />
-                  </Button>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {messages
+                      .filter(msg => msg.conversationId === selectedConversation._id)
+                      .map((message) => (
+                        <div
+                          key={message._id}
+                          className={cn("flex", message.senderId === user?.id ? "justify-end" : "justify-start")}
+                        >
+                          <div
+                            className={cn(
+                              "max-w-[80%] rounded-2xl px-4 py-2",
+                              message.senderId === user?.id
+                                ? "bg-accent text-accent-foreground"
+                                : "bg-secondary text-foreground",
+                            )}
+                          >
+                            <p className="text-sm">{message.content}</p>
+                            <div
+                              className={cn(
+                                "mt-1 flex items-center justify-end gap-1 text-xs",
+                                message.senderId === user?.id
+                                  ? "text-accent-foreground/70"
+                                  : "text-muted-foreground",
+                              )}
+                            >
+                              <span>{formatTime(message.createdAt)}</span>
+                              {message.senderId === user?.id &&
+                                (message.isRead ? (
+                                  <CheckCheck className="h-3 w-3" />
+                                ) : (
+                                  <Check className="h-3 w-3" />
+                                ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    <div ref={messagesEndRef} />
+                  </div>
+
+                  <div className="border-t border-border p-4">
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="icon">
+                        <Paperclip className="h-5 w-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <ImageIcon className="h-5 w-5" />
+                      </Button>
+                      <Input
+                        placeholder="Type a message..."
+                        className="flex-1"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                      />
+                      <Button variant="ghost" size="icon">
+                        <Smile className="h-5 w-5" />
+                      </Button>
+                      <Button size="icon" className="bg-accent hover:bg-accent/90" onClick={handleSend}>
+                        <Send className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center flex-1">
+                  <p className="text-muted-foreground">Select a conversation to start chatting</p>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
