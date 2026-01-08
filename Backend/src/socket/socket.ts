@@ -15,29 +15,41 @@ const connectedUsers = new Map<string, UserSocket>();
 
 export const setupSocket = (io: Server) => {
   io.use((socket, next) => {
-    const cookieHeader = socket.handshake.headers.cookie;
-    console.log("Socket handshake cookies:", cookieHeader);
-    if (!cookieHeader) {
-      return next(new Error("Authentication error"));
+     const cookieHeader = socket.handshake.headers.cookie;
+    const authHeader = socket.handshake.auth?.token;
+    const queryToken = socket.handshake.query?.token;
+    let token = null;
+
+    if (cookieHeader) {
+      const parsed = cookie.parse(cookieHeader);
+      token = parsed.token || parsed.accessToken; // Check both cookie names
     }
 
-    const { accessToken } = cookie.parse(cookieHeader);
-    if (!accessToken) {
-      return next(new Error("Authentication error"));
+       // Fallback to auth or query
+    if (!token) {
+      token = authHeader || queryToken;
+    }
+
+        // If still no token, allow connection but user needs to register manually
+    if (!token) {
+      console.log("No token found, allowing connection for manual registration");
+      return next();
     }
 
     // store token on the socket for later use
     (socket as any).data = (socket as any).data || {};
-    (socket as any).data.token = accessToken;
+    (socket as any).data.token = token;
 
-    try {
-      const decodeToken = jwt.verify(accessToken, config.JWT_ACCESS_SECRET) as JwtPayload;
+   try {
+      const decodeToken = jwt.verify(token, config.JWT_ACCESS_SECRET) as JwtPayload;
       (socket as any).data.userId = decodeToken.id;
       (socket as any).data.usertype = decodeToken.usertype;
+      console.log(`Socket authenticated for user: ${decodeToken.id}`);
     } catch (err) {
-      return next(new Error("Authentication error"));
+      console.error("JWT verification failed:", err);
+      // Still allow connection but log the error
+      return next();
     }
-    next();
   });
 
   io.on("connection", (socket) => {

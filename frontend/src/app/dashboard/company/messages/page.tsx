@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Search, Send, Paperclip, MoreVertical, ImageIcon, Smile, Check, CheckCheck } from "lucide-react"
 import { messagesAPI } from "@/lib/api"
-import { authStorage } from "@/lib/authHelper"
-import { initSocket, sendMessage, onReceiveMessage, markAsRead } from "@/lib/socket"
+import { authStorage } from "@/lib/authHelper" // Make sure this path is correct
+import { initSocket, sendMessage, onReceiveMessage, markAsRead, disconnectSocket } from "@/lib/socket"
 
 interface Message {
   _id: string
@@ -47,6 +47,7 @@ export default function MessagesPage() {
   const [newMessage, setNewMessage] = useState("")
   const [showConversations, setShowConversations] = useState(true)
   const [loading, setLoading] = useState(true)
+  const [socketConnected, setSocketConnected] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -54,18 +55,32 @@ export default function MessagesPage() {
     setUser(storedUser)
     
     if (storedUser) {
+      console.log("👤 User loaded:", storedUser.id, storedUser.role)
+      
       // Initialize socket
-      initSocket(storedUser.id, storedUser.role)
+      const socket = initSocket(storedUser.id, storedUser.role)
       
-      // Load conversations
-      loadConversations()
-      
-      // Listen for new messages
-      const cleanup = onReceiveMessage((newMsg: any) => {
-        handleNewMessage(newMsg)
-      })
-      
-      return cleanup
+      if (socket) {
+        setSocketConnected(true)
+        console.log("🔌 Socket initialized")
+        
+        // Load conversations
+        loadConversations()
+        
+        // Listen for new messages
+        const cleanup = onReceiveMessage((newMsg: any) => {
+          handleNewMessage(newMsg)
+        })
+        
+        return () => {
+          cleanup()
+          disconnectSocket()
+        }
+      } else {
+        console.error("❌ Failed to initialize socket - no token found")
+      }
+    } else {
+      console.error("❌ No user found in storage")
     }
   }, [])
 
@@ -81,16 +96,20 @@ export default function MessagesPage() {
 
   const loadConversations = async () => {
     try {
+      console.log("📥 Loading conversations...")
       const response = await messagesAPI.getConversations()
-      const data =(response.data as { data: Conversation[] }).data
+      const data = (response.data as { data: Conversation[] }).data
       if (data && !response.error) {
+        console.log("✅ Loaded conversations:", data.length)
         setConversations(data)
         if (data.length > 0 && !selectedConversation) {
           setSelectedConversation(data[0])
         }
+      } else {
+        console.error("❌ Error loading conversations:", response.error)
       }
     } catch (error) {
-      console.error('Error loading conversations:', error)
+      console.error('❌ Error loading conversations:', error)
     } finally {
       setLoading(false)
     }
@@ -98,22 +117,30 @@ export default function MessagesPage() {
 
   const loadMessages = async (conversationId: string) => {
     try {
+      console.log("📥 Loading messages for conversation:", conversationId)
       const response = await messagesAPI.getMessages(conversationId)
       if (response.data && !response.error) {
         const msgs = response.data as Message[]
+        console.log("✅ Loaded messages:", msgs.length)
         setMessages(msgs)
         
         // Mark unread messages as read
         msgs
           .filter(msg => msg.receiverId === user?.id && !msg.isRead)
-          .forEach(msg => markAsRead(msg._id))
+          .forEach(msg => {
+            console.log("📖 Marking message as read:", msg._id)
+            markAsRead(msg._id)
+          })
+      } else {
+        console.error("❌ Error loading messages:", response.error)
       }
     } catch (error) {
-      console.error('Error loading messages:', error)
+      console.error('❌ Error loading messages:', error)
     }
   }
 
   const handleNewMessage = (newMsg: any) => {
+    console.log("📨 New message received:", newMsg)
     if (Array.isArray(newMsg)) {
       // Handle array of messages (unread messages on connect)
       setMessages(prev => [...prev, ...newMsg])
@@ -125,6 +152,9 @@ export default function MessagesPage() {
       if (selectedConversation?._id === newMsg.conversationId && newMsg.receiverId === user?.id) {
         markAsRead(newMsg._id)
       }
+      
+      // Reload conversations to update last message
+      loadConversations()
     }
   }
 
@@ -134,6 +164,8 @@ export default function MessagesPage() {
     const receiver = selectedConversation.participants.find(p => p.id !== user.id)
     if (!receiver) return
 
+    console.log("📤 Sending message to:", receiver.id)
+    
     sendMessage({
       senderId: user.id,
       senderType: user.role,
@@ -174,6 +206,16 @@ export default function MessagesPage() {
         <div className="flex h-[calc(100vh-0px)] flex-col pt-16 lg:pt-0">
           <div className={cn("border-b border-border px-4 py-4 lg:px-8", !showConversations && "hidden lg:block")}>
             <DashboardHeader title="Messages" subtitle="Chat with influencers about collaborations" />
+            {/* Socket Status Indicator */}
+            <div className="mt-2 flex items-center gap-2 text-xs">
+              <div className={cn(
+                "h-2 w-2 rounded-full",
+                socketConnected ? "bg-green-500" : "bg-red-500"
+              )} />
+              <span className="text-muted-foreground">
+                {socketConnected ? "Connected" : "Disconnected"}
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-1 overflow-hidden">

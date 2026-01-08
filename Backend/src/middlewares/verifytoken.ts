@@ -12,7 +12,6 @@ export interface JwtPayload {
 }
 
 const verifyToken: RequestHandler = async (req, res, next) => {
-     console.log("Inside verifyToken middleware");
      let token = req.cookies.accessToken;
 
      if (!token) { 
@@ -31,8 +30,6 @@ const verifyToken: RequestHandler = async (req, res, next) => {
      }
 
      try {
-          console.log("Verifying token:", token);
-          console.log("existsing secrets:", process.env.JWT_ACCESS_SECRET);
           const decodedPayload = jwt.verify(
                token,
                process.env.JWT_ACCESS_SECRET!
