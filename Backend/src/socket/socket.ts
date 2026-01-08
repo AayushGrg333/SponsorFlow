@@ -16,6 +16,7 @@ const connectedUsers = new Map<string, UserSocket>();
 export const setupSocket = (io: Server) => {
   io.use((socket, next) => {
     const cookieHeader = socket.handshake.headers.cookie;
+    console.log("Socket handshake cookies:", cookieHeader);
     if (!cookieHeader) {
       return next(new Error("Authentication error"));
     }
