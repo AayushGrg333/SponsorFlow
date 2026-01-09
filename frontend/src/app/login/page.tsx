@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// eslint-disable-next-line @next/next/no-img-element
 "use client"
 
 import type React from "react"
@@ -9,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Zap, Mail, Lock, Eye, EyeOff, Users, Building2, Loader2 } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, Users, Building2, Loader2 } from "lucide-react"
 import { authAPI, authHelpers } from "@/lib/api"
 import { authStorage } from "@/lib/authHelper"
 

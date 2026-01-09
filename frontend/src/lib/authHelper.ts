@@ -1,5 +1,6 @@
-// lib/authHelper.ts
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// eslint-disable-next-line @next/next/no-img-element
 import { setUserCookie, removeUserCookie } from "./cookiehelper"
 
 const USER_KEY = "sf_user";

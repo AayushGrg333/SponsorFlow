@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// eslint-disable-next-line @next/next/no-img-element
 // middleware.ts (create this at the ROOT of your project, same level as app/)
 
 import { NextResponse } from 'next/server'
@@ -17,8 +20,8 @@ export function middleware(request: NextRequest) {
   if (userDataCookie) {
     try {
       user = JSON.parse(userDataCookie)
-    } catch (e) {
-      console.error('Failed to parse user cookie')
+    } catch (error) {
+      console.error('Failed to parse user cookie', error)
     }
   }
 

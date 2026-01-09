@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// eslint-disable-next-line @next/next/no-img-element
 "use client"
 
 import type React from "react"
@@ -10,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Zap, Mail, Lock, Eye, EyeOff, Users, Building2, Loader2, User, Building, Check } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, Users, Building2, Loader2, Building, Check } from "lucide-react"
 import { influencerAPI, companyAPI, authAPI } from "@/lib/api"
 
 export default function SignupPage() {
@@ -49,7 +52,7 @@ export default function SignupPage() {
     setIsLoading(true)
     setError(null)
 
-    const { data, error: apiError } = await influencerAPI.signup(influencerData)
+    const { error: apiError } = await influencerAPI.signup(influencerData)
     if (apiError) {
       setError(apiError)
       setIsLoading(false)

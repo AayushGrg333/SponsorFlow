@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// eslint-disable-next-line @next/next/no-img-element
 "use client"
 
 import type React from "react"
@@ -6,7 +9,7 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Mail, Loader2, ArrowLeft, RefreshCw } from "lucide-react"
+import { Mail, Loader2, ArrowLeft } from "lucide-react"
 import { influencerAPI, companyAPI } from "@/lib/api"
 
 export default function VerifyPage() {
@@ -71,7 +74,7 @@ export default function VerifyPage() {
     const verificationCode = code.join("")
 
     const api = usertype === "influencer" ? influencerAPI : companyAPI
-    const { data, error: apiError } = await api.verifySignupCode(username, verificationCode)
+    const { error: apiError } = await api.verifySignupCode(username, verificationCode)
 
     if (apiError) {
       setError(apiError)

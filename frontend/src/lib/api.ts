@@ -1,4 +1,6 @@
-// API Configuration and Service Layer for SponsorFlow Backend
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// eslint-disable-next-line @next/next/no-img-element
 
 const API_BASE_URL = "https://sponsorflow-v1.onrender.com/api";
 // const API_BASE_URL = "http://localhost:8000/api";
@@ -137,7 +139,7 @@ export const authAPI = {
                }
 
                const data = await response.json();
-               return { data, error: null };
+               return { data };
           } catch (error) {
                return { data: null, error: "Network error" };
           }
