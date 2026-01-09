@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import CompanyModel from "../../models/Company";
 import sendVerificationEmail from "../../utils/sendVerificationEmail";
 import { asyncWrapper } from "../../utils/asyncHandler";
-import { Company } from "../../models/Company";
+import { CompanyDocument } from "../../models/Company";
 import Jwt from "jsonwebtoken";
 import { config } from "../../config/config";
 
@@ -116,7 +116,7 @@ export const companySignupController: RequestHandler = asyncWrapper(
 
 export const CompanyCallbackController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const googleUser = req.user as Company;
+          const googleUser = req.user as CompanyDocument;
 
           if (!googleUser) {
                return res.status(401).json({

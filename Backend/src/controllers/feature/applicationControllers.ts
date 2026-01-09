@@ -3,7 +3,7 @@ import { Request, Response, RequestHandler } from "express";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { applicationSchema } from "../../../Shared/validations/applicationSchema";
-import CompanyModel, { Company } from "../../models/Company";
+import CompanyModel, { CompanyDocument } from "../../models/Company";
 import { User } from "../../models/user";
 import CampaignModel from "../../models/Campaign";
 //create new aplication
@@ -54,7 +54,7 @@ export const createApplication: RequestHandler = asyncWrapper(
 //  POST /api/campaigns/:campaignId/applications
 export const getApplicationsByCampaign: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const user = req.user as Company;
+          const user = req.user as CompanyDocument;
           if (!user || user.usertype !== "company") {
                return Apiresponse.error(
                     res,
@@ -90,7 +90,7 @@ export const getApplicationsByCampaign: RequestHandler = asyncWrapper(
 // GET /api/applications/:applicationId — Get application details (company or influencer)
 export const getApplicationDetails: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const user = req.user as User | Company;
+          const user = req.user as User | CompanyDocument;
           if (user.usertype !== "company" && user.usertype !== "influencer") {
                return Apiresponse.error(res, "Unauthorized access");
           }
@@ -146,7 +146,7 @@ export const getApplicationDetails: RequestHandler = asyncWrapper(
 // PATCH /api/applications/:applicationId — Update application status (accept/decline) (company only)
 export const updateApplicationStatus: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const user = req.user as Company;
+          const user = req.user as CompanyDocument;
           if (!user || user.usertype !== "company") {
                return Apiresponse.error(
                     res,
@@ -185,7 +185,7 @@ export const updateApplicationStatus: RequestHandler = asyncWrapper(
 // DELETE /api/applications/:applicationId — Withdraw/delete application (influencer or admin)
 export const deleteApplication: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const user = req.user as User | Company;
+          const user = req.user as User | CompanyDocument;
           const { applicationId } = req.params;
           if (!applicationId) {
                return Apiresponse.error(res, "Application ID is required");

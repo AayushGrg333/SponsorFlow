@@ -1,7 +1,7 @@
 import express from "express";
 import {companySignupController,CompanyCallbackController} from "../controllers/auth/companyAuth"
 import passport from "passport";
-import { Company } from "../models/Company";
+import { CompanyDocument } from "../models/Company";
 import verifyToken from "../middlewares/verifytoken";
 import {companyProfileSetupController,getMyCompanyProfileController,listCompaniesController,getCompanyProfileController ,updateCompanyProfileController} from "../controllers/profile/companyProfile";
 import { getCampaignByCompanyController } from "../controllers/feature/campaignControllers";
@@ -18,7 +18,7 @@ router.get('/auth/google',passport.authenticate('company-google',{
      
 router.get('/oauth2/google/callback',(req,res,next) => {
      passport.authenticate("company-google",
-          (err : any , company : Company , info : any)=> {
+          (err : any , company : CompanyDocument , info : any)=> {
                if(err || !company){
                     console.error("google signin failed",err)
                     return res.status(401).json({

@@ -2,7 +2,7 @@ import { RequestHandler, Request, Response } from "express";
 import {
      companyProfileSchema,
 } from "../../../Shared/validations/profileCompletionSchema";
-import CompanyModel, { Company } from "../../models/Company";
+import CompanyModel, { CompanyDocument } from "../../models/Company";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import Apiresponse from "../../utils/apiresponse";
 import { ObjectId } from "mongoose";
@@ -136,7 +136,7 @@ export const getCompanyProfileController: RequestHandler = asyncWrapper(
  */
 export const getMyCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const user = req.user as Company;
+          const user = req.user as CompanyDocument;
           
           if (!user || user.usertype !== "company") {
                return Apiresponse.error(res, "Unauthorized", 401);
@@ -219,7 +219,7 @@ export const listCompaniesController: RequestHandler = asyncWrapper(
  */
 export const updateCompanyProfileController: RequestHandler = asyncWrapper(
      async (req: Request, res: Response) => {
-          const user = req.user as Company;
+          const user = req.user as CompanyDocument;
           const { companyId } = req.params;
           
           if (!user || user.usertype !== "company") {

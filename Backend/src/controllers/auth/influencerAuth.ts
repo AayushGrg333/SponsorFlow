@@ -3,7 +3,7 @@ import passport from "passport";
 import { loginSchema } from "../../../Shared/validations/loginSchema";
 import jwt from "jsonwebtoken";
 import UserModel, { User } from "../../models/user";
-import { Company } from "../../models/Company";
+import { CompanyDocument } from "../../models/Company";
 import { config } from "../../config/config";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import { signupSchema } from "../../../Shared/validations/signupSchema";
@@ -206,7 +206,7 @@ export const loginController: RequestHandler = asyncWrapper(
                     : "influencer-local";
           passport.authenticate(
                Strategy,
-               (err: any, user: User | Company | false, info: any) => {
+               (err: any, user: User | CompanyDocument | false, info: any) => {
                     if (err) return next(err);
 
                     if (!user) {
@@ -275,7 +275,7 @@ export const loginController: RequestHandler = asyncWrapper(
                                    influencer.previousSponsorships,
                          };
                     } else {
-                         const company = user as Company;
+                         const company = user as CompanyDocument;
                          safeUser = {
                               id: company._id.toString(),
                               email: company.email,

@@ -208,7 +208,6 @@ export const setupSocket = (io: Server) => {
                               from: senderId,
                               to: receiverId,
                          });
-
                          // Send message to both sender and receiver (if online)
                          for (const [
                               socketId,
@@ -224,7 +223,6 @@ export const setupSocket = (io: Server) => {
                                    );
                               }
                          }
-                         console.log("📡 Broadcasted receive_message to sockets of:", senderId, "and", receiverId);
                     } catch (error) {
                          console.error("Error sending message:", error);
                          socket.emit("message_error", {

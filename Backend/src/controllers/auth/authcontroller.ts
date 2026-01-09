@@ -1,12 +1,11 @@
 import { Request, Response, RequestHandler } from "express";
 import { asyncWrapper } from "../../utils/asyncHandler";
 import { User } from "../../models/user"
-import { Company } from "../../models/Company"; // adjust path
+import { CompanyDocument } from "../../models/Company"; // adjust path
 
 export const getCurrentUserController: RequestHandler = asyncWrapper(
   async (req: Request, res: Response) => {
-    const user = req.user as User | Company;
-
+    const user = req.user as User | CompanyDocument;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -37,7 +36,7 @@ export const getCurrentUserController: RequestHandler = asyncWrapper(
         }
       });
     } else {
-      const company = user as Company;
+      const company = user as CompanyDocument;
       return res.status(200).json({
         success: true,
         user: {
