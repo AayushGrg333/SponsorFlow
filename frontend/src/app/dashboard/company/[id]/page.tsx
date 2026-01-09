@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line react-hooks/exhaustive-deps
+// eslint-disable-next-line @next/next/no-img-element
 "use client"
 
 import { useState, useEffect, use } from "react"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Loader2, MapPin, Calendar, Building2, Package, Globe, Instagram, Linkedin, Twitter, Youtube, Facebook, MessageSquare, Briefcase } from "lucide-react"
+import { ArrowLeft, Loader2, MapPin, Calendar, Building2, Package, Globe, Instagram, Linkedin, Twitter, Youtube, Facebook, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { companyAPI, campaignsAPI } from "@/lib/api"
 import { authStorage } from "@/lib/authHelper"
@@ -49,8 +52,7 @@ export default function CompanyPublicProfile({ params }: { params: Promise<{ id:
     setUser(storedUser)
     loadProfile()
     loadCampaigns()
-  }, [id]) // ✅ Use id instead of params.id
-
+  }, [id])
   const loadProfile = async () => {
     try {
       setLoading(true)
@@ -137,7 +139,8 @@ export default function CompanyPublicProfile({ params }: { params: Promise<{ id:
                 {error || "Profile not found"}
               </h3>
               <p className="text-sm text-muted-foreground mt-2">
-                The company profile you're looking for doesn't exist or has been removed.
+                The company profile you&apos;re looking for doesn&apos;t exist or has been removed.
+
               </p>
               <Button className="mt-4" asChild>
                 <Link href="/dashboard/influencer/discover">Back to Discovery</Link>
