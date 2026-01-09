@@ -11,22 +11,30 @@ const router = Router();
  * @desc    Get all conversations for the authenticated user
  * @access  Private
  */
+// Update your GET /conversations route in your backend
+
 router.get("/conversations", verifyToken, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id; // From your auth middleware
-    const userType = (req as any).user.usertype; // "influencer" or "company"
-
+    const userId = (req as any).user.id;
+    const userType = (req as any).user.usertype;
 
     console.log("🔍 Looking for conversations for:", userId, userType);
-        const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    // Convert userId to ObjectId for comparison
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
     // Find all conversations where user is a participant
     const conversations = await ConversationModel.find({
       participants: {
-        $elemMatch: { id: userObjectId, model: userType },
+        $elemMatch: { 
+          id: userObjectId,
+          model: userType 
+        },
       },
     }).lean();
 
     console.log("💬 Found conversations:", conversations.length);
+
     // For each conversation, get the last message and unread count
     const conversationsWithDetails = await Promise.all(
       conversations.map(async (conv) => {
@@ -41,7 +49,7 @@ router.get("/conversations", verifyToken, async (req: Request, res: Response) =>
         // Get unread count
         const unreadCount = await MessageModel.countDocuments({
           conversationId: conv._id,
-          receiver: new mongoose.Types.ObjectId(userId),
+          receiver: userObjectId,
           isRead: false,
         });
 
@@ -53,14 +61,19 @@ router.get("/conversations", verifyToken, async (req: Request, res: Response) =>
         // Populate participant info based on their model type
         let participantDetails: any = null;
         if (otherParticipant) {
-          const Model =
-            otherParticipant.model === "influencer"
-              ? mongoose.model("Influencer")
-              : mongoose.model("Company");
+          try {
+            const ModelName = otherParticipant.model === "influencer" ? "Influencer" : "Company";
+            const Model = mongoose.model(ModelName);
 
-          participantDetails = await Model.findById(otherParticipant.id)
-            .select("name avatar profilePicture")
-            .lean();
+            participantDetails = await Model.findById(otherParticipant.id)
+              .select("username displayName companyName profileImage avatar profilePicture")
+              .lean();
+
+            console.log(`👤 Loaded ${ModelName} details:`, participantDetails);
+          } catch (modelError) {
+            console.error("Error loading participant details:", modelError);
+            // Continue without participant details rather than failing
+          }
         }
 
         return {
@@ -68,8 +81,18 @@ router.get("/conversations", verifyToken, async (req: Request, res: Response) =>
           participants: conv.participants.map((p: any) => ({
             id: p.id.toString(),
             model: p.model,
-            name: p.id.toString() === userId ? null : (participantDetails?.name || null),
-            avatar: p.id.toString() === userId ? null : (participantDetails?.avatar || participantDetails?.profilePicture || null),
+            name: p.id.toString() === userId 
+              ? null 
+              : (participantDetails?.displayName || 
+                 participantDetails?.companyName || 
+                 participantDetails?.username || 
+                 "Unknown User"),
+            avatar: p.id.toString() === userId 
+              ? null 
+              : (participantDetails?.profileImage || 
+                 participantDetails?.avatar || 
+                 participantDetails?.profilePicture || 
+                 null),
           })),
           lastMessage: lastMessage
             ? {
@@ -89,19 +112,21 @@ router.get("/conversations", verifyToken, async (req: Request, res: Response) =>
       return new Date(bTime).getTime() - new Date(aTime).getTime();
     });
 
+    console.log("✅ Returning conversations with details:", conversationsWithDetails.length);
+
     res.json({
-      success: true,
+      status: "success",
       data: conversationsWithDetails,
     });
-  } catch (error) {
-    console.error("Error fetching conversations:", error);
+  } catch (error :any ) {
+    console.error("❌ Error fetching conversations:", error);
     res.status(500).json({
-      success: false,
-      error: "Failed to fetch conversations",
+      status: "error",
+      message: "Failed to fetch conversations",
+      error: error.message,
     });
   }
 });
-
 /**
  * @route   GET /messages/:conversationId
  * @desc    Get all messages for a specific conversation
