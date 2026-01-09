@@ -21,19 +21,16 @@ export const initSocket = (userId: string, userType: "influencer" | "company") =
     return null
   }
 
-  socket = io(SOCKET_URL, {
-    withCredentials: true,
-    transports: ["websocket", "polling"],
-    auth: {
-      token: token, // Pass token in auth
-    },
-    query: {
-      token: token, // Also pass in query as fallback
-    },
-    reconnection: true,
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 5,
-  })
+socket = io(SOCKET_URL, {
+  withCredentials: true,
+  transports: ["polling", "websocket"],  // ← Swap order! Polling first
+  auth: { token },
+  query: { token },
+  reconnection: true,
+  reconnectionAttempts: 10,           // increase attempts
+  reconnectionDelay: 2000,
+  timeout: 20000,                     // longer timeout
+});
 
   socket.on("connect", () => {
     console.log("✅ Socket connected:", socket?.id)

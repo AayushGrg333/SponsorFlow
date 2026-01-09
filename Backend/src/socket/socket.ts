@@ -50,6 +50,7 @@ export const setupSocket = (io: Server) => {
                (socket as any).data.userId = decodeToken.id;
                (socket as any).data.usertype = decodeToken.usertype;
                console.log(`Socket authenticated for user: ${decodeToken.id}`);
+               return next();
           } catch (err) {
                console.error("JWT verification failed:", err);
                // Still allow connection but log the error
@@ -62,7 +63,7 @@ export const setupSocket = (io: Server) => {
 
           // Register user when they connect
           socket.on("register_user", async (data: UserSocket) => {
-               connectedUsers.set(socket.id, data);
+               connectedUsers.set(data.userId, data);
                console.log(
                     `User registered: ${data.userId} (${data.usertype})`
                );
