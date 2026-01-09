@@ -62,7 +62,7 @@ router.get("/conversations", verifyToken, async (req: Request, res: Response) =>
         let participantDetails: any = null;
         if (otherParticipant) {
           try {
-            const ModelName = otherParticipant.model === "influencer" ? "Influencer" : "Company";
+            const ModelName = otherParticipant.model === "company" ? "Company" : "User";
             const Model = mongoose.model(ModelName);
 
             participantDetails = await Model.findById(otherParticipant.id)
