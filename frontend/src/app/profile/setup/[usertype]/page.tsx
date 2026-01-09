@@ -1035,7 +1035,7 @@ export default function ProfileSetupPage() {
                                    </h2>
 
                                    <p className="mt-2 text-muted-foreground">
-                                        &quot;Connect your company's social
+                                        &quot;Connect your company&#39;s social
                                         media accounts&quot;
                                    </p>
                               </div>
