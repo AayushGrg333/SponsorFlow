@@ -62,7 +62,7 @@ router.get("/conversations", verifyToken, async (req: Request, res: Response) =>
         let participantDetails: any = null;
         if (otherParticipant) {
           try {
-            const ModelName = otherParticipant.model === "company" ? "Company" : "User";
+            const ModelName = otherParticipant.model === "influencer" ? "Influencer" : "Company";
             const Model = mongoose.model(ModelName);
 
             participantDetails = await Model.findById(otherParticipant.id)
@@ -118,7 +118,7 @@ router.get("/conversations", verifyToken, async (req: Request, res: Response) =>
       status: "success",
       data: conversationsWithDetails,
     });
-  } catch (error :any ) {
+  } catch (error :any) {
     console.error("❌ Error fetching conversations:", error);
     res.status(500).json({
       status: "error",
