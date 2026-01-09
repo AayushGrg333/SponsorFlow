@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,6 @@ import {
      Clock,
      CheckCircle2,
      XCircle,
-     Calendar,
      Users,
      MessageSquare,
      Eye,
@@ -29,6 +29,7 @@ import { campaignsAPI, applicationsAPI } from "@/lib/api";
 import Link from "next/link";
 import { authStorage } from "@/lib/authHelper";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { startConversation } from "@/lib/conversationHelper";
 
 interface Application {
      _id: string;
@@ -87,27 +88,31 @@ const statusConfig = {
 };
 
 export default function CompanyApplicationsPage() {
+     const router = useRouter();
      const [campaigns, setCampaigns] = useState<Campaign[]>([]);
      const [loading, setLoading] = useState(true);
      const [activeTab, setActiveTab] = useState("all");
      const [expandedCampaigns, setExpandedCampaigns] = useState<Set<string>>(new Set());
      const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+     const [user, setUser] = useState<any>(null);
 
      useEffect(() => {
+          const storedUser = authStorage.getUser();
+          setUser(storedUser);
           loadCampaignsWithApplications();
      }, []);
 
      const loadCampaignsWithApplications = async () => {
           try {
                setLoading(true);
-               const user = authStorage.getUser();
-               if (!user || !user.id) {
+               const currentUser = authStorage.getUser();
+               if (!currentUser || !currentUser.id) {
                     console.error("No user found");
                     return;
                }
 
                // Fetch all campaigns for this company
-               const campaignsResponse = await campaignsAPI.getByCompany(user.id);
+               const campaignsResponse = await campaignsAPI.getByCompany(currentUser.id);
                
                if (campaignsResponse.data && !campaignsResponse.error) {
                     const campaignsData = (campaignsResponse.data as { data: Campaign[] }).data;
@@ -151,6 +156,11 @@ export default function CompanyApplicationsPage() {
           } finally {
                setUpdatingStatus(null);
           }
+     };
+
+     const handleMessageInfluencer = (influencerId: string) => {
+          if (!user) return;
+          startConversation(user.id, user.role, influencerId, "influencer", router);
      };
 
      const toggleCampaign = (campaignId: string) => {
@@ -472,6 +482,7 @@ export default function CompanyApplicationsPage() {
                                                                                                                                   variant="outline"
                                                                                                                                   className="flex-1"
                                                                                                                                   size="sm"
+                                                                                                                                  onClick={() => handleMessageInfluencer(application.influencer._id)}
                                                                                                                              >
                                                                                                                                   <MessageSquare className="mr-1 h-4 w-4" />
                                                                                                                                   Message

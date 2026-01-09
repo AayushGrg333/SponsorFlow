@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,8 @@ import {
 } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { influencerAPI } from "@/lib/api"
+import { authStorage } from "@/lib/authHelper"
+import { startConversation } from "@/lib/conversationHelper"
 import Link from "next/link"
 
 interface Influencer {
@@ -58,6 +61,8 @@ const platformIcons = {
 }
 
 export default function DiscoverInfluencers() {
+  const router = useRouter()
+  const [user, setUser] = useState<any>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [savedInfluencers, setSavedInfluencers] = useState<string[]>([])
@@ -67,6 +72,8 @@ export default function DiscoverInfluencers() {
   const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
+    const storedUser = authStorage.getUser()
+    setUser(storedUser)
     loadInfluencers()
   }, [currentPage, selectedCategory, searchQuery])
 
@@ -103,6 +110,11 @@ export default function DiscoverInfluencers() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleMessageInfluencer = (influencerId: string) => {
+    if (!user) return
+    startConversation(user.id, user.role, influencerId, "influencer", router)
   }
 
   const toggleSave = (id: string) => {
@@ -313,7 +325,11 @@ export default function DiscoverInfluencers() {
                             View Profile
                           </Link>
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleMessageInfluencer(influencer._id)}
+                        >
                           <MessageSquare className="h-4 w-4" />
                         </Button>
                         {influencer.socialMediaProfileLinks.length > 0 && (

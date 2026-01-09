@@ -5,14 +5,16 @@ import { useParams, useRouter } from "next/navigation"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calendar, DollarSign, Loader2, Check, X, User, Briefcase } from "lucide-react"
+import { ArrowLeft, Calendar, DollarSign, Loader2, Check, X, User, Briefcase, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { applicationsAPI } from "@/lib/api"
 import { authStorage } from "@/lib/authHelper"
+import { startConversation } from "@/lib/conversationHelper"
 
 interface Application {
   _id: string
   influencer?: {
+    _id: string
     username: string
     displayName: string
     email: string
@@ -30,6 +32,7 @@ interface Application {
     endDate: string
   }
   company?: {
+    _id: string
     companyName: string
     email: string
   }
@@ -115,6 +118,30 @@ export default function ApplicationDetailPage() {
     } finally {
       setUpdating(false)
     }
+  }
+
+  const handleMessageInfluencer = () => {
+    if (!user || !application?.influencer) return
+    
+    startConversation(
+      user.id,
+      user.role,
+      application.influencer._id,
+      "influencer",
+      router
+    )
+  }
+
+  const handleMessageCompany = () => {
+    if (!user || !application?.company) return
+    
+    startConversation(
+      user.id,
+      user.role,
+      application.company._id,
+      "company",
+      router
+    )
   }
 
   const formatDate = (dateString: string) => {
@@ -223,7 +250,13 @@ export default function ApplicationDetailPage() {
               {/* Influencer Details (for company) */}
               {isCompany && application.influencer && (
                 <div className="glass-card rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Influencer Details</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-foreground">Influencer Details</h3>
+                    <Button onClick={handleMessageInfluencer} size="sm">
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Message
+                    </Button>
+                  </div>
                   
                   <div className="space-y-4">
                     <div>
@@ -260,7 +293,13 @@ export default function ApplicationDetailPage() {
               {/* Company Details (for influencer) */}
               {isInfluencer && application.company && (
                 <div className="glass-card rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Company Details</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-foreground">Company Details</h3>
+                    <Button onClick={handleMessageCompany} size="sm">
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Message
+                    </Button>
+                  </div>
                   
                   <div className="space-y-4">
                     <div>

@@ -16,13 +16,17 @@ router.get("/conversations", verifyToken, async (req: Request, res: Response) =>
     const userId = (req as any).user.id; // From your auth middleware
     const userType = (req as any).user.usertype; // "influencer" or "company"
 
+
+    console.log("🔍 Looking for conversations for:", userId, userType);
+        const userObjectId = new mongoose.Types.ObjectId(userId);
     // Find all conversations where user is a participant
     const conversations = await ConversationModel.find({
       participants: {
-        $elemMatch: { id: userId, model: userType },
+        $elemMatch: { id: userObjectId, model: userType },
       },
     }).lean();
 
+    console.log("💬 Found conversations:", conversations.length);
     // For each conversation, get the last message and unread count
     const conversationsWithDetails = await Promise.all(
       conversations.map(async (conv) => {

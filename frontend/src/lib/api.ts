@@ -21,6 +21,7 @@ async function fetchAPI<T>(
 
           const headers: HeadersInit = {
                "Content-Type": "application/json",
+               
                ...(token && { Authorization: `Bearer ${token}` }),
                ...options.headers,
           };
@@ -591,4 +592,17 @@ export const messagesAPI = {
                method: "PATCH",
           });
      },
+};
+
+// user public proifiles
+
+export const userAPI = {
+  // Get public profile for any user (influencer or company)
+  getInfluencerPublic: async (influencerId: string) => {
+    return fetchAPI(`/influencer/profile/${influencerId}/public`);
+  },
+  
+  getCompanyPublic: async (companyId: string) => {
+    return fetchAPI(`/company/profile/${companyId}/public`);
+  },
 };
