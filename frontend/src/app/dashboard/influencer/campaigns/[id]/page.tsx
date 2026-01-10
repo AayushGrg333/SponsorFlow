@@ -10,11 +10,10 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calendar, DollarSign, Loader2, Send, Building2, MessageSquare } from "lucide-react"
+import { ArrowLeft, Calendar, DollarSign, Loader2, Send, Building2 } from "lucide-react"
 import Link from "next/link"
 import { campaignsAPI, applicationsAPI } from "@/lib/api"
 import { authStorage } from "@/lib/authHelper"
-import { startConversation } from "@/lib/conversationHelper"
 
 interface Campaign {
   _id: string
@@ -56,8 +55,7 @@ export default function CampaignDetailPage() {
       
       if (response.data && !response.error) {
         // Try different response structures
-        let campaignData = (response.data as any).data || response.data
-        console.log('Extracted campaign data:', campaignData)
+        const campaignData = (response.data as any).data || response.data
         
         if (campaignData) {
           setCampaign(campaignData as Campaign)
