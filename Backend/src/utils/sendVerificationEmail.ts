@@ -93,7 +93,7 @@ const sendVerificationEmail = async (
             message: "Verification email sent successfully",
         };
     } catch (error: any) {
-        console.error("Error sending email:", error.message || error);
+        console.error("Error sending email:", error.message || error)
         return {
             success: false,
             message: "Failed to send verification email",
