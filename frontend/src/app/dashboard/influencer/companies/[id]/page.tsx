@@ -4,6 +4,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +12,7 @@ import { ArrowLeft, Loader2, MapPin, Calendar, Building2, Package, Globe, Instag
 import Link from "next/link"
 import { companyAPI, campaignsAPI } from "@/lib/api"
 import { authStorage } from "@/lib/authHelper"
+import { startConversation } from "@/lib/conversationHelper"
 import { useParams } from "next/navigation"
 
 const platformIcons = {
@@ -38,7 +40,8 @@ interface CompanyProfile {
 }
 
 export default function CompanyPublicProfile() {
-const params = useParams<{ id: string }>()
+  const router = useRouter()
+  const params = useParams<{ id: string }>()
   const [profile, setProfile] = useState<CompanyProfile | null>(null)
   const [campaigns, setCampaigns] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -80,6 +83,21 @@ const params = useParams<{ id: string }>()
     } catch (error) {
       console.error('Error loading campaigns:', error)
     }
+  }
+
+  const handleMessageCompany = () => {
+    if (!user || !profile) {
+      console.error('Missing user or profile data')
+      return
+    }
+    
+    if (!profile._id) {
+      console.error('Profile ID is missing')
+      return
+    }
+    
+    console.log('Starting conversation with company:', profile._id)
+    startConversation(user.id, user.role, profile._id, "company", router)
   }
 
   const getPlatformIcon = (platform: string) => {
@@ -172,9 +190,9 @@ const params = useParams<{ id: string }>()
               {/* Action Buttons */}
               {user?.role === "influencer" && (
                 <div className="mt-6 space-y-2">
-                  <Button className="w-full">
+                  <Button className="w-full" onClick={handleMessageCompany}>
                     <MessageSquare className="mr-2 h-4 w-4" />
-                    Contact
+                    Contact Company
                   </Button>
                 </div>
               )}

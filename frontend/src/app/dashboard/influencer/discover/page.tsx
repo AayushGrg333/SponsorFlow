@@ -4,14 +4,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Filter, Building2, MapPin, ExternalLink, Heart, Calendar } from "lucide-react"
+import { Search, Filter, Building2, MapPin, ExternalLink, Heart, Calendar, MessageSquare } from "lucide-react"
 import { companyAPI } from "@/lib/api"
+import { authStorage } from "@/lib/authHelper"
+import { startConversation } from "@/lib/conversationHelper"
 import Link from "next/link"
 
 interface Company {
@@ -51,6 +54,8 @@ const categories = [
 ]
 
 export default function DiscoverCompanies() {
+  const router = useRouter()
+  const [user, setUser] = useState<any>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [savedCompanies, setSavedCompanies] = useState<string[]>([])
@@ -60,6 +65,8 @@ export default function DiscoverCompanies() {
   const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
+    const storedUser = authStorage.getUser()
+    setUser(storedUser)
     loadCompanies()
   }, [currentPage, selectedCategory, searchQuery])
 
@@ -96,6 +103,11 @@ export default function DiscoverCompanies() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleMessageCompany = (companyId: string) => {
+    if (!user) return
+    startConversation(user.id, user.role, companyId, "company", router)
   }
 
   const toggleSave = (id: string) => {
@@ -224,6 +236,13 @@ export default function DiscoverCompanies() {
                           <Link href={`/dashboard/influencer/companies/${company._id}`}>
                             View Profile
                           </Link>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleMessageCompany(company._id)}
+                        >
+                          <MessageSquare className="h-4 w-4" />
                         </Button>
                         {company.socialLinks.find(s => s.platform === 'website') && (
                           <Button variant="outline" size="sm" asChild>

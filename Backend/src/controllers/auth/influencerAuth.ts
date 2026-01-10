@@ -172,7 +172,7 @@ export const influencerCallbackController: RequestHandler = asyncWrapper(
                maxAge: 30 * 24 * 60 * 60 * 1000,
           });
 
-          const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}`;
+          const redirectUrl = `https://sponsorflow-eta.vercel.app/auth/callback?token=${accessToken}`;
           
           
           return res.redirect(redirectUrl);

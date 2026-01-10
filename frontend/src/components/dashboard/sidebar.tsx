@@ -181,13 +181,6 @@ export function Sidebar({ userType }: SidebarProps) {
 
                {/* Settings & Logout */}
                <div className="border-t border-border p-4">
-                    <Link
-                         href={`/dashboard/${userType}/settings`}
-                         className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                    >
-                         <Settings className="h-5 w-5" />
-                         Settings
-                    </Link>
                     <button
                          onClick={handleLogout}
                          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"

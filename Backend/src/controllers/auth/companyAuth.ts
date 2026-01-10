@@ -160,7 +160,7 @@ export const CompanyCallbackController: RequestHandler = asyncWrapper(
                });
 
                // ✅ Always redirect to callback page first
-               const redirectUrl = `http://localhost:3000/auth/callback?token=${accessToken}`;
+               const redirectUrl = `https://sponsorflow-eta.vercel.app/auth/callback?token=${accessToken}`;
                return res.redirect(redirectUrl);
           }
      }

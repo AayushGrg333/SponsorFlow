@@ -61,7 +61,6 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
               <span className="text-xs text-muted-foreground">FitnessPro sent you a message</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-center text-primary">View all notifications</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -72,14 +71,7 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
               <img src="/placeholder.svg?key=qv4ib" alt="User" className="h-8 w-8 rounded-full object-cover" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Log out</DropdownMenuItem>
-          </DropdownMenuContent>
+
         </DropdownMenu>
       </div>
     </header>

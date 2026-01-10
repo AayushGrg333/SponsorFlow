@@ -23,7 +23,7 @@ const server = http.createServer(app);
 
 // CORS configuration
 const corsOptions = {
-  origin: ["http://localhost:3000", "http://localhost:3001"], // Add your frontend URLs
+  origin: ["http://localhost:3000", "http://localhost:3001", "https://sponsorflow-eta.vercel.app"], 
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -36,7 +36,7 @@ app.use(cors(corsOptions));
 // Socket.io with CORS
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["http://localhost:3000", "http://localhost:3001","https://sponsorflow-eta.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,

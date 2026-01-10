@@ -4,21 +4,21 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter,useParams } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calendar, DollarSign, Loader2, Send, Building2 } from "lucide-react"
+import { ArrowLeft, Calendar, DollarSign, Loader2, Send, Building2, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { campaignsAPI, applicationsAPI } from "@/lib/api"
 import { authStorage } from "@/lib/authHelper"
-
+import { startConversation } from "@/lib/conversationHelper"
 
 interface Campaign {
   _id: string
-  company: string
+  company?: string  // Made optional since guests don't get this field
   title: string
   description: string
   budget?: number
@@ -29,6 +29,7 @@ interface Campaign {
   status: string
   createdAt: string
 }
+
 export default function CampaignDetailPage() {
   const params = useParams<{ id: string }>()
   const campaignId = params.id
@@ -51,10 +52,18 @@ export default function CampaignDetailPage() {
     try {
       setLoading(true)
       const response = await campaignsAPI.get(campaignId)
-      console.log('Application response:', response)
+      console.log('Full campaign response:', response)
       
       if (response.data && !response.error) {
-        setCampaign((response.data as { data: Campaign }).data)
+        // Try different response structures
+        let campaignData = (response.data as any).data || response.data
+        console.log('Extracted campaign data:', campaignData)
+        
+        if (campaignData) {
+          setCampaign(campaignData as Campaign)
+        } else {
+          setError("Invalid campaign data structure")
+        }
       } else {
         setError(response.error || "Campaign not found")
       }
@@ -89,6 +98,8 @@ export default function CampaignDetailPage() {
       setApplying(false)
     }
   }
+
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -177,10 +188,13 @@ export default function CampaignDetailPage() {
               {/* Application Form */}
               {user?.role === "influencer" && !showApplication && (
                 <div className="glass-card rounded-xl p-6">
-                  <Button onClick={() => setShowApplication(true)} className="w-full">
-                    <Send className="mr-2 h-4 w-4" />
-                    Apply to this Campaign
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => setShowApplication(true)} className="flex-1">
+                      <Send className="mr-2 h-4 w-4" />
+                      Apply to this Campaign
+                    </Button>
+
+                  </div>
                 </div>
               )}
 

@@ -63,7 +63,7 @@ const sendVerificationEmail = async (
                                             <table cellspacing="0" cellpadding="0" style="margin: auto;">
                                                 <tr>
                                                     <td align="center" style="background-color: #345C72; padding: 10px 20px; border-radius: 5px;">
-                                                        <a href="http://localhost:3000/signup/verify/${usertype}/${username}" target="_blank" style="color: #ffffff; text-decoration: none; font-weight: bold;">Verify Here</a>
+                                                        <a href="http://sponsorflow-eta.vercel.app/signup/verify/${usertype}/${username}" target="_blank" style="color: #ffffff; text-decoration: none; font-weight: bold;">Verify Here</a>
                                                     </td>
                                                 </tr>
                                             </table>
